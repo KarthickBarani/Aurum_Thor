@@ -8,10 +8,6 @@ import { zoomPlugin } from '@react-pdf-viewer/zoom';
 import '@react-pdf-viewer/zoom/lib/styles/index.css';
 
 
-
-
-
-
 export const PdfViewer = (props: {
     pdfUrl: any
 }) => {
