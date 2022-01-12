@@ -43,6 +43,7 @@ type invDetailsType = {
     CustomerName: null | string,
     CustomerId: null | string,
     VendorId: null | string,
+    VendorCode: string | number
     VendorName: null | string,
     VendorAddress: null | string,
     VendorAddressRecipient: null | string,
@@ -80,18 +81,6 @@ export const InvoiceDetail = (props: {
     const [listItems, setListItems] = useState<lineItemsType>([] as lineItemsType)
     const [expenses, setExpenses] = useState<expensesType>([] as expensesType)
 
-    // useEffect(() => {
-    //     axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/invoice/details/${props.data}`).then(res => {
-    //         setloading(false)
-    //         setInvDetails(res.data)
-    //         setListItems(res.data.LineItems)
-    //         setExpenses(res.data.Expenses)
-    //     }).catch(err => {
-    //         setloading(false)
-    //         setError(true)
-    //         console.log(err)
-    //     })
-    // }, [props.data])
 
     const onSuccess = () => {
         setInvDetails(data?.data)
@@ -100,13 +89,15 @@ export const InvoiceDetail = (props: {
     }
 
     const fetchInvDetails = () => {
-        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/invoice/details/${props.data}`)
+        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/invoice/details/${props.data}`,)
     }
 
-    const { isLoading, data, isError } = useQuery('invDetails', fetchInvDetails, {
+    const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
         refetchOnWindowFocus: false,
         onSuccess
     })
+
+
 
     useEffect(() => {
         setInvDetails(data?.data)
@@ -193,7 +184,7 @@ export const InvoiceDetail = (props: {
 
                                             <div className="tab-content h-100">
                                                 <div className="tab-pane fade h-100" id="itemsTab" role="tabpanel">
-                                                    {isLoading ? <Loading /> : isError ? <Error /> : <ListItemsComp listItems={listItems} setListItems={setListItems} />}
+                                                    {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} /> : null}
                                                 </div>
                                                 <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
                                                     {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} />}

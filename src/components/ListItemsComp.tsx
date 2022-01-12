@@ -25,6 +25,7 @@ export const ListItemsComp = (props: {
 
 }) => {
 
+
     const isAllCheck = () => {
         let newArr = [...props?.listItems]
         for (let val of newArr) {
@@ -48,6 +49,8 @@ export const ListItemsComp = (props: {
 
     const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
     const poSubtotal: number = props.listItems?.reduce(reducer, 0)
+
+
 
     const onCheck = (e, index) => {
         let newArr = [...props?.listItems]
@@ -94,20 +97,26 @@ export const ListItemsComp = (props: {
 
     const deleteListItems = () => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            title: 'Are you sure delete?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
+            let newarr = [...props.listItems]
             if (result.isConfirmed) {
-                let newArr = props.listItems.filter(arr => arr.isCheck === false)
-                props.setListItems(newArr)
+                for (let val of newarr) {
+                    if (!val.isCheck)
+                        val.isCheck = false
+                }
+                console.log(newarr)
+                let delarr = newarr.filter(arr => (arr.isCheck === false))
+                console.log(delarr)
+                props.setListItems(delarr)
                 setAnyOne(false)
                 setAllCheck(false)
-                console.log('Delete :', newArr)
+                console.log('Delete :', delarr)
                 Swal.fire(
                     {
                         title: 'Deleted',
@@ -178,7 +187,7 @@ export const ListItemsComp = (props: {
                             props.listItems?.map((listItem, index) => {
 
                                 return (
-                                    <tr key={listItem.LineItemId} >
+                                    <tr key={listItem.LineItemId} className={listItem.isCheck ? "table-active" : ''} >
                                         <td><input type='checkbox' className="form-check form-check-sm" onChange={(e) => onCheck(e, index)} checked={listItem.isCheck} /></td>
                                         <td onDoubleClick={() => {
                                             setToggle(true)

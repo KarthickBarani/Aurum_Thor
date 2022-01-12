@@ -2,8 +2,10 @@
 import { useState } from "react"
 import Swal from 'sweetalert2'
 
+
+
 type expensesType = {
-    ExpenseId: number,
+    ExpenseId: number | string,
     InvoiceId: number,
     Amount: number,
     Memo: null | string,
@@ -34,12 +36,29 @@ export const ExpensesComp = (props: {
     }
 
     const [toggle, setToggle] = useState<boolean>(false)
-    const [current, setCurrent] = useState<number>(0)
+    const [current, setCurrent] = useState<number | string>(0)
     const [allCheck, setAllCheck] = useState<boolean>(false)
     const [anyOne, setAnyOne] = useState<boolean>(false)
 
     const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
     const exSubtotal: number = props.expenses?.reduce(reducer, 0)
+
+
+    const CopyList = () => {
+        let newarr = [...props.expenses]
+        let selArr = newarr.filter(arr => arr.isCheck !== false || undefined)
+        for (let key in selArr)
+            newarr.push({
+                ExpenseId: Date.now() + key,
+                InvoiceId: 0,
+                Amount: selArr[key].Amount,
+                Memo: '',
+                AddedDateTime: '',
+                isCheck: false
+            })
+        props.setExpenses(newarr)
+        console.log(newarr)
+    }
 
     const onCheck = (e, index) => {
         let newArr = [...props?.expenses]
@@ -47,7 +66,6 @@ export const ExpensesComp = (props: {
         props.setExpenses(newArr)
         setAllCheck(isAllCheck)
         setAnyOne(isAnyOneCheck)
-        console.log(newArr)
         console.log('anyone:', isAnyOneCheck(), 'all', isAllCheck())
     }
 
@@ -59,7 +77,6 @@ export const ExpensesComp = (props: {
         props.setExpenses(newArr)
         setAllCheck(e.target.checked)
         setAnyOne(isAnyOneCheck)
-        console.log(props.expenses)
     }
 
     const addExpenses = () => {
@@ -78,20 +95,26 @@ export const ExpensesComp = (props: {
 
     const deleteExpenses = () => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            title: 'Are you sure delete?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
+            let newarr = [...props.expenses]
             if (result.isConfirmed) {
-                let newArr = props.expenses.filter(arr => arr.isCheck === false)
-                props.setExpenses(newArr)
+                for (let val of newarr) {
+                    if (!val.isCheck)
+                        val.isCheck = false
+                }
+                console.log(newarr)
+                let delarr = newarr.filter(arr => (arr.isCheck === false))
+                console.log(delarr)
+                props.setExpenses(delarr)
                 setAnyOne(false)
                 setAllCheck(false)
-                console.log('Delete :', newArr)
+                console.log('Delete :', delarr)
                 Swal.fire(
                     {
                         title: 'Deleted',
@@ -110,7 +133,7 @@ export const ExpensesComp = (props: {
                 {
                     anyOne ?
                         <>
-                            <button title="Copy" className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
+                            <button title="Copy" onClick={CopyList} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
                                 <span className="svg-icon svg-icon-3 svg-icon-primary"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                     viewBox="0 0 24 24" fill="none">

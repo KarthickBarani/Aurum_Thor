@@ -1,24 +1,78 @@
 
+import axios from "axios"
 import { useFormik } from "formik"
+import { useEffect, useState } from "react"
 
+// type invDetailsType = {
+//     InvoiceId: number,
+//     CustomerName: null | string,
+//     CustomerId: null | string,
+//     VendorId: null | string,
+//     VendorCode: string | number
+//     VendorName: null | string,
+//     VendorAddress: null | string,
+//     VendorAddressRecipient: null | string,
+//     InvoiceNumber: null | string,
+//     CustomerAddress: null | string,
+//     CustomerAddressRecipient: null | string,
+//     ShippingAddress: null | string,
+//     ShippingAddressRecipient: null | string,
+//     BillingAddress: null | string,
+//     BillingAddressRecipient: null | string,
+//     RemittanceAddress: null | string,
+//     RemittanceAddressRecipient: null | string,
+//     PurchaseNumber: null | string,
+//     DueDate: null | string,
+//     InvoiceDate: null | string,
+//     TotalAmount: number,
+//     TaxTotal: number,
+//     LineItems: [] | lineItemsType,
+//     Expenses: [] | expensesType,
+//     AmountDue: number,
+//     LastModifiedDateTime: null | string,
+//     TransactionDate: null | string,
+//     ReceivedDate: null | string
+// }
 
+type vendor = {
+    VendorId: number,
+    VendorCode: string | number,
+    VendorName: string
+}[]
+type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
+type location = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
 
 export const Form = (props: {
     invDetails: any
 }) => {
+    const [vendors, setVendor] = useState<vendor>([])
+    const [departments, setDepartments] = useState<departments>([])
+    const [locations, setLocation] = useState<location>([])
+    useEffect(() => {
+        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor').then(res => {
+            setVendor(res.data)
+        }).catch(err => console.log(err))
+        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Departments').then(res => {
+            setDepartments(res.data)
+        }).catch(err => console.log(err))
+        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Locations').then(res => {
+            setLocation(res.data)
+        }).catch(err => console.log(err))
+    }, [])
+    console.log()
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            vendorName: props.invDetails?.VendorName,
-            vendorId: props.invDetails?.VendorId,
+            vendorName: vendors,
+            vendorId: props.invDetails?.VendorCode,
             remitTo: props.invDetails?.CustomerName,
             vendorAddress: props.invDetails?.VendorAddress,
             subsidiary: '',
             address: props.invDetails?.RemittanceAddress,
-            department: '',
+            department: departments,
             poNo: props.invDetails?.PurchaseNumber,
-            location: '',
+            location: locations,
             invoiceNumber: props.invDetails?.InvoiceNumber,
             invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
             postingPeriod: '',
@@ -52,7 +106,11 @@ export const Form = (props: {
                                 Name</label>
                             <div className="input-group input-group-solid">
                                 <select id="vendorName" name="vendorName" className={formSelect} onChange={formik.handleChange}  >
-                                    <option>{formik.values.vendorName} </option>
+                                    {formik.values.vendorName.map(vendor => {
+                                        return (
+                                            <option>{vendor.VendorName}</option>
+                                        )
+                                    })}
                                 </select>
                                 <button className='btn btn-secondary btn-sm' ><span className="svg-icon svg-icon-muted svg-icon-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                     <path d="M21.7 18.9L18.6 15.8C17.9 16.9 16.9 17.9 15.8 18.6L18.9 21.7C19.3 22.1 19.9 22.1 20.3 21.7L21.7 20.3C22.1 19.9 22.1 19.3 21.7 18.9Z" fill="black" />
@@ -103,7 +161,12 @@ export const Form = (props: {
                             <label htmlFor="department" className={formLabel}>
                                 Department</label>
                             <select id="department" name="department" className={formSelect} onChange={formik.handleChange}>
-                                <option>{formik.values.department}</option>
+                                {formik.values.department.map(dept => {
+                                    return (
+                                        <option>{dept.DepartmentName}</option>
+                                    )
+                                }
+                                )}
                             </select>
                         </div>
                     </div>
@@ -128,8 +191,13 @@ export const Form = (props: {
                         <div>
                             <label htmlFor="location" className={formLabel}>
                                 Location</label>
-                            <select id="location" name="location" className={formSelect} onChange={formik.handleChange} value={formik.values.location}>
-                                <option>{ }</option>
+                            <select id="location" name="location" className={formSelect} onChange={formik.handleChange} >
+                                {formik.values.location.map(location => {
+                                    return (
+                                        <option>{location.Location}</option>
+                                    )
+                                }
+                                )}
                             </select>
                         </div>
                     </div>
