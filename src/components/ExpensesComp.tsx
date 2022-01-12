@@ -19,31 +19,6 @@ export const ExpensesComp = (props: {
     setExpenses: Function
 }) => {
 
-    const isAllCheck = () => {
-        let newArr = [...props?.expenses]
-        for (let val of newArr) {
-            if (val.isCheck === undefined) return false
-            if (val.isCheck === false) return false
-        }
-        return true
-    }
-
-    const isAnyOneCheck = () => {
-        let newArr = [...props?.expenses]
-        for (let val of newArr)
-            if (val.isCheck !== false) return true
-        return false
-    }
-
-    const [toggle, setToggle] = useState<boolean>(false)
-    const [current, setCurrent] = useState<number | string>(0)
-    const [allCheck, setAllCheck] = useState<boolean>(false)
-    const [anyOne, setAnyOne] = useState<boolean>(false)
-
-    const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
-    const exSubtotal: number = props.expenses?.reduce(reducer, 0)
-
-
     const CopyList = () => {
         let newarr = [...props.expenses]
         let selArr = newarr.filter(arr => arr.isCheck !== false || undefined)
@@ -60,23 +35,59 @@ export const ExpensesComp = (props: {
         console.log(newarr)
     }
 
+    const [toggle, setToggle] = useState<boolean>(false)
+    const [current, setCurrent] = useState<number | string>(0)
+    const [allCheck, setAllCheck] = useState<boolean>(false)
+    const [anyOne, setAnyOne] = useState<boolean>(false)
+
+    const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
+    const exSubtotal: number = props.expenses?.reduce(reducer, 0)
+
+    const set = (arr) => {
+        for (let val of arr) {
+            if (!val.isCheck)
+                val.isCheck = false
+        }
+    }
+
+    const isAllCheck = () => {
+        let newArr = [...props?.expenses]
+        set(newArr)
+        for (let val of newArr) {
+            if (val.isCheck === undefined) return false
+            if (val.isCheck === false) return false
+        }
+        return true
+    }
+
+    const isAnyOneCheck = () => {
+        let newArr = [...props?.expenses]
+        set(newArr)
+        for (let val of newArr)
+            if (val.isCheck !== false) return true
+        return false
+    }
+
     const onCheck = (e, index) => {
         let newArr = [...props?.expenses]
+        set(newArr)
         newArr[index].isCheck = e.target.checked
         props.setExpenses(newArr)
         setAllCheck(isAllCheck)
         setAnyOne(isAnyOneCheck)
-        console.log('anyone:', isAnyOneCheck(), 'all', isAllCheck())
+        console.log(newArr)
+        console.log('anyone:', anyOne, 'all', allCheck)
     }
 
     const onAllCheck = (e) => {
         let newArr = [...props?.expenses]
-        for (let val of newArr) {
-            val.isCheck = e.target.checked
-        }
-        props.setExpenses(newArr)
+        set(newArr)
         setAllCheck(e.target.checked)
+        for (let val of newArr)
+            val.isCheck = e.target.checked
         setAnyOne(isAnyOneCheck)
+        props.setExpenses(newArr)
+        console.log(props.expenses)
     }
 
     const addExpenses = () => {
@@ -102,18 +113,13 @@ export const ExpensesComp = (props: {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
-            let newarr = [...props.expenses]
+            let newarr = [...props?.expenses]
             if (result.isConfirmed) {
-                for (let val of newarr) {
-                    if (!val.isCheck)
-                        val.isCheck = false
-                }
+                set(newarr)
                 console.log(newarr)
                 let delarr = newarr.filter(arr => (arr.isCheck === false))
                 console.log(delarr)
                 props.setExpenses(delarr)
-                setAnyOne(false)
-                setAllCheck(false)
                 console.log('Delete :', delarr)
                 Swal.fire(
                     {
@@ -188,13 +194,14 @@ export const ExpensesComp = (props: {
                             <th>Account</th>
                             <th>Amount</th>
                             <th>Memo</th>
+                            <th>Department</th>
                             <th>Location</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white" >
                         {props.expenses?.map((expense, index) => {
                             return (
-                                <tr key={expense.ExpenseId}>
+                                <tr key={expense.ExpenseId} className={expense.isCheck ? "table-active" : ''} >
                                     <td><input type='checkbox' className="form-check form-check-sm" onChange={(e) => onCheck(e, index)} checked={expense.isCheck} /></td>
                                     <td></td>
                                     <td onDoubleClick={
@@ -214,7 +221,24 @@ export const ExpensesComp = (props: {
                                                 }} />
                                                 : `$ ${expense.Amount.toFixed(2)}`
                                         }</td>
-                                    <td>{expense.Memo}</td>
+                                    <td onDoubleClick={
+                                        () => {
+                                            setToggle(true)
+                                            setCurrent(expense.ExpenseId)
+                                        }
+                                    }>{
+                                            toggle && current === expense.ExpenseId ?
+                                                <input type="text" value={expense.Memo?.toString()} onBlur={() => {
+                                                    setToggle(false)
+                                                    setCurrent(0)
+                                                }} onChange={e => {
+                                                    let newarry = [...props.expenses]
+                                                    newarry[index].Memo = e.target.value
+                                                    props.setExpenses(newarry)
+                                                }} />
+                                                : `$ ${expense.Memo}`
+                                        }</td>
+                                    <td></td>
                                     <td></td>
                                 </tr>
                             )

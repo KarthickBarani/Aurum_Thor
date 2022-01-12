@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import Swal from "sweetalert2"
 
@@ -26,8 +25,24 @@ export const ListItemsComp = (props: {
 }) => {
 
 
+    const [toggle, setToggle] = useState<boolean>(false)
+    const [current, setCurrent] = useState<number>(0)
+    const [allCheck, setAllCheck] = useState<boolean>(false)
+    const [anyOne, setAnyOne] = useState<boolean>(false)
+
+    const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
+    const poSubtotal: number = props.listItems?.reduce(reducer, 0)
+
+    const set = (arr) => {
+        for (let val of arr) {
+            if (!val.isCheck)
+                val.isCheck = false
+        }
+    }
+
     const isAllCheck = () => {
         let newArr = [...props?.listItems]
+        set(newArr)
         for (let val of newArr) {
             if (val.isCheck === undefined) return false
             if (val.isCheck === false) return false
@@ -37,39 +52,31 @@ export const ListItemsComp = (props: {
 
     const isAnyOneCheck = () => {
         let newArr = [...props?.listItems]
+        set(newArr)
         for (let val of newArr)
             if (val.isCheck !== false) return true
         return false
     }
 
-    const [toggle, setToggle] = useState<boolean>(false)
-    const [current, setCurrent] = useState<number>(0)
-    const [allCheck, setAllCheck] = useState<boolean>(false)
-    const [anyOne, setAnyOne] = useState<boolean>(false)
-
-    const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
-    const poSubtotal: number = props.listItems?.reduce(reducer, 0)
-
-
-
     const onCheck = (e, index) => {
         let newArr = [...props?.listItems]
+        set(newArr)
         newArr[index].isCheck = e.target.checked
         props.setListItems(newArr)
         setAllCheck(isAllCheck)
         setAnyOne(isAnyOneCheck)
         console.log(newArr)
-        console.log('anyone:', isAnyOneCheck(), 'all', isAllCheck())
+        console.log('anyone:', anyOne, 'all', allCheck)
     }
 
     const onAllCheck = (e) => {
         let newArr = [...props?.listItems]
-        for (let val of newArr) {
-            val.isCheck = e.target.checked
-        }
-        props.setListItems(newArr)
+        set(newArr)
         setAllCheck(e.target.checked)
+        for (let val of newArr)
+            val.isCheck = e.target.checked
         setAnyOne(isAnyOneCheck)
+        props.setListItems(newArr)
         console.log(props.listItems)
     }
 
@@ -106,16 +113,11 @@ export const ListItemsComp = (props: {
         }).then((result) => {
             let newarr = [...props.listItems]
             if (result.isConfirmed) {
-                for (let val of newarr) {
-                    if (!val.isCheck)
-                        val.isCheck = false
-                }
+                set(newarr)
                 console.log(newarr)
                 let delarr = newarr.filter(arr => (arr.isCheck === false))
                 console.log(delarr)
                 props.setListItems(delarr)
-                setAnyOne(false)
-                setAllCheck(false)
                 console.log('Delete :', delarr)
                 Swal.fire(
                     {
@@ -183,9 +185,7 @@ export const ListItemsComp = (props: {
                     </thead>
                     <tbody className="bg-white">
                         {
-
                             props.listItems?.map((listItem, index) => {
-
                                 return (
                                     <tr key={listItem.LineItemId} className={listItem.isCheck ? "table-active" : ''} >
                                         <td><input type='checkbox' className="form-check form-check-sm" onChange={(e) => onCheck(e, index)} checked={listItem.isCheck} /></td>
