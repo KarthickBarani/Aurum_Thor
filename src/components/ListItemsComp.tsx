@@ -118,6 +118,8 @@ export const ListItemsComp = (props: {
                 let delarr = newarr.filter(arr => (arr.isCheck === false))
                 console.log(delarr)
                 props.setListItems(delarr)
+                setAllCheck(false)
+                setAnyOne(false)
                 console.log('Delete :', delarr)
                 Swal.fire(
                     {

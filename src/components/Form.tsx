@@ -106,9 +106,9 @@ export const Form = (props: {
                                 Name</label>
                             <div className="input-group input-group-solid">
                                 <select id="vendorName" name="vendorName" className={formSelect} onChange={formik.handleChange}  >
-                                    {formik.values.vendorName.map(vendor => {
+                                    {formik.values?.vendorName?.map((vendor, index) => {
                                         return (
-                                            <option>{vendor.VendorName}</option>
+                                            <option key={vendor.VendorId} value={index} >{vendor.VendorName}</option>
                                         )
                                     })}
                                 </select>
@@ -163,7 +163,7 @@ export const Form = (props: {
                             <select id="department" name="department" className={formSelect} onChange={formik.handleChange}>
                                 {formik.values.department.map(dept => {
                                     return (
-                                        <option>{dept.DepartmentName}</option>
+                                        <option key={dept.DepartmentId} >{dept.DepartmentName}</option>
                                     )
                                 }
                                 )}
@@ -194,7 +194,7 @@ export const Form = (props: {
                             <select id="location" name="location" className={formSelect} onChange={formik.handleChange} >
                                 {formik.values.location.map(location => {
                                     return (
-                                        <option>{location.Location}</option>
+                                        <option key={location.LocationId} >{location.Location}</option>
                                     )
                                 }
                                 )}

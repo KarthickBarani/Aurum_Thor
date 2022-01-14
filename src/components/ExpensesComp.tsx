@@ -32,6 +32,8 @@ export const ExpensesComp = (props: {
                 isCheck: false
             })
         props.setExpenses(newarr)
+        setAllCheck(false)
+        setAnyOne(false)
         console.log(newarr)
     }
 
@@ -120,6 +122,8 @@ export const ExpensesComp = (props: {
                 let delarr = newarr.filter(arr => (arr.isCheck === false))
                 console.log(delarr)
                 props.setExpenses(delarr)
+                setAllCheck(false)
+                setAnyOne(false)
                 console.log('Delete :', delarr)
                 Swal.fire(
                     {
@@ -236,7 +240,7 @@ export const ExpensesComp = (props: {
                                                     newarry[index].Memo = e.target.value
                                                     props.setExpenses(newarry)
                                                 }} />
-                                                : `$ ${expense.Memo}`
+                                                : `${expense.Memo}`
                                         }</td>
                                     <td></td>
                                     <td></td>
