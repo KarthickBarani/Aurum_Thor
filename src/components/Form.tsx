@@ -59,35 +59,37 @@ export const Form = (props: {
             setLocation(res.data)
         }).catch(err => console.log(err))
     }, [])
-    console.log()
+
+
+    const initialValues = {
+        vendorName: props.invDetails?.VendorName,
+        vendorId: props.invDetails?.VendorCode,
+        remitTo: props.invDetails?.CustomerName,
+        vendorAddress: props.invDetails?.VendorAddress,
+        subsidiary: '',
+        address: props.invDetails?.RemittanceAddress,
+        department: '',
+        poNo: props.invDetails?.PurchaseNumber,
+        location: '',
+        invoiceNumber: props.invDetails?.InvoiceNumber,
+        invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
+        postingPeriod: '',
+        dueDate: new Date(props.invDetails?.DueDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.DueDate).toLocaleDateString(),
+        invoiceAmount: props.invDetails?.TotalAmount?.toFixed(2),
+        currency: 'USD',
+        tax: props.invDetails?.TaxTotal?.toFixed(2),
+        exSubtotal: 0?.toFixed(2),
+        poSubtotal: 0?.toFixed(2),
+        memo: '',
+        approver: '',
+    }
+
+    const onSubmit = values => console.log(values)
 
     const formik = useFormik({
         enableReinitialize: true,
-        initialValues: {
-            vendorName: vendors,
-            vendorId: props.invDetails?.VendorCode,
-            remitTo: props.invDetails?.CustomerName,
-            vendorAddress: props.invDetails?.VendorAddress,
-            subsidiary: '',
-            address: props.invDetails?.RemittanceAddress,
-            department: departments,
-            poNo: props.invDetails?.PurchaseNumber,
-            location: locations,
-            invoiceNumber: props.invDetails?.InvoiceNumber,
-            invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
-            postingPeriod: '',
-            dueDate: new Date(props.invDetails?.DueDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.DueDate).toLocaleDateString(),
-            invoiceAmount: props.invDetails?.TotalAmount?.toFixed(2),
-            currency: 'USD',
-            tax: props.invDetails?.TaxTotal?.toFixed(2),
-            exSubtotal: 0?.toFixed(2),
-            poSubtotal: 0?.toFixed(2),
-            memo: '',
-            approver: '',
-        },
-        onSubmit: values => {
-
-        }
+        initialValues,
+        onSubmit
     })
 
 
@@ -95,7 +97,7 @@ export const Form = (props: {
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2'
 
-
+    console.log(formik.values)
     return (
         <form>
             <div className="container-fluid">
@@ -106,11 +108,9 @@ export const Form = (props: {
                                 Name</label>
                             <div className="input-group input-group-solid">
                                 <select id="vendorName" name="vendorName" className={formSelect} onChange={formik.handleChange}  >
-                                    {formik.values?.vendorName?.map((vendor, index) => {
-                                        return (
-                                            <option key={vendor.VendorId} value={index} >{vendor.VendorName}</option>
-                                        )
-                                    })}
+                                    {vendors?.map(vendor => (
+                                        <option key={vendor.VendorId} value={vendor.VendorName} >{vendor.VendorName}</option>
+                                    ))}
                                 </select>
                                 <button className='btn btn-secondary btn-sm' ><span className="svg-icon svg-icon-muted svg-icon-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                     <path d="M21.7 18.9L18.6 15.8C17.9 16.9 16.9 17.9 15.8 18.6L18.9 21.7C19.3 22.1 19.9 22.1 20.3 21.7L21.7 20.3C22.1 19.9 22.1 19.3 21.7 18.9Z" fill="black" />
@@ -161,9 +161,9 @@ export const Form = (props: {
                             <label htmlFor="department" className={formLabel}>
                                 Department</label>
                             <select id="department" name="department" className={formSelect} onChange={formik.handleChange}>
-                                {formik.values.department.map(dept => {
+                                {departments.map(dept => {
                                     return (
-                                        <option key={dept.DepartmentId} >{dept.DepartmentName}</option>
+                                        <option key={dept.DepartmentId} value={dept.DepartmentName} >{dept.DepartmentName}</option>
                                     )
                                 }
                                 )}
@@ -192,9 +192,9 @@ export const Form = (props: {
                             <label htmlFor="location" className={formLabel}>
                                 Location</label>
                             <select id="location" name="location" className={formSelect} onChange={formik.handleChange} >
-                                {formik.values.location.map(location => {
+                                {locations.map(location => {
                                     return (
-                                        <option key={location.LocationId} >{location.Location}</option>
+                                        <option key={location.LocationId} value={location.Location} >{location.Location}</option>
                                     )
                                 }
                                 )}

@@ -147,7 +147,7 @@ export const InvoiceDetail = (props: {
                                 </div>
                             </div>
                             <div className="card-body">
-                                {isLoading ? <Loading /> : isError ? <Error /> : <Form invDetails={invDetails} ></Form>}
+                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} ></Form> : null}
                             </div>
                         </div>
                     </div >
