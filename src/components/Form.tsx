@@ -3,36 +3,62 @@ import axios from "axios"
 import { useFormik } from "formik"
 import { useEffect, useState } from "react"
 
-// type invDetailsType = {
-//     InvoiceId: number,
-//     CustomerName: null | string,
-//     CustomerId: null | string,
-//     VendorId: null | string,
-//     VendorCode: string | number
-//     VendorName: null | string,
-//     VendorAddress: null | string,
-//     VendorAddressRecipient: null | string,
-//     InvoiceNumber: null | string,
-//     CustomerAddress: null | string,
-//     CustomerAddressRecipient: null | string,
-//     ShippingAddress: null | string,
-//     ShippingAddressRecipient: null | string,
-//     BillingAddress: null | string,
-//     BillingAddressRecipient: null | string,
-//     RemittanceAddress: null | string,
-//     RemittanceAddressRecipient: null | string,
-//     PurchaseNumber: null | string,
-//     DueDate: null | string,
-//     InvoiceDate: null | string,
-//     TotalAmount: number,
-//     TaxTotal: number,
-//     LineItems: [] | lineItemsType,
-//     Expenses: [] | expensesType,
-//     AmountDue: number,
-//     LastModifiedDateTime: null | string,
-//     TransactionDate: null | string,
-//     ReceivedDate: null | string
-// }
+type expensesType = {
+    ExpenseId: number | string,
+    InvoiceId: number,
+    Amount: number,
+    Memo: null | string,
+    AddedDateTime: null | string,
+    isCheck: false
+}[]
+
+type LineItemsType = {
+    LineItemId: number,
+    InvoiceId: number,
+    Amount: number,
+    PartNumber: null | string,
+    ProductCode: null | string,
+    Description: string,
+    UnitPrice: number,
+    Quantity: number,
+    ShippingQuantity: number,
+    Unit: number,
+    Date: null | string,
+    TaxAmount: number,
+    TaxPercentage: number
+    isCheck: false
+}[]
+
+type invDetailsType = {
+    InvoiceId: number,
+    CustomerName: null | string,
+    CustomerId: null | string,
+    VendorId: null | string,
+    VendorCode: string | number
+    VendorName: null | string,
+    VendorAddress: null | string,
+    VendorAddressRecipient: null | string,
+    InvoiceNumber: null | string,
+    CustomerAddress: null | string,
+    CustomerAddressRecipient: null | string,
+    ShippingAddress: null | string,
+    ShippingAddressRecipient: null | string,
+    BillingAddress: null | string,
+    BillingAddressRecipient: null | string,
+    RemittanceAddress: null | string,
+    RemittanceAddressRecipient: null | string,
+    PurchaseNumber: null | string,
+    DueDate: null | string,
+    InvoiceDate: null | string,
+    TotalAmount: number,
+    TaxTotal: number,
+    LineItems: [] | LineItemsType,
+    Expenses: [] | expensesType,
+    AmountDue: number,
+    LastModifiedDateTime: null | string,
+    TransactionDate: null | string,
+    ReceivedDate: null | string
+}
 
 type vendor = {
     VendorId: number,
@@ -43,7 +69,8 @@ type departments = { DepartmentId: number, DepartmentCode: string | number, Depa
 type location = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
 
 export const Form = (props: {
-    invDetails: any
+    invDetails: any,
+    setInvDetails: Function
 }) => {
     const [vendors, setVendor] = useState<vendor>([])
     const [departments, setDepartments] = useState<departments>([])
@@ -84,8 +111,21 @@ export const Form = (props: {
         approver: '',
     }
 
-    const onSubmit = values => console.log(values)
-
+    const onSubmit = values => {
+        props.setInvDetails({
+            ...props.invDetails,
+            DueDate: values.dueDate,
+            InvoiceDate: values.invoiceDate,
+            InvoiceNumber: values.invoiceNumber,
+            TaxTotal: Number(values.tax),
+            TotalAmount: Number(values.invoiceAmount),
+            VendorAddress: values.vendorAddress,
+            VendorCode: values.vendorId,
+            VendorName: values.venderName,
+            Expenses: []
+        })
+        console.log(props.invDetails)
+    }
     const formik = useFormik({
         enableReinitialize: true,
         initialValues,
@@ -97,9 +137,9 @@ export const Form = (props: {
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2'
 
-    console.log(formik.values)
+
     return (
-        <form>
+        <form onSubmit={formik.handleSubmit}>
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-4">
@@ -107,7 +147,22 @@ export const Form = (props: {
                             <label htmlFor="vendorName" className={formLabel}>Vendor
                                 Name</label>
                             <div className="input-group input-group-solid">
-                                <select id="vendorName" name="vendorName" className={formSelect} onChange={formik.handleChange}  >
+                                <select id="vendorName" name="vendorName" className={formSelect} onChange={(e) => {
+                                    formik.handleChange(e)
+                                    props.setInvDetails({
+                                        ...props.invDetails,
+                                        DueDate: formik.values.dueDate,
+                                        InvoiceDate: formik.values.invoiceDate,
+                                        InvoiceNumber: formik.values.invoiceNumber,
+                                        TaxTotal: Number(formik.values.tax),
+                                        TotalAmount: Number(formik.values.invoiceAmount),
+                                        VendorAddress: formik.values.vendorAddress,
+                                        VendorCode: formik.values.vendorId,
+                                        VendorName: formik.values.vendorName,
+                                        Expenses: []
+                                    })
+                                }
+                                }  >
                                     {vendors?.map(vendor => (
                                         <option key={vendor.VendorId} value={vendor.VendorName} >{vendor.VendorName}</option>
                                     ))}
@@ -347,6 +402,8 @@ export const Form = (props: {
                                 <textarea className="form-control form-control-solid mt-2"></textarea>
                             </div>
                             <div className="d-flex justify-content-end">
+                                <button type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
+                                </button>
                                 <button className="btn btn-light-success btn-sm m-2">Approved
                                     <span className="svg-icon svg-icon svg-icon-1"><svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"

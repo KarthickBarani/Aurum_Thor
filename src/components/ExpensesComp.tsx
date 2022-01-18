@@ -195,11 +195,11 @@ export const ExpensesComp = (props: {
                     <thead className="fs-6 fw-bolder">
                         <tr>
                             <th><input type='checkbox' className="form-check form-check-sm" onChange={e => onAllCheck(e)} checked={allCheck} /></th>
-                            <th>Account</th>
-                            <th>Amount</th>
+                            <th className="min-w-150px">Account</th>
+                            <th className="min-w-150px">Amount</th>
                             <th>Memo</th>
-                            <th>Department</th>
-                            <th>Location</th>
+                            <th className="min-w-150px">Department</th>
+                            <th className="min-w-150px">Location</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white" >
@@ -207,7 +207,9 @@ export const ExpensesComp = (props: {
                             return (
                                 <tr key={expense.ExpenseId} className={expense.isCheck ? "table-active" : ''} >
                                     <td><input type='checkbox' className="form-check form-check-sm" onChange={(e) => onCheck(e, index)} checked={expense.isCheck} /></td>
-                                    <td></td>
+                                    <td ><select name="" id="" className="from-control w-100">
+                                        <option></option>
+                                    </select></td>
                                     <td onDoubleClick={
                                         () => {
                                             setToggle(true)
@@ -242,8 +244,12 @@ export const ExpensesComp = (props: {
                                                 }} />
                                                 : `${expense.Memo}`
                                         }</td>
-                                    <td></td>
-                                    <td></td>
+                                    <td ><select name="" id="" className="from-control w-100">
+                                        <option></option>
+                                    </select></td>
+                                    <td ><select name="" id="" className="from-control w-100">
+                                        <option></option>
+                                    </select></td>
                                 </tr>
                             )
                         })}
