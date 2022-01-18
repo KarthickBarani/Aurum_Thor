@@ -13,10 +13,16 @@ type expensesType = {
     isCheck: false
 }[]
 
+type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
+type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
+
 
 export const ExpensesComp = (props: {
-    expenses: expensesType
-    setExpenses: Function
+    expenses: expensesType,
+    setExpenses: Function,
+    departments: departments,
+    locations: locations
+
 }) => {
 
     const CopyList = () => {
@@ -245,10 +251,14 @@ export const ExpensesComp = (props: {
                                                 : `${expense.Memo}`
                                         }</td>
                                     <td ><select name="" id="" className="from-control w-100">
-                                        <option></option>
+                                        {props.departments.map(depts => (
+                                            <option key={depts.DepartmentId} value={depts.DepartmentName} >{depts.DepartmentName}</option>
+                                        ))}
                                     </select></td>
                                     <td ><select name="" id="" className="from-control w-100">
-                                        <option></option>
+                                        {props.locations.map(location => (
+                                            <option key={location.LocationId} value={location.Location} >{location.Location}</option>
+                                        ))}
                                     </select></td>
                                 </tr>
                             )

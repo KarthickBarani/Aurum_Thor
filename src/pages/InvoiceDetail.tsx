@@ -69,6 +69,14 @@ type invDetailsType = {
     ReceivedDate: null | string
 }
 
+type vendor = {
+    VendorId: number,
+    VendorCode: string | number,
+    VendorName: string
+}[]
+type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
+type location = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
+
 
 
 export const InvoiceDetail = (props: {
@@ -81,6 +89,21 @@ export const InvoiceDetail = (props: {
     const [listItems, setListItems] = useState<lineItemsType>([] as lineItemsType)
     const [expenses, setExpenses] = useState<expensesType>([] as expensesType)
 
+    const [vendors, setVendor] = useState<vendor>([])
+    const [departments, setDepartments] = useState<departments>([])
+    const [locations, setLocation] = useState<location>([])
+
+    useEffect(() => {
+        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor').then(res => {
+            setVendor(res.data)
+        }).catch(err => console.log(err))
+        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Departments').then(res => {
+            setDepartments(res.data)
+        }).catch(err => console.log(err))
+        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Locations').then(res => {
+            setLocation(res.data)
+        }).catch(err => console.log(err))
+    }, [])
 
     const onSuccess = () => {
         setInvDetails(data?.data)
@@ -150,7 +173,7 @@ export const InvoiceDetail = (props: {
                                 </div>
                             </div>
                             <div className="card-body">
-                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} setInvDetails={setInvDetails} ></Form> : null}
+                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} setInvDetails={setInvDetails} vendors={vendors} departments={departments} locations={locations} ></Form> : null}
                             </div>
                         </div>
                     </div >
@@ -190,7 +213,7 @@ export const InvoiceDetail = (props: {
                                                     {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} /> : null}
                                                 </div>
                                                 <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                    {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} />}
+                                                    {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} departments={departments} locations={locations} />}
                                                 </div>
                                             </div>
                                         </div>

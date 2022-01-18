@@ -60,32 +60,36 @@ type invDetailsType = {
     ReceivedDate: null | string
 }
 
-type vendor = {
+type vendors = {
     VendorId: number,
     VendorCode: string | number,
     VendorName: string
 }[]
 type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
-type location = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
+type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
 
 export const Form = (props: {
     invDetails: any,
-    setInvDetails: Function
+    setInvDetails: Function,
+    vendors: vendors,
+    departments: departments,
+    locations: locations
+
 }) => {
-    const [vendors, setVendor] = useState<vendor>([])
-    const [departments, setDepartments] = useState<departments>([])
-    const [locations, setLocation] = useState<location>([])
-    useEffect(() => {
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor').then(res => {
-            setVendor(res.data)
-        }).catch(err => console.log(err))
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Departments').then(res => {
-            setDepartments(res.data)
-        }).catch(err => console.log(err))
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Locations').then(res => {
-            setLocation(res.data)
-        }).catch(err => console.log(err))
-    }, [])
+    // const [vendors, setVendor] = useState<vendor>([])
+    // const [departments, setDepartments] = useState<departments>([])
+    // const [locations, setLocation] = useState<locations>([])
+    // useEffect(() => {
+    //     axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor').then(res => {
+    //         setVendor(res.data)
+    //     }).catch(err => console.log(err))
+    //     axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Departments').then(res => {
+    //         setDepartments(res.data)
+    //     }).catch(err => console.log(err))
+    //     axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Locations').then(res => {
+    //         setLocation(res.data)
+    //     }).catch(err => console.log(err))
+    // }, [])
 
 
     const initialValues = {
@@ -163,7 +167,7 @@ export const Form = (props: {
                                     })
                                 }
                                 }  >
-                                    {vendors?.map(vendor => (
+                                    {props.vendors?.map(vendor => (
                                         <option key={vendor.VendorId} value={vendor.VendorName} >{vendor.VendorName}</option>
                                     ))}
                                 </select>
@@ -216,7 +220,7 @@ export const Form = (props: {
                             <label htmlFor="department" className={formLabel}>
                                 Department</label>
                             <select id="department" name="department" className={formSelect} onChange={formik.handleChange}>
-                                {departments.map(dept => {
+                                {props.departments.map(dept => {
                                     return (
                                         <option key={dept.DepartmentId} value={dept.DepartmentName} >{dept.DepartmentName}</option>
                                     )
@@ -247,7 +251,7 @@ export const Form = (props: {
                             <label htmlFor="location" className={formLabel}>
                                 Location</label>
                             <select id="location" name="location" className={formSelect} onChange={formik.handleChange} >
-                                {locations.map(location => {
+                                {props.locations.map(location => {
                                     return (
                                         <option key={location.LocationId} value={location.Location} >{location.Location}</option>
                                     )
