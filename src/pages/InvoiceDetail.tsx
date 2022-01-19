@@ -9,73 +9,74 @@ import { PdfViewer } from "../components/PdfViewer"
 import { ListItemsComp } from "../components/ListItemsComp"
 import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations } from '../components/Interface'
 
 
-type expensesType = {
-    ExpenseId: number,
-    InvoiceId: number,
-    Amount: number,
-    Memo: null | string,
-    AddedDateTime: null | string,
-    isCheck: false
-}[]
+// type expensesType = {
+//     ExpenseId: number,
+//     InvoiceId: number,
+//     Amount: number,
+//     Memo: null | string,
+//     AddedDateTime: null | string,
+//     isCheck: false
+// }[]
 
-type lineItemsType = {
-    LineItemId: number,
-    InvoiceId: number,
-    Amount: number,
-    PartNumber: null | string,
-    ProductCode: null | string,
-    Description: string,
-    UnitPrice: number,
-    Quantity: number,
-    ShippingQuantity: number,
-    Unit: number,
-    Date: null | string,
-    TaxAmount: number,
-    TaxPercentage: number,
-    isCheck: false
-}[]
+// type lineItemsType = {
+//     LineItemId: number,
+//     InvoiceId: number,
+//     Amount: number,
+//     PartNumber: null | string,
+//     ProductCode: null | string,
+//     Description: string,
+//     UnitPrice: number,
+//     Quantity: number,
+//     ShippingQuantity: number,
+//     Unit: number,
+//     Date: null | string,
+//     TaxAmount: number,
+//     TaxPercentage: number,
+//     isCheck: false
+// }[]
 
 
-type invDetailsType = {
-    InvoiceId: number,
-    CustomerName: null | string,
-    CustomerId: null | string,
-    VendorId: null | string,
-    VendorCode: string | number
-    VendorName: null | string,
-    VendorAddress: null | string,
-    VendorAddressRecipient: null | string,
-    InvoiceNumber: null | string,
-    CustomerAddress: null | string,
-    CustomerAddressRecipient: null | string,
-    ShippingAddress: null | string,
-    ShippingAddressRecipient: null | string,
-    BillingAddress: null | string,
-    BillingAddressRecipient: null | string,
-    RemittanceAddress: null | string,
-    RemittanceAddressRecipient: null | string,
-    PurchaseNumber: null | string,
-    DueDate: null | string,
-    InvoiceDate: null | string,
-    TotalAmount: number,
-    TaxTotal: number,
-    LineItems: [] | lineItemsType,
-    Expenses: [] | expensesType,
-    AmountDue: number,
-    LastModifiedDateTime: null | string,
-    TransactionDate: null | string,
-    ReceivedDate: null | string
-}
+// type invDetailsType = {
+//     InvoiceId: number,
+//     CustomerName: null | string,
+//     CustomerId: null | string,
+//     VendorId: null | string,
+//     VendorCode: string | number
+//     VendorName: null | string,
+//     VendorAddress: null | string,
+//     VendorAddressRecipient: null | string,
+//     InvoiceNumber: null | string,
+//     CustomerAddress: null | string,
+//     CustomerAddressRecipient: null | string,
+//     ShippingAddress: null | string,
+//     ShippingAddressRecipient: null | string,
+//     BillingAddress: null | string,
+//     BillingAddressRecipient: null | string,
+//     RemittanceAddress: null | string,
+//     RemittanceAddressRecipient: null | string,
+//     PurchaseNumber: null | string,
+//     DueDate: null | string,
+//     InvoiceDate: null | string,
+//     TotalAmount: number,
+//     TaxTotal: number,
+//     LineItems: [] | lineItemsType,
+//     Expenses: [] | expensesType,
+//     AmountDue: number,
+//     LastModifiedDateTime: null | string,
+//     TransactionDate: null | string,
+//     ReceivedDate: null | string
+// }
 
-type vendor = {
-    VendorId: number,
-    VendorCode: string | number,
-    VendorName: string
-}[]
-type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
-type location = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
+// type vendor = {
+//     VendorId: number,
+//     VendorCode: string | number,
+//     VendorName: string
+// }[]
+// type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
+// type location = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
 
 
 
@@ -86,12 +87,12 @@ export const InvoiceDetail = (props: {
 
     const [init, set] = useState(true)
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
-    const [listItems, setListItems] = useState<lineItemsType>([] as lineItemsType)
-    const [expenses, setExpenses] = useState<expensesType>([] as expensesType)
+    const [listItems, setListItems] = useState<lineItemsType>({} as lineItemsType)
+    const [expenses, setExpenses] = useState<expensesType>({} as expensesType)
 
-    const [vendors, setVendor] = useState<vendor>([])
-    const [departments, setDepartments] = useState<departments>([])
-    const [locations, setLocation] = useState<location>([])
+    const [vendors, setVendor] = useState<vendors>([] as vendors)
+    const [departments, setDepartments] = useState<departments>([] as departments)
+    const [locations, setLocation] = useState<locations>([] as locations)
 
     useEffect(() => {
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor').then(res => {
@@ -284,7 +285,6 @@ export const InvoiceDetail = (props: {
                     </div>
                 </div>
             </div>
-
         </>
     )
 }

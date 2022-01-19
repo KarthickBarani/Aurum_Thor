@@ -1,72 +1,72 @@
 
-import axios from "axios"
 import { useFormik } from "formik"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { vendors, departments, locations } from '../components/Interface'
 
-type expensesType = {
-    ExpenseId: number | string,
-    InvoiceId: number,
-    Amount: number,
-    Memo: null | string,
-    AddedDateTime: null | string,
-    isCheck: false
-}[]
+// type expensesType = {
+//     ExpenseId: number | string,
+//     InvoiceId: number,
+//     Amount: number,
+//     Memo: null | string,
+//     AddedDateTime: null | string,
+//     isCheck: false
+// }[]
 
-type LineItemsType = {
-    LineItemId: number,
-    InvoiceId: number,
-    Amount: number,
-    PartNumber: null | string,
-    ProductCode: null | string,
-    Description: string,
-    UnitPrice: number,
-    Quantity: number,
-    ShippingQuantity: number,
-    Unit: number,
-    Date: null | string,
-    TaxAmount: number,
-    TaxPercentage: number
-    isCheck: false
-}[]
+// type LineItemsType = {
+//     LineItemId: number,
+//     InvoiceId: number,
+//     Amount: number,
+//     PartNumber: null | string,
+//     ProductCode: null | string,
+//     Description: string,
+//     UnitPrice: number,
+//     Quantity: number,
+//     ShippingQuantity: number,
+//     Unit: number,
+//     Date: null | string,
+//     TaxAmount: number,
+//     TaxPercentage: number
+//     isCheck: false
+// }[]
 
-type invDetailsType = {
-    InvoiceId: number,
-    CustomerName: null | string,
-    CustomerId: null | string,
-    VendorId: null | string,
-    VendorCode: string | number
-    VendorName: null | string,
-    VendorAddress: null | string,
-    VendorAddressRecipient: null | string,
-    InvoiceNumber: null | string,
-    CustomerAddress: null | string,
-    CustomerAddressRecipient: null | string,
-    ShippingAddress: null | string,
-    ShippingAddressRecipient: null | string,
-    BillingAddress: null | string,
-    BillingAddressRecipient: null | string,
-    RemittanceAddress: null | string,
-    RemittanceAddressRecipient: null | string,
-    PurchaseNumber: null | string,
-    DueDate: null | string,
-    InvoiceDate: null | string,
-    TotalAmount: number,
-    TaxTotal: number,
-    LineItems: [] | LineItemsType,
-    Expenses: [] | expensesType,
-    AmountDue: number,
-    LastModifiedDateTime: null | string,
-    TransactionDate: null | string,
-    ReceivedDate: null | string
-}
+// type invDetailsType = {
+//     InvoiceId: number,
+//     CustomerName: null | string,
+//     CustomerId: null | string,
+//     VendorId: null | string,
+//     VendorCode: string | number
+//     VendorName: null | string,
+//     VendorAddress: null | string,
+//     VendorAddressRecipient: null | string,
+//     InvoiceNumber: null | string,
+//     CustomerAddress: null | string,
+//     CustomerAddressRecipient: null | string,
+//     ShippingAddress: null | string,
+//     ShippingAddressRecipient: null | string,
+//     BillingAddress: null | string,
+//     BillingAddressRecipient: null | string,
+//     RemittanceAddress: null | string,
+//     RemittanceAddressRecipient: null | string,
+//     PurchaseNumber: null | string,
+//     DueDate: null | string,
+//     InvoiceDate: null | string,
+//     TotalAmount: number,
+//     TaxTotal: number,
+//     LineItems: [] | LineItemsType,
+//     Expenses: [] | expensesType,
+//     AmountDue: number,
+//     LastModifiedDateTime: null | string,
+//     TransactionDate: null | string,
+//     ReceivedDate: null | string
+// }
 
-type vendors = {
-    VendorId: number,
-    VendorCode: string | number,
-    VendorName: string
-}[]
-type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
-type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
+// type vendors = {
+//     VendorId: number,
+//     VendorCode: string | number,
+//     VendorName: string
+// }[]
+// type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
+// type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
 
 export const Form = (props: {
     invDetails: any,
@@ -75,21 +75,10 @@ export const Form = (props: {
     departments: departments,
     locations: locations
 
+
 }) => {
-    // const [vendors, setVendor] = useState<vendor>([])
-    // const [departments, setDepartments] = useState<departments>([])
-    // const [locations, setLocation] = useState<locations>([])
-    // useEffect(() => {
-    //     axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor').then(res => {
-    //         setVendor(res.data)
-    //     }).catch(err => console.log(err))
-    //     axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Departments').then(res => {
-    //         setDepartments(res.data)
-    //     }).catch(err => console.log(err))
-    //     axios.get('https://invoiceprocessingapi.azurewebsites.net/api/Vendor/Locations').then(res => {
-    //         setLocation(res.data)
-    //     }).catch(err => console.log(err))
-    // }, [])
+
+
 
 
     const initialValues = {
@@ -116,6 +105,7 @@ export const Form = (props: {
     }
 
     const onSubmit = values => {
+        console.log(props.invDetails)
         props.setInvDetails({
             ...props.invDetails,
             DueDate: values.dueDate,
@@ -125,10 +115,8 @@ export const Form = (props: {
             TotalAmount: Number(values.invoiceAmount),
             VendorAddress: values.vendorAddress,
             VendorCode: values.vendorId,
-            VendorName: values.venderName,
-            Expenses: []
+            VendorName: values.vendorName,
         })
-        console.log(props.invDetails)
     }
     const formik = useFormik({
         enableReinitialize: true,
@@ -137,11 +125,26 @@ export const Form = (props: {
     })
 
 
+    useEffect(() => {
+        props.setInvDetails({
+            ...props.invDetails,
+            DueDate: formik.values.dueDate,
+            InvoiceDate: formik.values.invoiceDate,
+            InvoiceNumber: formik.values.invoiceNumber,
+            TaxTotal: Number(formik.values.tax),
+            TotalAmount: Number(formik.values.invoiceAmount),
+            VendorAddress: formik.values.vendorAddress,
+            VendorCode: formik.values.vendorId,
+            VendorName: formik.values.vendorName,
+        })
+    }, [props, formik])
+
     const formInput = 'form-control form-control-solid mt-1'
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2'
 
 
+    console.log(props.invDetails)
     return (
         <form onSubmit={formik.handleSubmit}>
             <div className="container-fluid">
@@ -151,22 +154,8 @@ export const Form = (props: {
                             <label htmlFor="vendorName" className={formLabel}>Vendor
                                 Name</label>
                             <div className="input-group input-group-solid">
-                                <select id="vendorName" name="vendorName" className={formSelect} onChange={(e) => {
-                                    formik.handleChange(e)
-                                    props.setInvDetails({
-                                        ...props.invDetails,
-                                        DueDate: formik.values.dueDate,
-                                        InvoiceDate: formik.values.invoiceDate,
-                                        InvoiceNumber: formik.values.invoiceNumber,
-                                        TaxTotal: Number(formik.values.tax),
-                                        TotalAmount: Number(formik.values.invoiceAmount),
-                                        VendorAddress: formik.values.vendorAddress,
-                                        VendorCode: formik.values.vendorId,
-                                        VendorName: formik.values.vendorName,
-                                        Expenses: []
-                                    })
-                                }
-                                }  >
+                                <select id="vendorName" name="vendorName" className={formSelect} onChange={formik.handleChange} >
+                                    <option value={formik.values.vendorName}>{formik.values.vendorName}</option>
                                     {props.vendors?.map(vendor => (
                                         <option key={vendor.VendorId} value={vendor.VendorName} >{vendor.VendorName}</option>
                                     ))}
@@ -220,6 +209,7 @@ export const Form = (props: {
                             <label htmlFor="department" className={formLabel}>
                                 Department</label>
                             <select id="department" name="department" className={formSelect} onChange={formik.handleChange}>
+                                <option className="text-gray">Select Department</option>
                                 {props.departments.map(dept => {
                                     return (
                                         <option key={dept.DepartmentId} value={dept.DepartmentName} >{dept.DepartmentName}</option>

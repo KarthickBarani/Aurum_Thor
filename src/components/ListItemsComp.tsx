@@ -1,25 +1,11 @@
 import { useState } from "react"
 import Swal from "sweetalert2"
+import { lineItemsType } from './Interface'
 
-type LineItemsType = {
-    LineItemId: number,
-    InvoiceId: number,
-    Amount: number,
-    PartNumber: null | string,
-    ProductCode: null | string,
-    Description: string,
-    UnitPrice: number,
-    Quantity: number,
-    ShippingQuantity: number,
-    Unit: number,
-    Date: null | string,
-    TaxAmount: number,
-    TaxPercentage: number
-    isCheck: false
-}[]
+
 
 export const ListItemsComp = (props: {
-    listItems: LineItemsType
+    listItems: lineItemsType
     setListItems: Function
 
 }) => {
@@ -81,7 +67,7 @@ export const ListItemsComp = (props: {
     }
 
     const addListItems = () => {
-        let newArr: LineItemsType = [...props?.listItems]
+        let newArr: lineItemsType = [...props?.listItems]
         newArr.push({
             LineItemId: Date.now(),
             InvoiceId: 0,
