@@ -1,14 +1,17 @@
 import { useState } from "react"
 import Swal from "sweetalert2"
-import { lineItemsType } from './Interface'
+import { lineItemsType, invDetailsType } from './Interface'
 
 
 
 export const ListItemsComp = (props: {
+    invDetails: invDetailsType
     listItems: lineItemsType
     setListItems: Function
+    setInvDetails: Function
 
-}) => {
+}
+) => {
 
 
     const [toggle, setToggle] = useState<boolean>(false)
@@ -79,12 +82,14 @@ export const ListItemsComp = (props: {
             Quantity: 0,
             ShippingQuantity: 0,
             Unit: 0,
-            Date: '',
+            Date: new Date(Date.now()),
             TaxAmount: 0,
             TaxPercentage: 0,
-            isCheck: false
+            isCheck: false,
+            isNew: true
         })
         props.setListItems(newArr)
+        props.setInvDetails({ ...props.invDetails, LineItems: newArr })
         console.log('Add :', newArr)
     }
 
@@ -104,6 +109,7 @@ export const ListItemsComp = (props: {
                 let delarr = newarr.filter(arr => (arr.isCheck === false))
                 console.log(delarr)
                 props.setListItems(delarr)
+                props.setInvDetails({ ...props.invDetails, LineItems: delarr })
                 setAllCheck(false)
                 setAnyOne(false)
                 console.log('Delete :', delarr)
@@ -182,7 +188,7 @@ export const ListItemsComp = (props: {
                                             setCurrent(listItem.LineItemId)
                                         }} >
                                             {
-                                                toggle && current === listItem.LineItemId ? <input type="number" value={listItem.Quantity} onBlur={() => {
+                                                toggle && current === listItem.LineItemId ? <input type="number" className="form-control form-control-sm" value={listItem.Quantity} onBlur={() => {
                                                     setToggle(false)
                                                     setCurrent(0)
                                                 }} onChange={(e) => {
@@ -204,7 +210,7 @@ export const ListItemsComp = (props: {
                                         }}>
                                             {
                                                 toggle && current === listItem.LineItemId ?
-                                                    <input type="number" value={listItem.UnitPrice} onBlur={() => {
+                                                    <input type="number" className="form-control form-control-sm" value={listItem.UnitPrice} onBlur={() => {
                                                         setToggle(false)
                                                         setCurrent(0)
                                                     }} onChange={e => {
@@ -222,7 +228,7 @@ export const ListItemsComp = (props: {
                                         }}>
                                             {
                                                 toggle && current === listItem.LineItemId ?
-                                                    <input type="number" value={listItem.Amount} onBlur={() => {
+                                                    <input type="number" className="form-control form-control-sm" value={listItem.Amount} onBlur={() => {
                                                         setToggle(false)
                                                         setCurrent(0)
                                                     }} onChange={e => {

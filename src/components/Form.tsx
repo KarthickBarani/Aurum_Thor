@@ -1,100 +1,37 @@
 
 import { useFormik } from "formik"
 import { useEffect } from "react"
-import { vendors, departments, locations } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations } from '../components/Interface'
 
-// type expensesType = {
-//     ExpenseId: number | string,
-//     InvoiceId: number,
-//     Amount: number,
-//     Memo: null | string,
-//     AddedDateTime: null | string,
-//     isCheck: false
-// }[]
 
-// type LineItemsType = {
-//     LineItemId: number,
-//     InvoiceId: number,
-//     Amount: number,
-//     PartNumber: null | string,
-//     ProductCode: null | string,
-//     Description: string,
-//     UnitPrice: number,
-//     Quantity: number,
-//     ShippingQuantity: number,
-//     Unit: number,
-//     Date: null | string,
-//     TaxAmount: number,
-//     TaxPercentage: number
-//     isCheck: false
-// }[]
-
-// type invDetailsType = {
-//     InvoiceId: number,
-//     CustomerName: null | string,
-//     CustomerId: null | string,
-//     VendorId: null | string,
-//     VendorCode: string | number
-//     VendorName: null | string,
-//     VendorAddress: null | string,
-//     VendorAddressRecipient: null | string,
-//     InvoiceNumber: null | string,
-//     CustomerAddress: null | string,
-//     CustomerAddressRecipient: null | string,
-//     ShippingAddress: null | string,
-//     ShippingAddressRecipient: null | string,
-//     BillingAddress: null | string,
-//     BillingAddressRecipient: null | string,
-//     RemittanceAddress: null | string,
-//     RemittanceAddressRecipient: null | string,
-//     PurchaseNumber: null | string,
-//     DueDate: null | string,
-//     InvoiceDate: null | string,
-//     TotalAmount: number,
-//     TaxTotal: number,
-//     LineItems: [] | LineItemsType,
-//     Expenses: [] | expensesType,
-//     AmountDue: number,
-//     LastModifiedDateTime: null | string,
-//     TransactionDate: null | string,
-//     ReceivedDate: null | string
-// }
-
-// type vendors = {
-//     VendorId: number,
-//     VendorCode: string | number,
-//     VendorName: string
-// }[]
-// type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
-// type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
 
 export const Form = (props: {
-    invDetails: any,
+    invDetails: invDetailsType,
     setInvDetails: Function,
+    setModifyInvDetails: Function,
     vendors: vendors,
     departments: departments,
     locations: locations
-
-
+    origin: invDetailsType
 }) => {
-
-
 
 
     const initialValues = {
         vendorName: props.invDetails?.VendorName,
         vendorId: props.invDetails?.VendorCode,
         remitTo: props.invDetails?.CustomerName,
-        vendorAddress: props.invDetails?.VendorAddress,
+        vendorAddress1: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[0] : props.invDetails?.VendorAddress?.split(',')[0],
+        vendorAddress2: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[1] : props.invDetails?.VendorAddress?.split(',')[1] + '-' + props.invDetails?.VendorAddress?.split(',')[2],
+        vendorAddress3: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[2] : props.invDetails?.VendorAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
         subsidiary: '',
         address: props.invDetails?.RemittanceAddress,
         department: '',
         poNo: props.invDetails?.PurchaseNumber,
         location: '',
         invoiceNumber: props.invDetails?.InvoiceNumber,
-        invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
+        invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
         postingPeriod: '',
-        dueDate: new Date(props.invDetails?.DueDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.DueDate).toLocaleDateString(),
+        dueDate: new Date(props.invDetails?.DueDate).toLocaleDateString(),
         invoiceAmount: props.invDetails?.TotalAmount?.toFixed(2),
         currency: 'USD',
         tax: props.invDetails?.TaxTotal?.toFixed(2),
@@ -105,18 +42,7 @@ export const Form = (props: {
     }
 
     const onSubmit = values => {
-        console.log(props.invDetails)
-        props.setInvDetails({
-            ...props.invDetails,
-            DueDate: values.dueDate,
-            InvoiceDate: values.invoiceDate,
-            InvoiceNumber: values.invoiceNumber,
-            TaxTotal: Number(values.tax),
-            TotalAmount: Number(values.invoiceAmount),
-            VendorAddress: values.vendorAddress,
-            VendorCode: values.vendorId,
-            VendorName: values.vendorName,
-        })
+        console.log(values)
     }
     const formik = useFormik({
         enableReinitialize: true,
@@ -126,25 +52,38 @@ export const Form = (props: {
 
 
     useEffect(() => {
+        let ind = props.vendors?.findIndex(arr => arr.VendorId.toString() === formik.values.vendorName)
         props.setInvDetails({
             ...props.invDetails,
-            DueDate: formik.values.dueDate,
-            InvoiceDate: formik.values.invoiceDate,
+            DueDate: new Date(formik.values.dueDate),
+            InvoiceDate: new Date(formik.values.invoiceDate),
             InvoiceNumber: formik.values.invoiceNumber,
             TaxTotal: Number(formik.values.tax),
             TotalAmount: Number(formik.values.invoiceAmount),
-            VendorAddress: formik.values.vendorAddress,
-            VendorCode: formik.values.vendorId,
+            VendorAddress: props.vendors[ind]?.VendorAddressLine1 + ',' + props.vendors[ind]?.VendorCity + ',' + props.vendors[ind]?.VendorZipCode + ',' + props.vendors[ind]?.VendorState + ',' + props.vendors[ind]?.VendorCountry,
+            VendorId: Number(formik.values.vendorName) ? formik.values.vendorName : props.invDetails?.VendorId,
             VendorName: formik.values.vendorName,
+            VendorCode: props.vendors[ind]?.VendorCode
         })
-    }, [props, formik])
+        props.setModifyInvDetails({
+            ...props.invDetails,
+            DueDate: new Date(formik.values.dueDate),
+            InvoiceDate: new Date(formik.values.invoiceDate),
+            InvoiceNumber: formik.values.invoiceNumber,
+            TaxTotal: Number(formik.values.tax),
+            TotalAmount: Number(formik.values.invoiceAmount),
+            VendorAddress: formik.values.vendorAddress1 + ',' + formik.values.vendorAddress2 + ',' + formik.values.vendorAddress3,
+            VendorId: formik.values.vendorId,
+            VendorName: formik.values.vendorName,
+            VendorCode: props.vendors[ind]?.VendorCode
+        })
 
-    const formInput = 'form-control form-control-solid mt-1'
+    }, [formik.values])
+
+    const formInput = 'form-control form-control-solid mb-1'
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2'
 
-
-    console.log(props.invDetails)
     return (
         <form onSubmit={formik.handleSubmit}>
             <div className="container-fluid">
@@ -154,10 +93,10 @@ export const Form = (props: {
                             <label htmlFor="vendorName" className={formLabel}>Vendor
                                 Name</label>
                             <div className="input-group input-group-solid">
-                                <select id="vendorName" name="vendorName" className={formSelect} onChange={formik.handleChange} >
-                                    <option value={formik.values.vendorName}>{formik.values.vendorName}</option>
+                                <select id="vendorName" name="vendorName" value={formik.values.vendorName} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
+                                    <option value={formik.values.vendorId} >{formik.values.vendorName}</option>
                                     {props.vendors?.map(vendor => (
-                                        <option key={vendor.VendorId} value={vendor.VendorName} >{vendor.VendorName}</option>
+                                        <option key={vendor.VendorId} value={vendor.VendorId} >{vendor.VendorName}</option>
                                     ))}
                                 </select>
                                 <button className='btn btn-secondary btn-sm' ><span className="svg-icon svg-icon-muted svg-icon-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -185,11 +124,11 @@ export const Form = (props: {
                 <div className="row">
                     <div className="col">
                         <div className="form-group">
-                            <label htmlFor="vendorAddress" className={formLabel}>Vendor
+                            <label htmlFor="vendorAddress1" className={formLabel}>Vendor
                                 Address</label>
-                            <input id="venderAddress" name="venderAddress" className={formInput} onChange={formik.handleChange} value={formik.values.vendorAddress} />
-                            <input readOnly className={formInput} />
-                            <input readOnly className={formInput} />
+                            <input id="venderAddress1" name="venderAddress1" className={formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress1} />
+                            <input id="venderAddress2" name="venderAddress2" readOnly className={formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress2} />
+                            <input id="venderAddress3" name="venderAddress3" readOnly className={formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress3} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="subsidiary"
@@ -209,7 +148,7 @@ export const Form = (props: {
                             <label htmlFor="department" className={formLabel}>
                                 Department</label>
                             <select id="department" name="department" className={formSelect} onChange={formik.handleChange}>
-                                <option className="text-gray">Select Department</option>
+                                <option className="text-gray"></option>
                                 {props.departments.map(dept => {
                                     return (
                                         <option key={dept.DepartmentId} value={dept.DepartmentName} >{dept.DepartmentName}</option>
@@ -241,6 +180,7 @@ export const Form = (props: {
                             <label htmlFor="location" className={formLabel}>
                                 Location</label>
                             <select id="location" name="location" className={formSelect} onChange={formik.handleChange} >
+                                <option className="text-gray"></option>
                                 {props.locations.map(location => {
                                     return (
                                         <option key={location.LocationId} value={location.Location} >{location.Location}</option>

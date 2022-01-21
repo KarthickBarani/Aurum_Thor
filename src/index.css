@@ -49,3 +49,8 @@ body {
     height: 32px;
   }
 }
+
+td,th {
+  width: auto;
+  vertical-align: middle;
+}

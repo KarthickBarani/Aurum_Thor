@@ -16,17 +16,14 @@ export const Home = (props: {
 }) => {
 
     const [Pass, setPass] = useState<number>()
-    const [invoiceList, setInvoiceList] = useState([])
+
 
     const fetchTableData = () => {
-        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/Invoice`)
+        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`)
     }
 
-    const onSuccess = () => {
-        setInvoiceList(data?.data)
-    }
 
-    const { isLoading, data, isError } = useQuery('tableData', fetchTableData, { onSuccess })
+    const { isLoading, data, isError } = useQuery('tableData', fetchTableData)
 
 
     return (

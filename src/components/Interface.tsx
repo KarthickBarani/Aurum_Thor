@@ -2,65 +2,88 @@ export type expensesType = {
     ExpenseId: number,
     InvoiceId: number,
     Amount: number,
-    Memo: null | string,
-    AddedDateTime: null | string,
-    isCheck: false
+    Memo: string,
+    AddedDateTime: Date,
+    DepartmentId: number
+    LocationId: number
+    isCheck: boolean,
+    isNew?: boolean
 }[]
 
 export type lineItemsType = {
     LineItemId: number,
     InvoiceId: number,
     Amount: number,
-    PartNumber: null | string,
-    ProductCode: null | string,
+    PartNumber: string,
+    ProductCode: string,
     Description: string,
     UnitPrice: number,
     Quantity: number,
     ShippingQuantity: number,
     Unit: number,
-    Date: null | string,
+    Date: Date,
     TaxAmount: number,
     TaxPercentage: number,
-    isCheck: false
+    isCheck: boolean
+    isNew?: boolean
 }[]
 
 
 export type invDetailsType = {
     InvoiceId: number,
-    CustomerName: null | string,
-    CustomerId: null | string,
-    VendorId: null | string,
+    CustomerName: string,
+    CustomerId: string,
+    VendorId: string,
     VendorCode: string | number
-    VendorName: null | string,
-    VendorAddress: null | string,
-    VendorAddressRecipient: null | string,
-    InvoiceNumber: null | string,
-    CustomerAddress: null | string,
-    CustomerAddressRecipient: null | string,
-    ShippingAddress: null | string,
-    ShippingAddressRecipient: null | string,
-    BillingAddress: null | string,
-    BillingAddressRecipient: null | string,
-    RemittanceAddress: null | string,
-    RemittanceAddressRecipient: null | string,
-    PurchaseNumber: null | string,
-    DueDate: null | string,
-    InvoiceDate: null | string,
+    VendorName: string,
+    VendorAddress: string,
+    VendorAddress2: string,
+    VendorAddress3: string,
+    VendorAddressRecipient: string,
+    InvoiceNumber: string,
+    CustomerAddress: string,
+    CustomerAddressRecipient: string,
+    ShippingAddress: string,
+    ShippingAddressRecipient: string,
+    BillingAddress: string,
+    BillingAddressRecipient: string,
+    RemittanceAddress: string,
+    RemittanceAddressRecipient: string,
+    PurchaseNumber: string,
+    DueDate: Date,
+    InvoiceDate: Date,
     TotalAmount: number,
     TaxTotal: number,
     LineItems: [] | lineItemsType,
     Expenses: [] | expensesType,
     AmountDue: number,
-    LastModifiedDateTime: null | string,
-    TransactionDate: null | string,
-    ReceivedDate: null | string
+    LastModifiedDateTime: string,
+    TransactionDate: string,
+    ReceivedDate: string
 }
 
 export type vendors = {
-    map(arg0: (vendor: any) => JSX.Element): import("react").ReactNode
     VendorId: number,
-    VendorCode: string | number,
-    VendorName: string
+    VendorCode: string,
+    VendorName: string,
+    VendorAddressLine1: string,
+    VendorAddressLine2: string,
+    VendorAddressLine3: string,
+    VendorCity: string,
+    VendorState: string,
+    VendorZipCode: string,
+    VendorCountry: string,
+    VendorPhoneNumber: string,
+    VendorFax: string,
+    RemitAddressLine1: string,
+    RemitAddressLine2: string,
+    RemitAddressLine3: string,
+    RemitCity: string,
+    RemitState: string,
+    RemitZipCode: string,
+    RemitCountry: string,
+    RemitPhoneNumber: string,
+    RemitFax: string
 }[]
-export type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
+export type departments = { DepartmentId: number, DepartmentCode: string, DepartmentName: string }[]
 export type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]

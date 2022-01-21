@@ -1,27 +1,19 @@
 
 import { useState } from "react"
 import Swal from 'sweetalert2'
+import { expensesType, departments, locations, invDetailsType } from './Interface'
 
 
 
-type expensesType = {
-    ExpenseId: number | string,
-    InvoiceId: number,
-    Amount: number,
-    Memo: null | string,
-    AddedDateTime: null | string,
-    isCheck: false
-}[]
-
-type departments = { DepartmentId: number, DepartmentCode: string | number, DepartmentName: string }[]
-type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
 
 
 export const ExpensesComp = (props: {
     expenses: expensesType,
     setExpenses: Function,
     departments: departments,
-    locations: locations
+    locations: locations,
+    invDetails: invDetailsType
+    setInvDetails: Function
 
 }) => {
 
@@ -30,14 +22,18 @@ export const ExpensesComp = (props: {
         let selArr = newarr.filter(arr => arr.isCheck !== false || undefined)
         for (let key in selArr)
             newarr.push({
-                ExpenseId: Date.now() + key,
+                ExpenseId: Date.now() + Number(key),
                 InvoiceId: 0,
                 Amount: selArr[key].Amount,
                 Memo: '',
-                AddedDateTime: '',
-                isCheck: false
+                AddedDateTime: new Date(Date.now()),
+                DepartmentId: 0,
+                LocationId: 0,
+                isCheck: false,
+                isNew: true
             })
         props.setExpenses(newarr)
+        props.setInvDetails({ ...props.invDetails, Expenses: newarr })
         setAllCheck(false)
         setAnyOne(false)
         console.log(newarr)
@@ -105,10 +101,14 @@ export const ExpensesComp = (props: {
             InvoiceId: 0,
             Amount: 0,
             Memo: '',
-            AddedDateTime: '',
-            isCheck: false
+            AddedDateTime: new Date(Date.now()),
+            DepartmentId: 0,
+            LocationId: 0,
+            isCheck: false,
+            isNew: true,
         })
         props.setExpenses(newArr)
+        props.setInvDetails({ ...props.invDetails, Expenses: newArr })
         console.log('Add :', newArr)
     }
 
@@ -128,6 +128,7 @@ export const ExpensesComp = (props: {
                 let delarr = newarr.filter(arr => (arr.isCheck === false))
                 console.log(delarr)
                 props.setExpenses(delarr)
+                props.setInvDetails({ ...props.invDetails, Expenses: delarr })
                 setAllCheck(false)
                 setAnyOne(false)
                 console.log('Delete :', delarr)
@@ -212,8 +213,8 @@ export const ExpensesComp = (props: {
                         {props.expenses?.map((expense, index) => {
                             return (
                                 <tr key={expense.ExpenseId} className={expense.isCheck ? "table-active" : ''} >
-                                    <td><input type='checkbox' className="form-check form-check-sm" onChange={(e) => onCheck(e, index)} checked={expense.isCheck} /></td>
-                                    <td ><select name="" id="" className="from-control w-100">
+                                    <td align="center"><input type='checkbox' className="form-check form-check-sm" onChange={(e) => onCheck(e, index)} checked={expense.isCheck} /></td>
+                                    <td ><select name="" id="" className="form-control form-control-sm">
                                         <option></option>
                                     </select></td>
                                     <td onDoubleClick={
@@ -223,7 +224,7 @@ export const ExpensesComp = (props: {
                                         }
                                     }>{
                                             toggle && current === expense.ExpenseId ?
-                                                <input type="number" value={expense.Amount} onBlur={() => {
+                                                <input type="number" className="form-control form-control-sm" value={expense.Amount} onBlur={() => {
                                                     setToggle(false)
                                                     setCurrent(0)
                                                 }} onChange={e => {
@@ -240,7 +241,7 @@ export const ExpensesComp = (props: {
                                         }
                                     }>{
                                             toggle && current === expense.ExpenseId ?
-                                                <input type="text" value={expense.Memo?.toString()} onBlur={() => {
+                                                <input type="text" className="form-control form-control-sm" value={expense.Memo?.toString()} onBlur={() => {
                                                     setToggle(false)
                                                     setCurrent(0)
                                                 }} onChange={e => {
@@ -250,14 +251,24 @@ export const ExpensesComp = (props: {
                                                 }} />
                                                 : `${expense.Memo}`
                                         }</td>
-                                    <td ><select name="" id="" className="from-control w-100">
+                                    <td ><select name="" id="" className="form-control form-control-sm" onChange={e => {
+                                        let newarry = [...props.expenses]
+                                        newarry[index].DepartmentId = Number(e.target.value)
+                                        props.setExpenses(newarry)
+                                    }}>
+                                        <option className="text-gray"></option>
                                         {props.departments.map(depts => (
-                                            <option key={depts.DepartmentId} value={depts.DepartmentName} >{depts.DepartmentName}</option>
+                                            <option key={depts.DepartmentId} value={depts.DepartmentId} >{depts.DepartmentName}</option>
                                         ))}
                                     </select></td>
-                                    <td ><select name="" id="" className="from-control w-100">
+                                    <td ><select name="" id="" className="form-control form-control-sm" onChange={e => {
+                                        let newarry = [...props.expenses]
+                                        newarry[index].LocationId = Number(e.target.value)
+                                        props.setExpenses(newarry)
+                                    }} >
+                                        <option className="text-gray"></option>
                                         {props.locations.map(location => (
-                                            <option key={location.LocationId} value={location.Location} >{location.Location}</option>
+                                            <option key={location.LocationId} value={location.LocationId} >{location.Location}</option>
                                         ))}
                                     </select></td>
                                 </tr>
