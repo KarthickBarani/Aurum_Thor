@@ -166,18 +166,15 @@ export const InvoiceDetail = (props: {
                                     </span> : <span role='button' onClick={() => {
                                         console.log(modifyInvDetails)
                                         setProcess(true)
-                                        setProcess(false)
-
-                                        // axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, invDetails)
-                                        //     .then(res => {
-                                        //         console.log('Response:', res)
-                                        //         setProcess(false)
-                                        //     })
-                                        //     .catch(err => {
-                                        //         console.log('Error:', err)
-                                        //         setProcess(false)
-                                        //     })
-
+                                        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, modifyInvDetails)
+                                            .then(res => {
+                                                console.log('Response:', res)
+                                                setProcess(false)
+                                            })
+                                            .catch(err => {
+                                                console.log('Error:', err)
+                                                setProcess(false)
+                                            })
                                     }} className="svg-icon svg-icon-primary svg-icon-1 px-5"><svg xmlns="http://www.w3.org/2000/svg"
                                         xmlnsXlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
                                         viewBox="0 0 24 24" version="1.1">
@@ -205,7 +202,7 @@ export const InvoiceDetail = (props: {
                                 <div role="button" data-bs-toggle="collapse" onClick={() => set(!init)} data-bs-target="#pdf" className="ribbon-label bg-primary">{pdfToggle}</div>
                             </div>
                             <div className="card-body">
-                                <div className="row d-flex">
+                                <div className="row d-flex h-100">
                                     <div id="pdf" className=" col-6 collapse show fade">
                                         <div className="m-3">
                                             <PdfViewer pdfUrl={props.data} />
@@ -226,12 +223,12 @@ export const InvoiceDetail = (props: {
                                             </li>
                                         </ul>
 
-                                        <div className="tab-content h-100">
+                                        <div className="tab-content h-95">
                                             <div className="tab-pane fade h-100" id="itemsTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} invDetails={invDetails} setInvDetails={setInvDetails} /> : null}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} /> : null}
                                             </div>
                                             <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} departments={departments} locations={locations} invDetails={invDetails} setInvDetails={setInvDetails} />}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} departments={departments} locations={locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />}
                                             </div>
                                         </div>
                                     </div>

@@ -5,10 +5,10 @@ import { lineItemsType, invDetailsType } from './Interface'
 
 
 export const ListItemsComp = (props: {
-    invDetails: invDetailsType
+    modifyInvDetails: invDetailsType
     listItems: lineItemsType
     setListItems: Function
-    setInvDetails: Function
+    setModifyInvDetails: Function
 
 }
 ) => {
@@ -89,7 +89,7 @@ export const ListItemsComp = (props: {
             isNew: true
         })
         props.setListItems(newArr)
-        props.setInvDetails({ ...props.invDetails, LineItems: newArr })
+        props.setModifyInvDetails({ ...props.modifyInvDetails, LineItems: newArr })
         console.log('Add :', newArr)
     }
 
@@ -109,7 +109,7 @@ export const ListItemsComp = (props: {
                 let delarr = newarr.filter(arr => (arr.isCheck === false))
                 console.log(delarr)
                 props.setListItems(delarr)
-                props.setInvDetails({ ...props.invDetails, LineItems: delarr })
+                props.setModifyInvDetails({ ...props.modifyInvDetails, LineItems: delarr })
                 setAllCheck(false)
                 setAnyOne(false)
                 console.log('Delete :', delarr)
@@ -159,7 +159,7 @@ export const ListItemsComp = (props: {
                     </button>
                 }
             </div>
-            <div className="table-responsive mx-1">
+            {/* <div className="table-responsive mx-1">
                 <table className="table table-rounded border bg-light gs-3 ">
                     <thead className="fw-bolder fs-6">
                         <tr>
@@ -229,6 +229,109 @@ export const ListItemsComp = (props: {
                                             {
                                                 toggle && current === listItem.LineItemId ?
                                                     <input type="number" className="form-control form-control-sm" value={listItem.Amount} onBlur={() => {
+                                                        setToggle(false)
+                                                        setCurrent(0)
+                                                    }} onChange={e => {
+                                                        let newarry = [...props.listItems]
+                                                        newarry[index].Amount = Number(e.target.valueAsNumber.toFixed(2))
+                                                        newarry[index].UnitPrice = Number((e.target.valueAsNumber / listItem.Quantity).toFixed(5))
+                                                        props.setListItems(newarry)
+                                                    }} />
+                                                    : current === listItem.LineItemId ? `$ ${(listItem.Quantity * listItem.UnitPrice).toFixed(2)}` : `$ ${listItem.Amount.toFixed(2)}`
+                                            }</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                )
+                            })
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr className="fw-bold">
+                            <th colSpan={8}></th>
+                            <th className="min-w-150px">Items Subtotal</th>
+                            <th>{`$ ${poSubtotal?.toFixed(2)}`}</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div> */}
+            <div className="table-responsive">
+                <table className="table table-striped gy-3 gs-7">
+                    <thead>
+                        <tr className="fw-bold fs-6 text-gray-800 border-bottom-2 border-gray-200">
+                            <th><div className="form-check form-check-custom form-check-solid form-check-sm">
+                                <input className="form-check-input" type="checkbox" onChange={e => onAllCheck(e)} checked={allCheck} />
+                            </div></th>
+                            <th className="min-w-150px">Qty</th>
+                            <th className="min-w-80px">PO Qty</th>
+                            <th className="min-w-100px">Item</th>
+                            <th className="min-w-150px">Vendor Part#</th>
+                            <th className="min-w-350px">Description</th>
+                            <th className="min-w-100px">Department</th>
+                            <th className="min-w-100px">Location</th>
+                            <th className="min-w-100px">Inv Rate</th>
+                            <th className="min-w-150px">Inv Amount</th>
+                            <th className="min-w-100px">PO Rate</th>
+                            <th className="min-w-150px">PO Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            props.listItems?.map((listItem, index) => {
+                                return (
+                                    <tr key={listItem.LineItemId} className={listItem.isCheck ? "table-active" : ''} >
+                                        <th><div className="form-check form-check-custom form-check-solid form-check-sm">
+                                            <input className="form-check-input" type="checkbox" onChange={(e) => onCheck(e, index)} checked={listItem.isCheck} />
+                                        </div></th>
+                                        <td onDoubleClick={() => {
+                                            setToggle(true)
+                                            setCurrent(listItem.LineItemId)
+                                        }} >
+                                            {
+                                                toggle && current === listItem.LineItemId ? <input type="number" className="form-control form-control-transparent form-control-sm" value={listItem.Quantity} onBlur={() => {
+                                                    setToggle(false)
+                                                    setCurrent(0)
+                                                }} onChange={(e) => {
+                                                    let newarry = [...props.listItems]
+                                                    newarry[index].Quantity = e.target.valueAsNumber
+                                                    newarry[index].Amount = Number((newarry[index].UnitPrice * e.target.valueAsNumber).toFixed(2))
+                                                    props.setListItems(newarry)
+                                                }} /> : listItem.Quantity}
+                                        </td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{listItem.PartNumber}</td>
+                                        <td> {listItem.Description}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td onDoubleClick={() => {
+                                            setToggle(true)
+                                            setCurrent(listItem.LineItemId)
+                                        }}>
+                                            {
+                                                toggle && current === listItem.LineItemId ?
+                                                    <input type="number" className="form-control form-control-transparent form-control-sm" value={listItem.UnitPrice} onBlur={() => {
+                                                        setToggle(false)
+                                                        setCurrent(0)
+                                                    }} onChange={e => {
+                                                        let newarry = [...props.listItems]
+                                                        newarry[index].UnitPrice = Number(e.target.valueAsNumber.toFixed(5))
+                                                        newarry[index].Amount = Number((newarry[index].Quantity * e.target.valueAsNumber).toFixed(2))
+                                                        props.setListItems(newarry)
+                                                    }} />
+                                                    : `$ ${listItem.UnitPrice.toFixed(2)}`
+                                            }
+                                        </td>
+                                        <td onDoubleClick={() => {
+                                            setToggle(true)
+                                            setCurrent(listItem.LineItemId)
+                                        }}>
+                                            {
+                                                toggle && current === listItem.LineItemId ?
+                                                    <input type="number" className="form-control form-control-transparent form-control-sm" value={listItem.Amount} onBlur={() => {
                                                         setToggle(false)
                                                         setCurrent(0)
                                                     }} onChange={e => {

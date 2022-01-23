@@ -23,11 +23,13 @@ export const Form = (props: {
         vendorAddress1: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[0] : props.invDetails?.VendorAddress?.split(',')[0],
         vendorAddress2: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[1] : props.invDetails?.VendorAddress?.split(',')[1] + '-' + props.invDetails?.VendorAddress?.split(',')[2],
         vendorAddress3: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[2] : props.invDetails?.VendorAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
+        department: props.invDetails?.DepartmentId,
+        location: props.invDetails?.LocationId,
         subsidiary: '',
-        address: props.invDetails?.RemittanceAddress,
-        department: '',
+        address: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitAddressLine1 : props.invDetails?.RemittanceAddress?.split(',')[0],
+        address2: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitCity + ' - ' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitZipCode : props.invDetails?.RemittanceAddress?.split(',')[1] + '-' + props.invDetails?.RemittanceAddress?.split(',')[2],
+        address3: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitState + ',' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitCountry : props.invDetails?.RemittanceAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
         poNo: props.invDetails?.PurchaseNumber,
-        location: '',
         invoiceNumber: props.invDetails?.InvoiceNumber,
         invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
         postingPeriod: '',
@@ -61,9 +63,12 @@ export const Form = (props: {
             TaxTotal: Number(formik.values.tax),
             TotalAmount: Number(formik.values.invoiceAmount),
             VendorAddress: props.vendors[ind]?.VendorAddressLine1 + ',' + props.vendors[ind]?.VendorCity + ',' + props.vendors[ind]?.VendorZipCode + ',' + props.vendors[ind]?.VendorState + ',' + props.vendors[ind]?.VendorCountry,
+            RemittanceAddress: props.vendors[ind]?.RemitAddressLine1 + ',' + props.vendors[ind]?.RemitCity + ',' + props.vendors[ind]?.RemitZipCode + ',' + props.vendors[ind]?.RemitState + ',' + props.vendors[ind]?.RemitCountry,
             VendorId: Number(formik.values.vendorName) ? formik.values.vendorName : props.invDetails?.VendorId,
             VendorName: formik.values.vendorName,
-            VendorCode: props.vendors[ind]?.VendorCode
+            VendorCode: props.vendors[ind]?.VendorCode,
+            DepartmentId: formik.values.department,
+            LocationId: formik.values.location
         })
         props.setModifyInvDetails({
             ...props.invDetails,
@@ -73,9 +78,12 @@ export const Form = (props: {
             TaxTotal: Number(formik.values.tax),
             TotalAmount: Number(formik.values.invoiceAmount),
             VendorAddress: formik.values.vendorAddress1 + ',' + formik.values.vendorAddress2 + ',' + formik.values.vendorAddress3,
-            VendorId: formik.values.vendorId,
+            RemittanceAddress: formik.values.address + ',' + formik.values.address2 + ',' + formik.values.address3,
+            VendorId: Number(formik.values.vendorName) ? formik.values.vendorName : props.invDetails?.VendorId,
             VendorName: formik.values.vendorName,
-            VendorCode: props.vendors[ind]?.VendorCode
+            VendorCode: props.vendors[ind]?.VendorCode,
+            DepartmentId: formik.values.department,
+            LocationId: formik.values.location
         })
 
     }, [formik.values])
@@ -93,8 +101,8 @@ export const Form = (props: {
                             <label htmlFor="vendorName" className={formLabel}>Vendor
                                 Name</label>
                             <div className="input-group input-group-solid">
-                                <select id="vendorName" name="vendorName" value={formik.values.vendorName} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
-                                    <option value={formik.values.vendorId} >{formik.values.vendorName}</option>
+                                <select id="vendorName" name="vendorName" value={props.invDetails?.VendorId} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
+                                    {/* <option value={formik.values.vendorId} >{formik.values.vendorName}</option> */}
                                     {props.vendors?.map(vendor => (
                                         <option key={vendor.VendorId} value={vendor.VendorId} >{vendor.VendorName}</option>
                                     ))}
@@ -142,16 +150,16 @@ export const Form = (props: {
                         <label htmlFor="address" className={formLabel}>
                             Address</label>
                         <input id="address" name="address" className={formInput} onChange={formik.handleChange} value={formik.values.address} />
-                        <input readOnly className={formInput} />
-                        <input readOnly className={formInput} />
+                        <input id="address2" name="address2" readOnly className={formInput} onChange={formik.handleChange} value={formik.values.address2} />
+                        <input id="address3" name="address3" readOnly className={formInput} onChange={formik.handleChange} value={formik.values.address3} />
                         <div className="form-group text-start">
                             <label htmlFor="department" className={formLabel}>
                                 Department</label>
-                            <select id="department" name="department" className={formSelect} onChange={formik.handleChange}>
-                                <option className="text-gray"></option>
+                            <select id="department" name="department" value={props.invDetails?.DepartmentId} className={formSelect} onChange={formik.handleChange}>
+                                <option value={0}></option>
                                 {props.departments.map(dept => {
                                     return (
-                                        <option key={dept.DepartmentId} value={dept.DepartmentName} >{dept.DepartmentName}</option>
+                                        <option key={dept.DepartmentId} value={dept.DepartmentId} >{dept.DepartmentName}</option>
                                     )
                                 }
                                 )}
@@ -166,7 +174,7 @@ export const Form = (props: {
                                 PO #</label>
                             <div className='input-group input-group-solid'>
                                 <select id="poNo" name="poNo" className={formSelect} onChange={formik.handleChange}>
-                                    <option>{formik.values.poNo}</option>
+                                    <option value={0} ></option>
                                 </select>
                                 <button className='btn btn-secondary btn-sm'><span className="svg-icon svg-icon-light svg-icon-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                     <path d="M14.5 20.7259C14.6 21.2259 14.2 21.826 13.7 21.926C13.2 22.026 12.6 22.0259 12.1 22.0259C9.5 22.0259 6.9 21.0259 5 19.1259C1.4 15.5259 1.09998 9.72592 4.29998 5.82592L5.70001 7.22595C3.30001 10.3259 3.59999 14.8259 6.39999 17.7259C8.19999 19.5259 10.8 20.426 13.4 19.926C13.9 19.826 14.4 20.2259 14.5 20.7259ZM18.4 16.8259L19.8 18.2259C22.9 14.3259 22.7 8.52593 19 4.92593C16.7 2.62593 13.5 1.62594 10.3 2.12594C9.79998 2.22594 9.4 2.72595 9.5 3.22595C9.6 3.72595 10.1 4.12594 10.6 4.02594C13.1 3.62594 15.7 4.42595 17.6 6.22595C20.5 9.22595 20.7 13.7259 18.4 16.8259Z" fill="black" />
@@ -179,11 +187,11 @@ export const Form = (props: {
                         <div>
                             <label htmlFor="location" className={formLabel}>
                                 Location</label>
-                            <select id="location" name="location" className={formSelect} onChange={formik.handleChange} >
-                                <option className="text-gray"></option>
+                            <select id="location" name="location" value={props.invDetails?.LocationId} className={formSelect} onChange={formik.handleChange} >
+                                <option value={0}></option>
                                 {props.locations.map(location => {
                                     return (
-                                        <option key={location.LocationId} value={location.Location} >{location.Location}</option>
+                                        <option key={location.LocationId} value={location.LocationId} >{location.Location}</option>
                                     )
                                 }
                                 )}

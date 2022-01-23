@@ -8,11 +8,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-} */
-
 .lds-facebook {
   display: inline-block;
   position: relative;
@@ -51,6 +46,5 @@ body {
 }
 
 td,th {
-  width: auto;
   vertical-align: middle;
 }

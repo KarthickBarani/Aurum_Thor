@@ -1,4 +1,5 @@
 
+import axios from "axios"
 import { useState } from "react"
 import Swal from 'sweetalert2'
 import { expensesType, departments, locations, invDetailsType } from './Interface'
@@ -12,8 +13,8 @@ export const ExpensesComp = (props: {
     setExpenses: Function,
     departments: departments,
     locations: locations,
-    invDetails: invDetailsType
-    setInvDetails: Function
+    modifyInvDetails: invDetailsType
+    setModifyInvDetails: Function
 
 }) => {
 
@@ -33,12 +34,13 @@ export const ExpensesComp = (props: {
                 isNew: true
             })
         props.setExpenses(newarr)
-        props.setInvDetails({ ...props.invDetails, Expenses: newarr })
+        props.setModifyInvDetails({ ...props.modifyInvDetails, Expenses: newarr })
         setAllCheck(false)
         setAnyOne(false)
         console.log(newarr)
     }
 
+    const [recallProcess, setRecallProcess] = useState<boolean>(false)
     const [toggle, setToggle] = useState<boolean>(false)
     const [current, setCurrent] = useState<number | string>(0)
     const [allCheck, setAllCheck] = useState<boolean>(false)
@@ -108,7 +110,7 @@ export const ExpensesComp = (props: {
             isNew: true,
         })
         props.setExpenses(newArr)
-        props.setInvDetails({ ...props.invDetails, Expenses: newArr })
+        props.setModifyInvDetails({ ...props.modifyInvDetails, Expenses: newArr })
         console.log('Add :', newArr)
     }
 
@@ -128,7 +130,7 @@ export const ExpensesComp = (props: {
                 let delarr = newarr.filter(arr => (arr.isCheck === false))
                 console.log(delarr)
                 props.setExpenses(delarr)
-                props.setInvDetails({ ...props.invDetails, Expenses: delarr })
+                props.setModifyInvDetails({ ...props.modifyInvDetails, Expenses: delarr })
                 setAllCheck(false)
                 setAnyOne(false)
                 console.log('Delete :', delarr)
@@ -176,12 +178,30 @@ export const ExpensesComp = (props: {
                             </button>
                         </> :
                         <>
-                            <button title="Refresh" className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
-                                <span className="svg-icon svg-icon-primary svg-icon-3"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="24" viewBox="0 0 23 24" fill="none">
-                                    <path d="M21 13V13.5C21 16 19 18 16.5 18H5.6V16H16.5C17.9 16 19 14.9 19 13.5V13C19 12.4 19.4 12 20 12C20.6 12 21 12.4 21 13ZM18.4 6H7.5C5 6 3 8 3 10.5V11C3 11.6 3.4 12 4 12C4.6 12 5 11.6 5 11V10.5C5 9.1 6.1 8 7.5 8H18.4V6Z" fill="black" />
-                                    <path opacity="0.3" d="M21.7 6.29999C22.1 6.69999 22.1 7.30001 21.7 7.70001L18.4 11V3L21.7 6.29999ZM2.3 16.3C1.9 16.7 1.9 17.3 2.3 17.7L5.6 21V13L2.3 16.3Z" fill="black" />
-                                </svg></span>
-                            </button>
+                            {
+                                recallProcess ?
+                                    <span className=" mt-4 text-primary">
+                                        Recalling... <span className="spinner-border spinner-border-sm align-middle"></span>
+                                    </span>
+                                    :
+                                    <button title="Recall" onClick={() => {
+                                        setRecallProcess(true)
+                                        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Recall/${props.modifyInvDetails.InvoiceNumber}`)
+                                            .then(res => {
+                                                props.setExpenses(res.data)
+                                                props.setModifyInvDetails({ ...props.modifyInvDetails, Expenses: res.data })
+                                                setRecallProcess(false)
+                                            })
+                                            .catch(err => {
+                                                console.log(err)
+                                                setRecallProcess(false)
+                                            })
+                                    }} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
+                                        <span className="svg-icon svg-icon-primary svg-icon-3"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="24" viewBox="0 0 23 24" fill="none">
+                                            <path d="M21 13V13.5C21 16 19 18 16.5 18H5.6V16H16.5C17.9 16 19 14.9 19 13.5V13C19 12.4 19.4 12 20 12C20.6 12 21 12.4 21 13ZM18.4 6H7.5C5 6 3 8 3 10.5V11C3 11.6 3.4 12 4 12C4.6 12 5 11.6 5 11V10.5C5 9.1 6.1 8 7.5 8H18.4V6Z" fill="black" />
+                                            <path opacity="0.3" d="M21.7 6.29999C22.1 6.69999 22.1 7.30001 21.7 7.70001L18.4 11V3L21.7 6.29999ZM2.3 16.3C1.9 16.7 1.9 17.3 2.3 17.7L5.6 21V13L2.3 16.3Z" fill="black" />
+                                        </svg></span>
+                                    </button>}
                             <button title="Add" onClick={addExpenses} className="btn btn-active-light-success btn-icon btn-sm m-1 btn-hover-rise">
                                 <span className="svg-icon svg-icon-2 svg-icon-success mx-1"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -198,23 +218,27 @@ export const ExpensesComp = (props: {
                 }
             </div>
             <div className="table-responsive">
-                <table className="table table-bordered h-80 bg-light rounded min-h-80 gs-3 ">
-                    <thead className="fs-6 fw-bolder">
-                        <tr>
-                            <th><input type='checkbox' className="form-check form-check-sm" onChange={e => onAllCheck(e)} checked={allCheck} /></th>
+                <table className="table table-striped gy-3 gs-7">
+                    <thead>
+                        <tr className="fw-bold fs-6 text-gray-800 border-bottom-2 border-gray-200">
+                            <th><div className="form-check form-check-custom form-check-solid form-check-sm">
+                                <input className="form-check-input" type="checkbox" onChange={e => onAllCheck(e)} checked={allCheck} />
+                            </div></th>
                             <th className="min-w-150px">Account</th>
                             <th className="min-w-150px">Amount</th>
-                            <th>Memo</th>
+                            <th className="min-w-400px" >Memo</th>
                             <th className="min-w-150px">Department</th>
                             <th className="min-w-150px">Location</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white" >
+                    <tbody>
                         {props.expenses?.map((expense, index) => {
                             return (
                                 <tr key={expense.ExpenseId} className={expense.isCheck ? "table-active" : ''} >
-                                    <td align="center"><input type='checkbox' className="form-check form-check-sm" onChange={(e) => onCheck(e, index)} checked={expense.isCheck} /></td>
-                                    <td ><select name="" id="" className="form-control form-control-sm">
+                                    <td ><div className="form-check form-check-custom form-check-solid form-check-sm">
+                                        <input className="form-check-input" type="checkbox" onChange={(e) => onCheck(e, index)} checked={expense.isCheck} />
+                                    </div></td>
+                                    <td ><select name="" id="" className="form-select form-select-transparent form-select-sm">
                                         <option></option>
                                     </select></td>
                                     <td onDoubleClick={
@@ -224,7 +248,7 @@ export const ExpensesComp = (props: {
                                         }
                                     }>{
                                             toggle && current === expense.ExpenseId ?
-                                                <input type="number" className="form-control form-control-sm" value={expense.Amount} onBlur={() => {
+                                                <input type="number" className="form-control form-control-transparent form-control-sm" value={expense.Amount} onBlur={() => {
                                                     setToggle(false)
                                                     setCurrent(0)
                                                 }} onChange={e => {
@@ -241,7 +265,7 @@ export const ExpensesComp = (props: {
                                         }
                                     }>{
                                             toggle && current === expense.ExpenseId ?
-                                                <input type="text" className="form-control form-control-sm" value={expense.Memo?.toString()} onBlur={() => {
+                                                <input type="text" className="form-control form-control-transparent form-control-sm" value={expense.Memo?.toString()} onBlur={() => {
                                                     setToggle(false)
                                                     setCurrent(0)
                                                 }} onChange={e => {
@@ -251,7 +275,7 @@ export const ExpensesComp = (props: {
                                                 }} />
                                                 : `${expense.Memo}`
                                         }</td>
-                                    <td ><select name="" id="" className="form-control form-control-sm" onChange={e => {
+                                    <td ><select name="" id="" value={expense.DepartmentId} className="form-select form-select-transparent form-select-sm" onChange={e => {
                                         let newarry = [...props.expenses]
                                         newarry[index].DepartmentId = Number(e.target.value)
                                         props.setExpenses(newarry)
@@ -261,7 +285,7 @@ export const ExpensesComp = (props: {
                                             <option key={depts.DepartmentId} value={depts.DepartmentId} >{depts.DepartmentName}</option>
                                         ))}
                                     </select></td>
-                                    <td ><select name="" id="" className="form-control form-control-sm" onChange={e => {
+                                    <td ><select name="" id="" value={expense.LocationId} className="form-select form-select-transparent form-select-sm" onChange={e => {
                                         let newarry = [...props.expenses]
                                         newarry[index].LocationId = Number(e.target.value)
                                         props.setExpenses(newarry)
