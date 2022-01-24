@@ -10,6 +10,7 @@ import { ListItemsComp } from "../components/ListItemsComp"
 import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
 import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations } from '../components/Interface'
+import Swal from "sweetalert2"
 
 
 // type expensesType = {
@@ -115,6 +116,35 @@ export const InvoiceDetail = (props: {
         setExpenses(data?.data.Expenses)
 
     }
+    const save = () => {
+        console.log(modifyInvDetails)
+        setProcess(true)
+        // axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, modifyInvDetails)
+        //     .then(res => {
+        //         console.log('Response:', res)
+        //         setProcess(false)
+        //         Swal.fire(
+        //             {
+        //                 title: '<h1>Saved</h1>',
+        //                 icon: 'success',
+        //                 timer: 1000,
+        //                 showConfirmButton: false
+        //             }
+        //         )
+        //     })
+        //     .catch(err => {
+        //         console.log('Error:', err)
+        //         setProcess(false)
+        //         Swal.fire(
+        //             {
+        //                 title: 'Error',
+        //                 icon: 'error',
+        //                 timer: 1000,
+        //                 showConfirmButton: false
+        //             }
+        //         )
+        //     })
+    }
 
     const fetchInvDetails = () => {
         return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.data}`,)
@@ -149,43 +179,20 @@ export const InvoiceDetail = (props: {
                             <div className="card-header bg-white">
                                 <h3 className="card-title fw-bolders">Invoice Details</h3>
                                 <div className="card-toolbar">
-                                    <span role='button' className="svg-icon svg-icon-danger svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg"
-                                        width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                        <path opacity="0.3"
-                                            d="M6.7 19.4L5.3 18C4.9 17.6 4.9 17 5.3 16.6L16.6 5.3C17 4.9 17.6 4.9 18 5.3L19.4 6.7C19.8 7.1 19.8 7.7 19.4 8.1L8.1 19.4C7.8 19.8 7.1 19.8 6.7 19.4Z"
-                                            fill="black" />
-                                        <path
-                                            d="M19.5 18L18.1 19.4C17.7 19.8 17.1 19.8 16.7 19.4L5.40001 8.1C5.00001 7.7 5.00001 7.1 5.40001 6.7L6.80001 5.3C7.20001 4.9 7.80001 4.9 8.20001 5.3L19.5 16.6C19.9 16.9 19.9 17.6 19.5 18Z"
-                                            fill="black" />
-                                    </svg></span>
-
-
-
-                                    {process ? <span className="px-5 text-primary">
-                                        Please wait... <span className="spinner-border spinner-border-sm align-middle ms-2"></span>
-                                    </span> : <span role='button' onClick={() => {
-                                        console.log(modifyInvDetails)
-                                        setProcess(true)
-                                        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, modifyInvDetails)
-                                            .then(res => {
-                                                console.log('Response:', res)
-                                                setProcess(false)
-                                            })
-                                            .catch(err => {
-                                                console.log('Error:', err)
-                                                setProcess(false)
-                                            })
-                                    }} className="svg-icon svg-icon-primary svg-icon-1 px-5"><svg xmlns="http://www.w3.org/2000/svg"
-                                        xmlnsXlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
-                                        viewBox="0 0 24 24" version="1.1">
-                                            <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                                                <polygon points="0 0 24 0 24 24 0 24" />
-                                                <path
-                                                    d="M17,4 L6,4 C4.79111111,4 4,4.7 4,6 L4,18 C4,19.3 4.79111111,20 6,20 L18,20 C19.2,20 20,19.3 20,18 L20,7.20710678 C20,7.07449854 19.9473216,6.94732158 19.8535534,6.85355339 L17,4 Z M17,11 L7,11 L7,4 L17,4 L17,11 Z"
-                                                    fill="#000000" fillRule="nonzero" />
-                                                <rect fill="#000000" opacity="0.3" x="12" y="4" width="3" height="5" rx="0.5" />
-                                            </g>
-                                        </svg></span>}
+                                    <button onClick={save} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-scale" >
+                                        {process ? <span className="spinner-border spinner-border-sm text-primary"></span> : <span className="svg-icon svg-icon-primary svg-icon-1 px-5">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                xmlnsXlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
+                                                viewBox="0 0 24 24" version="1.1">
+                                                <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                                                    <polygon points="0 0 24 0 24 24 0 24" />
+                                                    <path
+                                                        d="M17,4 L6,4 C4.79111111,4 4,4.7 4,6 L4,18 C4,19.3 4.79111111,20 6,20 L18,20 C19.2,20 20,19.3 20,18 L20,7.20710678 C20,7.07449854 19.9473216,6.94732158 19.8535534,6.85355339 L17,4 Z M17,11 L7,11 L7,4 L17,4 L17,11 Z"
+                                                        fill="#000000" fillRule="nonzero" />
+                                                    <rect fill="#000000" opacity="0.3" x="12" y="4" width="3" height="5" rx="0.5" />
+                                                </g>
+                                            </svg></span>}
+                                    </button>
                                 </div>
                             </div>
                             <div className="card-body">

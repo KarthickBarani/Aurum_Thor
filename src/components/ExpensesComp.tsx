@@ -178,30 +178,24 @@ export const ExpensesComp = (props: {
                             </button>
                         </> :
                         <>
-                            {
-                                recallProcess ?
-                                    <span className=" mt-4 text-primary">
-                                        Recalling... <span className="spinner-border spinner-border-sm align-middle"></span>
-                                    </span>
-                                    :
-                                    <button title="Recall" onClick={() => {
-                                        setRecallProcess(true)
-                                        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Recall/${props.modifyInvDetails.InvoiceNumber}`)
-                                            .then(res => {
-                                                props.setExpenses(res.data)
-                                                props.setModifyInvDetails({ ...props.modifyInvDetails, Expenses: res.data })
-                                                setRecallProcess(false)
-                                            })
-                                            .catch(err => {
-                                                console.log(err)
-                                                setRecallProcess(false)
-                                            })
-                                    }} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
-                                        <span className="svg-icon svg-icon-primary svg-icon-3"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="24" viewBox="0 0 23 24" fill="none">
-                                            <path d="M21 13V13.5C21 16 19 18 16.5 18H5.6V16H16.5C17.9 16 19 14.9 19 13.5V13C19 12.4 19.4 12 20 12C20.6 12 21 12.4 21 13ZM18.4 6H7.5C5 6 3 8 3 10.5V11C3 11.6 3.4 12 4 12C4.6 12 5 11.6 5 11V10.5C5 9.1 6.1 8 7.5 8H18.4V6Z" fill="black" />
-                                            <path opacity="0.3" d="M21.7 6.29999C22.1 6.69999 22.1 7.30001 21.7 7.70001L18.4 11V3L21.7 6.29999ZM2.3 16.3C1.9 16.7 1.9 17.3 2.3 17.7L5.6 21V13L2.3 16.3Z" fill="black" />
-                                        </svg></span>
-                                    </button>}
+                            <button title="Recall" onClick={() => {
+                                setRecallProcess(true)
+                                axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Recall/${props.modifyInvDetails.InvoiceNumber}`)
+                                    .then(res => {
+                                        props.setExpenses(res.data)
+                                        props.setModifyInvDetails({ ...props.modifyInvDetails, Expenses: res.data })
+                                        setRecallProcess(false)
+                                    })
+                                    .catch(err => {
+                                        console.log(err)
+                                        setRecallProcess(false)
+                                    })
+                            }} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
+                                {recallProcess ? <span className="spinner-border spinner-border-sm text-primary"></span> : <span className="svg-icon svg-icon-primary svg-icon-3"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="24" viewBox="0 0 23 24" fill="none">
+                                    <path d="M21 13V13.5C21 16 19 18 16.5 18H5.6V16H16.5C17.9 16 19 14.9 19 13.5V13C19 12.4 19.4 12 20 12C20.6 12 21 12.4 21 13ZM18.4 6H7.5C5 6 3 8 3 10.5V11C3 11.6 3.4 12 4 12C4.6 12 5 11.6 5 11V10.5C5 9.1 6.1 8 7.5 8H18.4V6Z" fill="black" />
+                                    <path opacity="0.3" d="M21.7 6.29999C22.1 6.69999 22.1 7.30001 21.7 7.70001L18.4 11V3L21.7 6.29999ZM2.3 16.3C1.9 16.7 1.9 17.3 2.3 17.7L5.6 21V13L2.3 16.3Z" fill="black" />
+                                </svg></span>}
+                            </button>
                             <button title="Add" onClick={addExpenses} className="btn btn-active-light-success btn-icon btn-sm m-1 btn-hover-rise">
                                 <span className="svg-icon svg-icon-2 svg-icon-success mx-1"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -218,9 +212,9 @@ export const ExpensesComp = (props: {
                 }
             </div>
             <div className="table-responsive">
-                <table className="table table-striped gy-3 gs-7">
+                <table className="table table-striped gy-3 gs-7 p-2 table-rounded">
                     <thead>
-                        <tr className="fw-bold fs-6 text-gray-800 border-bottom-2 border-gray-200">
+                        <tr className="fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200">
                             <th><div className="form-check form-check-custom form-check-solid form-check-sm">
                                 <input className="form-check-input" type="checkbox" onChange={e => onAllCheck(e)} checked={allCheck} />
                             </div></th>
@@ -300,10 +294,11 @@ export const ExpensesComp = (props: {
                         })}
                     </tbody>
                     <tfoot>
-                        <tr className="fw-bold">
+                        <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
                             <th colSpan={1}></th>
                             <th> Subtotal </th>
                             <th>{`$ ${exSubtotal?.toFixed(2)}`}</th>
+                            <th></th>
                             <th></th>
                             <th></th>
                         </tr>

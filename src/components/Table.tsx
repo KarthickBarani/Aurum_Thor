@@ -73,25 +73,27 @@ export const Table = (props:
 
                 <div className="card-toolbar">
                     <span className='sm-ms-auto'><input value={globalFilter || ''} onChange={e => { setGlobalFilter(e.target.value) }} className='form-control form-control-solid' placeholder='Search Here' /></span>
-                    <button type="button" className="btn btn-light m-2" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-start">
-                        Columns
-                    </button>
-                    <div className="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-200px py-4" data-kt-menu="true">
-                        <div className="menu-item px-3 el">
-                            <input type='checkbox' {...getToggleHideAllColumnsProps()} /> Toggle
-                            All
-                            {allColumns.map(column => {
+                    <div className='dropdown'>
+                        <button type="button" className="btn btn-light m-2 dropdown-toggle" data-bs-toggle="dropdown" >
+                            Columns
+                        </button>
+                        <div className="dropdown-menu" >
+                            <div className=" px-3">
+                                <input type='checkbox' {...getToggleHideAllColumnsProps()} /> Toggle
+                                All
+                                {allColumns.map(column => {
 
-                                return (
-                                    < div key={column.id} >
-                                        <label>
-                                            <input type="checkbox" {...column.getToggleHiddenProps()} />{' '}
-                                            {column.Header}
-                                        </label>
-                                    </div>
-                                )
-                            }
-                            )}
+                                    return (
+                                        < div key={column.id} >
+                                            <label>
+                                                <input type="checkbox" {...column.getToggleHiddenProps()} />{' '}
+                                                {column.Header}
+                                            </label>
+                                        </div>
+                                    )
+                                }
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
