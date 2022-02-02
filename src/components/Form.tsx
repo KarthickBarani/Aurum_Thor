@@ -2,11 +2,13 @@
 import { useFormik } from "formik"
 import { useEffect } from "react"
 import { invDetailsType, vendors, departments, locations } from '../components/Interface'
-
+import * as Yup from 'yup'
 
 
 export const Form = (props: {
     invDetails: invDetailsType,
+    exSubtotal: number,
+    POSubtotal: number,
     setInvDetails: Function,
     setModifyInvDetails: Function,
     vendors: vendors,
@@ -17,7 +19,7 @@ export const Form = (props: {
 
 
     const initialValues = {
-        vendorName: props.invDetails?.VendorName,
+        vendorName: props.invDetails?.VendorId,
         vendorId: props.invDetails?.VendorCode,
         remitTo: props.invDetails?.CustomerName,
         vendorAddress1: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[0] : props.invDetails?.VendorAddress?.split(',')[0],
@@ -26,19 +28,19 @@ export const Form = (props: {
         department: props.invDetails?.DepartmentId,
         location: props.invDetails?.LocationId,
         subsidiary: '',
-        address: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitAddressLine1 : props.invDetails?.RemittanceAddress?.split(',')[0],
-        address2: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitCity + ' - ' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitZipCode : props.invDetails?.RemittanceAddress?.split(',')[1] + '-' + props.invDetails?.RemittanceAddress?.split(',')[2],
-        address3: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitState + ',' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === props.invDetails.VendorId)]?.RemitCountry : props.invDetails?.RemittanceAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
+        address: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitAddressLine1 : props.invDetails?.RemittanceAddress?.split(',')[0],
+        address2: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitCity + ' - ' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitZipCode : props.invDetails?.RemittanceAddress?.split(',')[1] + '-' + props.invDetails?.RemittanceAddress?.split(',')[2],
+        address3: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitState + ',' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitCountry : props.invDetails?.RemittanceAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
         poNo: props.invDetails?.PurchaseNumber,
         invoiceNumber: props.invDetails?.InvoiceNumber,
-        invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
+        invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
         postingPeriod: '',
-        dueDate: new Date(props.invDetails?.DueDate).toLocaleDateString(),
-        invoiceAmount: props.invDetails?.TotalAmount?.toFixed(2),
+        dueDate: new Date(props.invDetails?.DueDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.DueDate).toLocaleDateString(),
+        invoiceAmount: props.invDetails?.TotalAmount,
         currency: 'USD',
-        tax: props.invDetails?.TaxTotal?.toFixed(2),
-        exSubtotal: 0?.toFixed(2),
-        poSubtotal: 0?.toFixed(2),
+        tax: props.invDetails?.TaxTotal,
+        exSubtotal: props.exSubtotal?.toFixed(2),
+        poSubtotal: props.POSubtotal?.toFixed(2),
         memo: '',
         approver: '',
     }
@@ -46,20 +48,51 @@ export const Form = (props: {
     const onSubmit = values => {
         console.log(values)
     }
+
+    const validationSchema = Yup.object({
+        vendorName: Yup.number().required('Required !'),
+        vendorId: Yup.number().required('Required !').positive().typeError('Must be a number'),
+        remitTo: Yup.number().required('Required !'),
+        vendorAddress1: Yup.string().required('Required !'),
+        vendorAddress2: Yup.string().required('Required !'),
+        vendorAddress3: Yup.string().required('Required !'),
+        department: Yup.number().required('Required !'),
+        location: Yup.number().required('Required !'),
+        subsidiary: Yup.string().required('Required !'),
+        address: Yup.string().required('Required !'),
+        address2: Yup.string().required('Required !'),
+        address3: Yup.string().required('Required !'),
+        poNo: Yup.string().notRequired(),
+        invoiceNumber: Yup.string().required('Required !'),
+        invoiceDate: Yup.date().required('Required !'),
+        postingPeriod: Yup.string().required('Required !'),
+        dueDate: Yup.date().notRequired(),
+        invoiceAmount: Yup.string().required('Required !'),
+        currency: Yup.string().required('Required !'),
+        tax: Yup.string().required('Required !'),
+        exSubtotal: Yup.string().required('Required !'),
+        poSubtotal: Yup.string().required('Required !'),
+        memo: Yup.string().required('Required !'),
+        approver: Yup.string().required('Required !'),
+    })
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues,
-        onSubmit
+        onSubmit,
+        validationSchema,
     })
 
 
     useEffect(() => {
-        let ind = props.vendors?.findIndex(arr => arr.VendorId.toString() === formik.values.vendorName)
+        let ind = props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails?.VendorName))
+
+        console.log(`${ind}`, props.vendors[ind]?.RemitCity)
         props.setInvDetails({
             ...props.invDetails,
-            DueDate: new Date(formik.values.dueDate),
-            InvoiceDate: new Date(formik.values.invoiceDate),
-            InvoiceNumber: formik.values.invoiceNumber,
+            // DueDate: formik.values.dueDate ? new Date(1 / 1 / 1) : new Date(1 / 1 / 1),
+            // InvoiceDate: new Date(formik.values.invoiceDate),
+            // InvoiceNumber: formik.values.invoiceNumber,
             TaxTotal: Number(formik.values.tax),
             TotalAmount: Number(formik.values.invoiceAmount),
             VendorAddress: props.vendors[ind]?.VendorAddressLine1 + ',' + props.vendors[ind]?.VendorCity + ',' + props.vendors[ind]?.VendorZipCode + ',' + props.vendors[ind]?.VendorState + ',' + props.vendors[ind]?.VendorCountry,
@@ -69,6 +102,7 @@ export const Form = (props: {
             VendorCode: props.vendors[ind]?.VendorCode,
             DepartmentId: formik.values.department,
             LocationId: formik.values.location
+
         })
         props.setModifyInvDetails({
             ...props.invDetails,
@@ -90,19 +124,21 @@ export const Form = (props: {
 
     const formInput = 'form-control form-control-solid mb-1'
     const formSelect = 'form-select form-select-solid'
-    const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2'
+    const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2 '
+
+
 
     return (
-        <form onSubmit={formik.handleSubmit}>
+        < form onSubmit={formik.handleSubmit} >
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-4">
                         <div className="form-group">
-                            <label htmlFor="vendorName" className={formLabel}>Vendor
+                            <label htmlFor="vendorName" className={formLabel + 'required'}>Vendor
                                 Name</label>
                             <div className="input-group input-group-solid">
-                                <select id="vendorName" name="vendorName" value={props.invDetails?.VendorId} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
-                                    {/* <option value={formik.values.vendorId} >{formik.values.vendorName}</option> */}
+                                <select id="vendorName" name="vendorName" value={formik.values.vendorName} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
+
                                     {props.vendors?.map(vendor => (
                                         <option key={vendor.VendorId} value={vendor.VendorId} >{vendor.VendorName}</option>
                                     ))}
@@ -112,21 +148,24 @@ export const Form = (props: {
                                     <path opacity="0.3" d="M11 20C6 20 2 16 2 11C2 6 6 2 11 2C16 2 20 6 20 11C20 16 16 20 11 20ZM11 4C7.1 4 4 7.1 4 11C4 14.9 7.1 18 11 18C14.9 18 18 14.9 18 11C18 7.1 14.9 4 11 4ZM8 11C8 9.3 9.3 8 11 8C11.6 8 12 7.6 12 7C12 6.4 11.6 6 11 6C8.2 6 6 8.2 6 11C6 11.6 6.4 12 7 12C7.6 12 8 11.6 8 11Z" fill="black" />
                                 </svg></span></button>
                             </div>
+                            {formik.errors.vendorName && formik.touched.vendorName && formik.dirty ? <small className="text-danger text-sm">{formik.errors.vendorName}</small> : null}
                         </div>
                     </div>
                     <div className="col-2">
                         <label htmlFor="vendorId" className={formLabel}>
-                            Vendor Id</label>
-                        <input className={formInput} id="vendorId" name="vendorId" type="text" onChange={formik.handleChange} value={formik.values.vendorId} />
+                            Vendor Code</label>
+                        <input readOnly className={formik.errors.vendorId && formik.touched.vendorId && formik.dirty ? formInput + ' is-invalid' : formInput} id="vendorId" name="vendorId" type="text" onChange={formik.handleChange} value={formik.values.vendorId} onBlur={formik.handleBlur} />
+                        {formik.errors.vendorId && formik.touched.vendorId && formik.dirty ? <small className="text-danger ">{formik.errors.vendorId}</small> : null}
                     </div>
                     <div className="col-6">
                         <div className="form-group text-start">
                             <label htmlFor="remitTo" className={formLabel}>Remit
                                 To</label>
-                            <select id="remitTo" name="remitTo" className={formSelect} onChange={formik.handleChange}  >
+                            <select id="remitTo" name="remitTo" className={formik.errors.remitTo && formik.touched.remitTo && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} onBlur={formik.handleBlur} >
                                 <option>{formik.values.remitTo}</option>
                             </select>
                         </div>
+                        {formik.errors.remitTo && formik.touched.remitTo && formik.dirty ? <small className="text-danger ">{formik.errors.remitTo}</small> : null}
                     </div>
                 </div>
                 <div className="row">
@@ -134,28 +173,33 @@ export const Form = (props: {
                         <div className="form-group">
                             <label htmlFor="vendorAddress1" className={formLabel}>Vendor
                                 Address</label>
-                            <input id="venderAddress1" name="venderAddress1" className={formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress1} />
-                            <input id="venderAddress2" name="venderAddress2" readOnly className={formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress2} />
-                            <input id="venderAddress3" name="venderAddress3" readOnly className={formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress3} />
+                            <input id="venderAddress1" name="venderAddress1" readOnly className={formik.errors.vendorAddress1 && formik.touched.vendorAddress1 && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress1} onBlur={formik.handleBlur} />
+                            <input id="venderAddress2" name="venderAddress2" readOnly className={formik.errors.vendorAddress1 && formik.touched.vendorAddress1 && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress2} onBlur={formik.handleBlur} />
+                            <input id="venderAddress3" name="venderAddress3" readOnly className={formik.errors.vendorAddress1 && formik.touched.vendorAddress1 && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values?.vendorAddress3} onBlur={formik.handleBlur} />
                         </div>
+                        {formik.errors.vendorAddress1 && formik.touched.vendorAddress1 && formik.dirty ? <small className="text-danger ">{formik.errors.vendorAddress1}</small> : null}
                         <div className="form-group">
                             <label htmlFor="subsidiary"
                                 className={formLabel}>Subsidiary</label>
-                            <select id="subsidiary" name="subsidiary" className={formSelect} onChange={formik.handleChange}  >
+                            <select id="subsidiary" name="subsidiary" className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
                                 <option>{formik.values.subsidiary}</option>
                             </select>
                         </div>
+                        {formik.errors.subsidiary && formik.touched.subsidiary && formik.dirty ? <small className="text-danger ">{formik.errors.subsidiary}</small> : null}
                     </div>
                     <div className="col">
-                        <label htmlFor="address" className={formLabel}>
-                            Address</label>
-                        <input id="address" name="address" className={formInput} onChange={formik.handleChange} value={formik.values.address} />
-                        <input id="address2" name="address2" readOnly className={formInput} onChange={formik.handleChange} value={formik.values.address2} />
-                        <input id="address3" name="address3" readOnly className={formInput} onChange={formik.handleChange} value={formik.values.address3} />
-                        <div className="form-group text-start">
+                        <div className="form-group">
+                            <label htmlFor="address" className={formLabel}>
+                                Address</label>
+                            <input id="address" name="address" readOnly className={formik.errors.address && formik.touched.address && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values.address} onBlur={formik.handleBlur} />
+                            <input id="address2" name="address2" readOnly className={formik.errors.address ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values.address2} onBlur={formik.handleBlur} />
+                            <input id="address3" name="address3" readOnly className={formik.errors.address ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values.address3} onBlur={formik.handleBlur} />
+                        </div>
+                        {formik.errors.address && formik.touched.address && formik.dirty ? <small className="text-danger ">{formik.errors.address}</small> : null}
+                        <div className="form-group ">
                             <label htmlFor="department" className={formLabel}>
                                 Department</label>
-                            <select id="department" name="department" value={props.invDetails?.DepartmentId} className={formSelect} onChange={formik.handleChange}>
+                            <select id="department" name="department" value={props.invDetails?.DepartmentId} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
                                 <option value={0}></option>
                                 {props.departments.map(dept => {
                                     return (
@@ -165,6 +209,7 @@ export const Form = (props: {
                                 )}
                             </select>
                         </div>
+                        {formik.errors.department && formik.touched.department && formik.dirty ? <small className="text-danger ">{formik.errors.department}</small> : null}
                     </div>
                 </div>
                 <div className="row">
@@ -173,7 +218,7 @@ export const Form = (props: {
                             <label htmlFor="poNo" className={formLabel} >
                                 PO #</label>
                             <div className='input-group input-group-solid'>
-                                <select id="poNo" name="poNo" className={formSelect} onChange={formik.handleChange}>
+                                <select id="poNo" name="poNo" className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
                                     <option value={0} ></option>
                                 </select>
                                 <button className='btn btn-secondary btn-sm'><span className="svg-icon svg-icon-light svg-icon-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -182,12 +227,13 @@ export const Form = (props: {
                                 </svg></span></button>
                             </div>
                         </div>
+                        {formik.errors.poNo && formik.touched.poNo && formik.dirty ? <small className="text-danger ">{formik.errors.poNo}</small> : null}
                     </div>
                     <div className="col-6">
-                        <div>
+                        <div className="form-group">
                             <label htmlFor="location" className={formLabel}>
                                 Location</label>
-                            <select id="location" name="location" value={props.invDetails?.LocationId} className={formSelect} onChange={formik.handleChange} >
+                            <select id="location" name="location" value={props.invDetails?.LocationId} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
                                 <option value={0}></option>
                                 {props.locations.map(location => {
                                     return (
@@ -197,15 +243,15 @@ export const Form = (props: {
                                 )}
                             </select>
                         </div>
+                        {formik.errors.location && formik.touched.location && formik.dirty ? <small className="text-danger ">{formik.errors.location}</small> : null}
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-3">
                         <div className="d-flex flex-column">
                             <label htmlFor="invoiceNumber"
-                                className="form-label fw-bolder  fs-6 gray-700   m-2">InvoiceNumber</label>
-                            <input id="invoiceNumber" name="invoiceNumber" className={formInput} maxLength={20} onChange={formik.handleChange} value={formik.values.invoiceNumber} />
-
+                                className={formLabel + 'required'}>InvoiceNumber</label>
+                            <input id="invoiceNumber" name="invoiceNumber" className={formik.errors.invoiceNumber && formik.touched.invoiceNumber && formik.dirty ? formInput + ' is-invalid' : formInput} maxLength={20} onChange={formik.handleChange} value={formik.values.invoiceNumber} onBlur={formik.handleBlur} />
                             <div className="form-check py-auto">
                                 <label htmlFor="creditMemo"
                                     className="form-check-label mt-5 fw-bolder fs-6 gray-700  ">Credit
@@ -213,72 +259,93 @@ export const Form = (props: {
                                 <input type="checkbox" id="creditMemo" name="creditMemo" className="form-check-input form-check-solid mt-5" />
                             </div>
                         </div>
+                        {formik.errors.invoiceNumber && formik.touched.invoiceNumber && formik.dirty ? <small className="text-danger ">{formik.errors.invoiceNumber}</small> : null}
                     </div>
                     <div className="col-3">
-                        <label htmlFor="invoiceDate" className={formLabel}>Invoice
-                            Date</label>
-                        <input id="invoiceDate" name="invoiceDate"
-                            maxLength={10} className={formInput} onChange={formik.handleChange} value={formik.values.invoiceDate} />
-
+                        <div className="form-group">
+                            <label htmlFor="invoiceDate" className={formLabel + 'required'}>Invoice
+                                Date</label>
+                            <input id="invoiceDate" name="invoiceDate" data-inputmask="'mask': '99/99/9999','placeholder': 'mm/dd/yyyy' "
+                                className={formik.errors.invoiceDate && formik.touched.invoiceDate && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values.invoiceDate} onBlur={formik.handleBlur} />
+                        </div>
+                        {formik.errors.invoiceDate && formik.touched.invoiceDate && formik.dirty ? <small className="text-danger ">{formik.errors.invoiceDate}</small> : null}
                     </div>
                     <div className=" col-3">
-                        <label htmlFor="postingPeriod" className={formLabel}>Posting
-                            Period</label>
-                        <input id="postingPeriod" name="postingPeriod" className={formInput} maxLength={20} onChange={formik.handleChange} value={formik.values.postingPeriod} />
+                        <div className="form-group">
+                            <label htmlFor="postingPeriod" className={formLabel}>Posting
+                                Period</label>
+                            <input id="postingPeriod" name="postingPeriod" className={formik.errors.postingPeriod && formik.touched.postingPeriod && formik.dirty ? formInput + ' is-invalid' : formInput} maxLength={20} onChange={formik.handleChange} value={formik.values.postingPeriod} onBlur={formik.handleBlur} />
+                        </div>
+                        {formik.errors.postingPeriod && formik.touched.postingPeriod && formik.dirty ? <small className="text-danger ">{formik.errors.postingPeriod}</small> : null}
                     </div>
                     <div className="col-3">
-                        <label htmlFor="dueDate" className={formLabel}>Due
-                            Date</label>
-                        <input id="dueDate" name="dueDate"
-                            maxLength={10} className={formInput} onChange={formik.handleChange} value={formik.values.dueDate} />
+                        <div className="form-group">
+                            <label htmlFor="dueDate" className={formLabel}>Due
+                                Date</label>
+                            <input id="dueDate" name="dueDate" className={formik.errors.dueDate && formik.touched.dueDate && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values.dueDate} onBlur={formik.handleBlur} />
+                        </div>
+                        {formik.errors.dueDate && formik.touched.dueDate && formik.dirty ? <small className="text-danger ">{formik.errors.dueDate}</small> : null}
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-3">
-                        <label htmlFor="invoiceAmount" className={formLabel}>Invoice
-                            Amount</label>
-                        <div className="input-group input-group-solid">
-                            <span className="input-group-text">$</span>
-                            <input id="invoiceAmount" name="invoiceAmount" className={formInput} maxLength={15} onChange={formik.handleChange} value={formik.values.invoiceAmount} />
+                        <div className="form-group">
+                            <label htmlFor="invoiceAmount" className={formLabel + 'required'}>Invoice
+                                Amount</label>
+                            <div className="input-group input-group-solid">
+                                <span className="input-group-text">$</span>
+                                <input id="invoiceAmount" name="invoiceAmount" type='number' className={formik.errors.invoiceAmount && formik.touched.invoiceAmount && formik.dirty ? formInput + ' is-invalid' : formInput} maxLength={15} onChange={formik.handleChange} value={formik.values.invoiceAmount} onBlur={formik.handleBlur} />
+                            </div>
                         </div>
+                        {formik.errors.invoiceAmount && formik.touched.invoiceAmount && formik.dirty ? <small className="text-danger ">{formik.errors.invoiceAmount}</small> : null}
                     </div>
                     <div className="col-3 d-flex">
                         <div className="form-group me-1">
                             <label htmlFor="currency" className={formLabel}>Currency</label>
-                            <input id="currency" name="currency" type="text" className={formInput} maxLength={5} onChange={formik.handleChange} value={formik.values.currency} />
+                            <input id="currency" name="currency" type="text" className={formik.errors.currency && formik.touched.currency && formik.dirty ? formInput + ' is-invalid' : formInput} maxLength={5} onChange={formik.handleChange} value={formik.values.currency} onBlur={formik.handleBlur} />
                         </div>
+                        {formik.errors.currency && formik.touched.currency && formik.dirty ? <small className="text-danger ">{formik.errors.currency}</small> : null}
                         <div className="form-group ms-1">
                             <label htmlFor="tax" className={formLabel}>
                                 Tax</label>
                             <div className="input-group input-group-solid">
                                 <span className="input-group-text">$</span>
-                                <input id="tax" name="tax" className={formInput} onChange={formik.handleChange} value={formik.values.tax} />
+                                <input id="tax" name="tax" type='number' className={formik.errors.tax && formik.touched.tax && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values.tax} onBlur={formik.handleBlur} />
                             </div>
                         </div>
+                        {formik.errors.tax && formik.touched.tax && formik.dirty ? <small className="text-danger ">{formik.errors.tax}</small> : null}
                     </div>
                     <div className="col-3">
                         <label htmlFor="exSubtotal" className={formLabel}>Expenses Subtotal</label>
                         <div className="input-group input-group-solid">
                             <span className="input-group-text">$</span>
-                            <input id="exSubtotal" name="exSubtotal" type="text" onChange={formik.handleChange} value={formik.values.exSubtotal} className={formInput} maxLength={12} />
+                            <input id="exSubtotal" name="exSubtotal" readOnly type="number" onChange={formik.handleChange} value={formik.values.exSubtotal} onBlur={formik.handleBlur} className={formik.errors.exSubtotal && formik.touched.exSubtotal && formik.dirty ? formInput + ' is-invalid' : formInput} maxLength={12} />
                         </div>
+                        {formik.errors.exSubtotal && formik.touched.exSubtotal && formik.dirty ? <small className="text-danger ">{formik.errors.exSubtotal}</small> : null}
                     </div>
                     <div className="col-3">
                         <label htmlFor="poSubtotal" className={formLabel}>PO Subtotal</label>
                         <div className="input-group input-group-solid">
                             <span className="input-group-text">$</span>
-                            <input id="poSubtotal" name="poSubtotal" type="text" onChange={formik.handleChange} value={formik.values.poSubtotal} className={formInput} maxLength={10} />
+                            <input id="poSubtotal" name="poSubtotal" readOnly type="number" onChange={formik.handleChange} value={formik.values.poSubtotal} onBlur={formik.handleBlur} className={formik.errors.poSubtotal && formik.touched.poSubtotal && formik.dirty ? formInput + ' is-invalid' : formInput} maxLength={10} />
                         </div>
+                        {formik.errors.poSubtotal && formik.touched.poSubtotal && formik.dirty ? <small className="text-danger ">{formik.errors.poSubtotal}</small> : null}
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
-                        <label htmlFor="memo" className={formLabel}>Memo</label>
-                        <input id="memo" name="memo" type="text" className={formInput} onChange={formik.handleChange} value={formik.values.memo} />
+                        <div className="form-group">
+                            <label htmlFor="memo" className={formLabel}>Memo</label>
+                            <input id="memo" name="memo" type="text" className={formik.errors.memo && formik.touched.memo && formik.dirty ? formInput + ' is-invalid' : formInput} onBlur={formik.handleBlur} onChange={formik.handleChange} value={formik.values.memo} />
+                        </div>
+                        {formik.errors.memo && formik.touched.memo && formik.dirty ? <small className="text-danger ">{formik.errors.memo}</small> : null}
                     </div>
                     <div className="col">
-                        <label htmlFor="approver" className={formLabel}>Approver</label>
-                        <input id="approver" name="approver" type="text" className={formInput} onChange={formik.handleChange} value={formik.values.approver} />
+                        <div className="form-group">
+                            <label htmlFor="approver" className={formLabel}>Approver</label>
+                            <input id="approver" name="approver" type="text" className={formik.errors.approver && formik.touched.approver && formik.dirty ? formInput + ' is-invalid' : formInput} onBlur={formik.handleBlur} onChange={formik.handleChange} value={formik.values.approver} />
+                        </div>
+                        {formik.errors.approver && formik.touched.approver && formik.dirty ? <small className="text-danger ">{formik.errors.approver}</small> : null}
                     </div>
                 </div>
                 <div className="row">

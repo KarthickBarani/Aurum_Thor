@@ -11,6 +11,7 @@ import { expensesType, departments, locations, invDetailsType } from './Interfac
 export const ExpensesComp = (props: {
     expenses: expensesType,
     setExpenses: Function,
+    setExSubtotal: Function
     departments: departments,
     locations: locations,
     modifyInvDetails: invDetailsType
@@ -26,10 +27,10 @@ export const ExpensesComp = (props: {
                 ExpenseId: Date.now() + Number(key),
                 InvoiceId: 0,
                 Amount: selArr[key].Amount,
-                Memo: '',
+                Memo: selArr[key].Memo,
                 AddedDateTime: new Date(Date.now()),
-                DepartmentId: 0,
-                LocationId: 0,
+                DepartmentId: selArr[key].DepartmentId,
+                LocationId: selArr[key].LocationId,
                 isCheck: false,
                 isNew: true
             })
@@ -48,6 +49,7 @@ export const ExpensesComp = (props: {
 
     const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
     const exSubtotal: number = props.expenses?.reduce(reducer, 0)
+    props.setExSubtotal(props.expenses?.reduce(reducer, 0))
 
     const set = (arr) => {
         for (let val of arr) {

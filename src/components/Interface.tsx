@@ -24,8 +24,14 @@ export type lineItemsType = {
     Date: Date,
     TaxAmount: number,
     TaxPercentage: number,
-    isCheck: boolean
-    isNew?: boolean
+    isCheck: boolean,
+    isNew?: boolean,
+    POAmount: number,
+    PODepartment: number,
+    PODescription: string,
+    POItem: number,
+    POQuantity: number,
+    POUnitPrice: number
 }[]
 
 

@@ -1,15 +1,17 @@
 import { useState } from "react"
 import Swal from "sweetalert2"
-import { lineItemsType, invDetailsType } from './Interface'
+import { lineItemsType, invDetailsType, departments, locations } from './Interface'
 
 
 
 export const ListItemsComp = (props: {
     modifyInvDetails: invDetailsType
     listItems: lineItemsType
+    departments: departments
+    locations: locations
+    setPOSubtotal: Function
     setListItems: Function
     setModifyInvDetails: Function
-
 }
 ) => {
 
@@ -20,7 +22,11 @@ export const ListItemsComp = (props: {
     const [anyOne, setAnyOne] = useState<boolean>(false)
 
     const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
+    const reducer1 = (prevVal: any, currentVal: { POAmount: any }) => prevVal + (currentVal.POAmount)
     const poSubtotal: number = props.listItems?.reduce(reducer, 0)
+    const poSubtotal1: number = props.listItems?.reduce(reducer1, 0)
+    props.setPOSubtotal(props.listItems?.reduce(reducer1, 0))
+
 
     const set = (arr) => {
         for (let val of arr) {
@@ -86,7 +92,13 @@ export const ListItemsComp = (props: {
             TaxAmount: 0,
             TaxPercentage: 0,
             isCheck: false,
-            isNew: true
+            isNew: true,
+            POAmount: 0,
+            PODepartment: 0,
+            PODescription: "",
+            POItem: 0,
+            POQuantity: 0,
+            POUnitPrice: 0
         })
         props.setListItems(newArr)
         props.setModifyInvDetails({ ...props.modifyInvDetails, LineItems: newArr })
@@ -166,17 +178,17 @@ export const ListItemsComp = (props: {
                             <th><div className="form-check form-check-custom form-check-solid form-check-sm">
                                 <input className="form-check-input" type="checkbox" onChange={e => onAllCheck(e)} checked={allCheck} />
                             </div></th>
-                            <th className="min-w-150px">Qty</th>
+                            <th className="min-w-150px">Inv Qty</th>
                             <th className="min-w-80px">PO Qty</th>
                             <th className="min-w-100px">Item</th>
                             <th className="min-w-150px">Vendor Part#</th>
                             <th className="min-w-350px">Description</th>
-                            <th className="min-w-100px">Department</th>
-                            <th className="min-w-100px">Location</th>
+                            <th className="min-w-150px">Department</th>
+                            <th className="min-w-150px">Location</th>
                             <th className="min-w-100px">Inv Rate</th>
                             <th className="min-w-150px">Inv Amount</th>
                             <th className="min-w-100px">PO Rate</th>
-                            <th className="min-w-150px">PO Line Total</th>
+                            <th className="min-w-150px">PO Amount</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -187,7 +199,7 @@ export const ListItemsComp = (props: {
                                         <th><div className="form-check form-check-custom form-check-solid form-check-sm">
                                             <input className="form-check-input" type="checkbox" onChange={(e) => onCheck(e, index)} checked={listItem.isCheck} />
                                         </div></th>
-                                        <td onDoubleClick={() => {
+                                        <td className={listItem.POQuantity < listItem.Quantity ? 'text-danger' : ''} onDoubleClick={() => {
                                             setToggle(true)
                                             setCurrent(listItem.LineItemId)
                                         }} >
@@ -203,12 +215,20 @@ export const ListItemsComp = (props: {
                                                 }} /> : listItem.Quantity
                                             }
                                         </td>
-                                        <td></td>
-                                        <td></td>
+                                        <td>{listItem.POQuantity}</td>
+                                        <td>{listItem.POItem}</td>
                                         <td>{listItem.PartNumber}</td>
-                                        <td> {listItem.Description}</td>
-                                        <td></td>
-                                        <td></td>
+                                        <td>{listItem.Description}</td>
+                                        <td><select name="" id="" className="form-select form-select-transparent form-select-sm">
+                                            {props.departments.map(depts => (
+                                                <option key={depts.DepartmentId} value={depts.DepartmentId} >{depts.DepartmentName}</option>
+                                            ))}
+                                        </select></td>
+                                        <td><select name="" id="" className="form-select form-select-transparent form-select-sm">
+                                            {props.locations.map(location => (
+                                                <option key={location.LocationId} value={location.LocationId} >{location.Location}</option>
+                                            ))}
+                                        </select></td>
                                         <td onDoubleClick={() => {
                                             setToggle(true)
                                             setCurrent(listItem.LineItemId)
@@ -244,9 +264,8 @@ export const ListItemsComp = (props: {
                                                     }} />
                                                     : current === listItem.LineItemId ? `$ ${(listItem.Quantity * listItem.UnitPrice).toFixed(2)}` : `$ ${listItem.Amount.toFixed(2)}`
                                             }</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
+                                        <td>{`$ ${listItem.POUnitPrice.toFixed(2)}`}</td>
+                                        <td>{`$ ${listItem.POAmount.toFixed(2)}`}</td>
                                     </tr>
                                 )
                             })
@@ -257,8 +276,8 @@ export const ListItemsComp = (props: {
                             <th colSpan={8}></th>
                             <th className="min-w-150px">Items Subtotal</th>
                             <th>{`$ ${poSubtotal?.toFixed(2)}`}</th>
-                            <th></th>
-                            <th></th>
+                            <th className="min-w-150px">PO Subtotal</th>
+                            <th>{`$ ${poSubtotal1?.toFixed(2)}`}</th>
                         </tr>
                     </tfoot>
                 </table>

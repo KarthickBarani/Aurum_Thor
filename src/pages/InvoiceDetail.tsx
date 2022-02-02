@@ -93,6 +93,8 @@ export const InvoiceDetail = (props: {
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [listItems, setListItems] = useState<lineItemsType>({} as lineItemsType)
     const [expenses, setExpenses] = useState<expensesType>({} as expensesType)
+    const [exSubtotal, setExSubtotal] = useState<number>(0)
+    const [POSubtotal, setPOSubtotal] = useState<number>(0)
 
     const [vendors, setVendor] = useState<vendors>([] as vendors)
     const [departments, setDepartments] = useState<departments>([] as departments)
@@ -119,6 +121,7 @@ export const InvoiceDetail = (props: {
     const save = () => {
         console.log(modifyInvDetails)
         setProcess(true)
+        setProcess(false)
         // axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, modifyInvDetails)
         //     .then(res => {
         //         console.log('Response:', res)
@@ -127,8 +130,7 @@ export const InvoiceDetail = (props: {
         //             {
         //                 title: '<h1>Saved</h1>',
         //                 icon: 'success',
-        //                 timer: 1000,
-        //                 showConfirmButton: false
+        //                 timer: 4000,
         //             }
         //         )
         //     })
@@ -140,7 +142,6 @@ export const InvoiceDetail = (props: {
         //                 title: 'Error',
         //                 icon: 'error',
         //                 timer: 1000,
-        //                 showConfirmButton: false
         //             }
         //         )
         //     })
@@ -163,10 +164,14 @@ export const InvoiceDetail = (props: {
     }, [data])
 
 
+
+
+
     const pdfToggle = init ? 'Hide Invoice' : 'Show Invoice'
     const collapseClass = init ? 'col-6' : 'col-12'
     return (
         <>
+
             <div className="container-fluid">
                 <div className="row my-10">
                     <div className="col">
@@ -196,7 +201,8 @@ export const InvoiceDetail = (props: {
                                 </div>
                             </div>
                             <div className="card-body">
-                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} setInvDetails={setInvDetails} vendors={vendors} departments={departments} locations={locations} setModifyInvDetails={setModifyInvDetails} origin={data?.data} ></Form> : null}
+                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={vendors}
+                                    departments={departments} locations={locations} setModifyInvDetails={setModifyInvDetails} origin={data?.data} ></Form> : null}
                             </div>
                         </div>
                     </div >
@@ -232,10 +238,10 @@ export const InvoiceDetail = (props: {
 
                                         <div className="tab-content h-95">
                                             <div className="tab-pane fade h-100" id="itemsTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} /> : null}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={departments} locations={locations} /> : null}
                                             </div>
                                             <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} departments={departments} locations={locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} setExSubtotal={setExSubtotal} departments={departments} locations={locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />}
                                             </div>
                                         </div>
                                     </div>
