@@ -1,14 +1,17 @@
 
 import { useFormik } from "formik"
 import { useEffect } from "react"
-import { invDetailsType, vendors, departments, locations } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary } from '../components/Interface'
 import * as Yup from 'yup'
+import moment from "moment"
+import { number } from "yup/lib/locale"
 
 
 export const Form = (props: {
     invDetails: invDetailsType,
     exSubtotal: number,
     POSubtotal: number,
+    subsidiaries: subsidiary
     setInvDetails: Function,
     setModifyInvDetails: Function,
     vendors: vendors,
@@ -27,13 +30,13 @@ export const Form = (props: {
         vendorAddress3: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[2] : props.invDetails?.VendorAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
         department: props.invDetails?.DepartmentId,
         location: props.invDetails?.LocationId,
-        subsidiary: '',
+        subsidiary: props.subsidiaries[props.subsidiaries.findIndex(arr => arr.SubsidiaryId === Number(props.invDetails?.VendorName))]?.SubsidiaryId,
         address: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitAddressLine1 : props.invDetails?.RemittanceAddress?.split(',')[0],
         address2: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitCity + ' - ' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitZipCode : props.invDetails?.RemittanceAddress?.split(',')[1] + '-' + props.invDetails?.RemittanceAddress?.split(',')[2],
         address3: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitState + ',' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitCountry : props.invDetails?.RemittanceAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
         poNo: props.invDetails?.PurchaseNumber,
         invoiceNumber: props.invDetails?.InvoiceNumber,
-        invoiceDate: new Date(props.invDetails?.InvoiceDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.InvoiceDate).toLocaleDateString(),
+        invoiceDate: moment(props.invDetails?.InvoiceDate).format('MM/DD/yyyy'),
         postingPeriod: '',
         dueDate: new Date(props.invDetails?.DueDate).toLocaleDateString() === '1/1/1' ? '' : new Date(props.invDetails?.DueDate).toLocaleDateString(),
         invoiceAmount: props.invDetails?.TotalAmount,
@@ -64,8 +67,8 @@ export const Form = (props: {
         address3: Yup.string().required('Required !'),
         poNo: Yup.string().notRequired(),
         invoiceNumber: Yup.string().required('Required !'),
-        invoiceDate: Yup.date().required('Required !'),
-        postingPeriod: Yup.string().required('Required !'),
+        invoiceDate: Yup.date().required('Required !').typeError('invaild Date Format: "mm/dd/yyyy"'),
+        postingPeriod: Yup.string().notRequired(),
         dueDate: Yup.date().notRequired(),
         invoiceAmount: Yup.string().required('Required !'),
         currency: Yup.string().required('Required !'),
@@ -86,7 +89,6 @@ export const Form = (props: {
 
     useEffect(() => {
         let ind = props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails?.VendorName))
-
         console.log(`${ind}`, props.vendors[ind]?.RemitCity)
         props.setInvDetails({
             ...props.invDetails,
@@ -106,7 +108,7 @@ export const Form = (props: {
         })
         props.setModifyInvDetails({
             ...props.invDetails,
-            DueDate: new Date(formik.values.dueDate),
+            DueDate: new Date(formik.values.dueDate || "0001-01-01T00:00:00"),
             InvoiceDate: new Date(formik.values.invoiceDate),
             InvoiceNumber: formik.values.invoiceNumber,
             TaxTotal: Number(formik.values.tax),
@@ -181,8 +183,10 @@ export const Form = (props: {
                         <div className="form-group">
                             <label htmlFor="subsidiary"
                                 className={formLabel}>Subsidiary</label>
-                            <select id="subsidiary" name="subsidiary" className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
-                                <option>{formik.values.subsidiary}</option>
+                            <select id="subsidiary" name="subsidiary" value={formik.values.subsidiary} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
+                                {props.subsidiaries?.map(sub => (
+                                    <option key={sub.SubsidiaryId} value={sub.SubsidiaryId} >{sub.Name}</option>
+                                ))}
                             </select>
                         </div>
                         {formik.errors.subsidiary && formik.touched.subsidiary && formik.dirty ? <small className="text-danger ">{formik.errors.subsidiary}</small> : null}

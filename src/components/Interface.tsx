@@ -1,3 +1,5 @@
+import { number } from "yup/lib/locale"
+
 export type expensesType = {
     ExpenseId: number,
     InvoiceId: number,
@@ -94,6 +96,12 @@ export type vendors = {
     RemitCountry: string,
     RemitPhoneNumber: string,
     RemitFax: string
+    SubsidiaryId: number
 }[]
 export type departments = { DepartmentId: number, DepartmentCode: string, DepartmentName: string }[]
 export type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
+export type subsidiary = {
+    SubsidiaryId: number,
+    Code: number,
+    Name: string
+}[]

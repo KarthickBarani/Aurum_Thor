@@ -9,7 +9,7 @@ import { PdfViewer } from "../components/PdfViewer"
 import { ListItemsComp } from "../components/ListItemsComp"
 import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
-import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations } from '../components/Interface'
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary } from '../components/Interface'
 import Swal from "sweetalert2"
 
 
@@ -99,6 +99,7 @@ export const InvoiceDetail = (props: {
     const [vendors, setVendor] = useState<vendors>([] as vendors)
     const [departments, setDepartments] = useState<departments>([] as departments)
     const [locations, setLocation] = useState<locations>([] as locations)
+    const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
 
     useEffect(() => {
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor').then(res => {
@@ -110,13 +111,15 @@ export const InvoiceDetail = (props: {
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Locations').then(res => {
             setLocation(res.data)
         }).catch(err => console.log(err))
+        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Subsidiaries').then(res => {
+            setSubsidiaries(res.data)
+        }).catch(err => console.log(err))
     }, [])
 
     const onSuccess = () => {
         setInvDetails(data?.data)
         setListItems(data?.data.LineItems)
         setExpenses(data?.data.Expenses)
-
     }
     const save = () => {
         console.log(modifyInvDetails)
@@ -156,6 +159,7 @@ export const InvoiceDetail = (props: {
         onSuccess
     })
 
+    console.log('orign', data?.data)
     useEffect(() => {
         setModifyInvDetails(data?.data)
         setInvDetails(data?.data)
@@ -184,7 +188,7 @@ export const InvoiceDetail = (props: {
                             <div className="card-header bg-white">
                                 <h3 className="card-title fw-bolders">Invoice Details</h3>
                                 <div className="card-toolbar">
-                                    <button onClick={save} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-scale" >
+                                    <button onClick={save} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-scale" disabled >
                                         {process ? <span className="spinner-border spinner-border-sm text-primary"></span> : <span className="svg-icon svg-icon-primary svg-icon-1 px-5">
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 xmlnsXlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
@@ -202,7 +206,7 @@ export const InvoiceDetail = (props: {
                             </div>
                             <div className="card-body">
                                 {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={vendors}
-                                    departments={departments} locations={locations} setModifyInvDetails={setModifyInvDetails} origin={data?.data} ></Form> : null}
+                                    departments={departments} locations={locations} setModifyInvDetails={setModifyInvDetails} origin={data?.data} subsidiaries={subsidiaries} ></Form> : null}
                             </div>
                         </div>
                     </div >
