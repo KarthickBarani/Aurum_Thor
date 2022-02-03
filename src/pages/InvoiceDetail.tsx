@@ -163,11 +163,9 @@ export const InvoiceDetail = (props: {
     useEffect(() => {
         setModifyInvDetails(data?.data)
         setInvDetails(data?.data)
-        setListItems(data?.data.LineItems)
-        setExpenses(data?.data.Expenses)
+        setListItems(data?.data?.LineItems)
+        setExpenses(data?.data?.Expenses)
     }, [data])
-
-
 
 
 

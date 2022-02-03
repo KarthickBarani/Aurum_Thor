@@ -386,19 +386,22 @@ export const Form = (props: {
                             </div>
                         </div>
                         <div className="table-responsive">
-                            <table className="table table-bordered bg-light rounded gs-3">
-                                <thead className="fs-6 fw-bolder ">
-                                    <tr>
-                                        <th><input type="checkbox" className="form-check-input form-check-sm" />
-                                        </th>
+                            <table className="table table-striped gy-3 gs-7 p-2 table-rounded">
+                                <thead >
+                                    <tr className="fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200">
+                                        <th><div className="form-check form-check-custom form-check-solid form-check-sm">
+                                            <input className="form-check-input" type="checkbox" />
+                                        </div></th>
                                         <th>Description</th>
                                         <th>File Name</th>
                                         <th>Attached By</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white fw-bold">
+                                <tbody>
                                     <tr>
-                                        <td><input type="checkbox" className="form-check-input form-check-sm" /></td>
+                                        <td><div className="form-check form-check-custom form-check-solid form-check-sm">
+                                            <input className="form-check-input" type="checkbox" />
+                                        </div></td>
                                         <td>Milestone 1: At delivery of discovery summary document</td>
                                         <td>invoice0038.pdf</td>
                                         <td>peter</td>
