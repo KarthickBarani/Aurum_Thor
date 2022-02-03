@@ -49,7 +49,17 @@ type UserProfile = {
 export const UserManagement = () => {
   const [isClicked, setIsClicked] = useState<boolean>();
   const [userDetail, setUserDetail] = useState<UserProfileData>();
-  console.log(new Date().toString());
+
+  let today: string = `${new Date().getFullYear()}-${
+    new Date().getMonth() + 1 < 10
+      ? `0${new Date().getMonth() + 1}`
+      : new Date().getMonth() + 1
+  }-${
+    new Date().getDate() < 10
+      ? `0${new Date().getDate()}`
+      : new Date().getDate()
+  }`;
+
   const fetchUsers = () => {
     return axios.get(
       `https://invoiceprocessingapi.azurewebsites.net/api/v1/UserProfile`
@@ -133,7 +143,9 @@ export const UserManagement = () => {
                             <svg>...</svg>
                           </span>
                           <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>View Users</span>
+                            <span className='fs-4 fw-bolder'>
+                              View Active Users
+                            </span>
                             <span className='fs-7'>Edit or Remove Users</span>
                           </span>
                         </a>
@@ -163,8 +175,8 @@ export const UserManagement = () => {
                             <svg>...</svg>
                           </span>
                           <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>Recent Users</span>
-                            <span className='fs-7'>View Recent Users</span>
+                            <span className='fs-4 fw-bolder'>All Users</span>
+                            <span className='fs-7'>View All Users</span>
                           </span>
                         </a>
                       </li>
