@@ -105,3 +105,12 @@ export type subsidiary = {
     Code: number,
     Name: string
 }[]
+
+export type WorkFlowTableType = {
+    sNo: number
+    workflowName: string
+    numberOFLevels: number
+    createdBy: string
+    lastModifiedDateTime: Date
+    action: JSX.Element
+}[]
