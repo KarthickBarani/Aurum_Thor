@@ -8,7 +8,7 @@ import moment from "moment"
 
 
 export const WorkFlowTable = (props: {
-    workFlows: WorkFlowTableType
+    workFlows?: WorkFlowTableType
 }) => {
 
 
@@ -29,7 +29,7 @@ export const WorkFlowTable = (props: {
                 </thead>
                 <tbody>
                     {
-                        props.workFlows.map(workFlow => (
+                        props.workFlows?.map(workFlow => (
                             <tr>
                                 <td>{workFlow.sNo}</td>
                                 <td>{workFlow.workflowName}</td>

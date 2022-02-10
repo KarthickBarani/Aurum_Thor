@@ -1,8 +1,9 @@
-import { vendors, departments, locations, WorkFlowTableType } from "../components/Interface"
+import { vendors, departments, locations, WorkFlowTableType, userProfileType } from "../components/Interface"
 import { useEffect, useState } from "react"
 import { NewWorkFlow } from "../components/NewWorkFlow"
 import { WorkFlowTable } from "../components/WorkFlowTable"
 import axios from "axios"
+import { useFormik } from "formik"
 
 
 
@@ -12,6 +13,8 @@ export const WorkFlow = () => {
     const [vendors, setVendor] = useState<vendors>([] as vendors)
     const [departments, setDepartments] = useState<departments>([] as departments)
     const [locations, setLocation] = useState<locations>([] as locations)
+    const [users, setUsers] = useState<userProfileType>([] as userProfileType)
+
 
     useEffect(() => {
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor').then(res => {
@@ -23,13 +26,37 @@ export const WorkFlow = () => {
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Locations').then(res => {
             setLocation(res.data)
         }).catch(err => console.log(err))
+        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/UserProfile').then(res => {
+            setUsers(res.data)
+        }).catch(err => console.log(err))
     }, [])
 
     const [toggleWorkflow, setToggleWorkflow] = useState<boolean>(false)
     const [workFLowType, setWorkFlowType] = useState<' - Expenses' | ' - Purchase Order'>(' - Purchase Order')
     const [workFlows, setWorkFlows] = useState<WorkFlowTableType>([] as WorkFlowTableType)
 
+
+    const initialValues = {
+        account: 0,
+        department: 0,
+        location: 0,
+        approver: [],
+        amount: [],
+        percentage: [],
+    }
+
+    const onSubmit = values => {
+        console.log(values)
+    }
+
+    const formik = useFormik({
+        initialValues,
+        onSubmit
+    })
+
+
     const save = () => {
+        console.log('values', formik.values)
         setToggleWorkflow(false)
     }
 
@@ -80,7 +107,7 @@ export const WorkFlow = () => {
                             <div className="card-body card-scroll" style={{ 'height': '65vh' }} >
                                 {toggleWorkflow ?
                                     <>
-                                        <NewWorkFlow vendors={vendors} departments={departments} locations={locations} />
+                                        <NewWorkFlow vendors={vendors} departments={departments} locations={locations} users={users} setWorkFlows={setWorkFlows} formik={formik} />
                                     </>
                                     :
                                     <>
@@ -100,7 +127,6 @@ export const WorkFlow = () => {
                     </div>
                 </div>
             </div>
-
         </>
     )
 }

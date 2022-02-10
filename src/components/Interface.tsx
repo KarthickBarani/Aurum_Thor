@@ -114,3 +114,21 @@ export type WorkFlowTableType = {
     lastModifiedDateTime: Date
     action: JSX.Element
 }[]
+
+export type userProfileType = {
+    Id: number
+    EnterpriseId: number
+    CompanyId: number
+    CreatedTimestamp: Date
+    LastModifiedTimestamp: Date
+    UserName: string
+    FirstName: string
+    MiddleName: string
+    LastName: string
+    DisplayName: string
+    EmailAddress: string
+    Password: string
+    Active: boolean
+    ResetRequired: boolean
+    RoleId: number
+}[]
