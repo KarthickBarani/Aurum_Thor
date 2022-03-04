@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { invDetailsType, vendors, departments, locations, subsidiary } from '../components/Interface'
 import * as Yup from 'yup'
 import moment from "moment"
-import { number } from "yup/lib/locale"
+
 
 
 export const Form = (props: {
@@ -343,17 +343,53 @@ export const Form = (props: {
                             <input id="memo" name="memo" type="text" className={formik.errors.memo && formik.touched.memo && formik.dirty ? formInput + ' is-invalid' : formInput} onBlur={formik.handleBlur} onChange={formik.handleChange} value={formik.values.memo} />
                         </div>
                         {formik.errors.memo && formik.touched.memo && formik.dirty ? <small className="text-danger ">{formik.errors.memo}</small> : null}
-                    </div>
-                    <div className="col">
                         <div className="form-group">
                             <label htmlFor="approver" className={formLabel}>Approver</label>
                             <input id="approver" name="approver" type="text" className={formik.errors.approver && formik.touched.approver && formik.dirty ? formInput + ' is-invalid' : formInput} onBlur={formik.handleBlur} onChange={formik.handleChange} value={formik.values.approver} />
                         </div>
                         {formik.errors.approver && formik.touched.approver && formik.dirty ? <small className="text-danger ">{formik.errors.approver}</small> : null}
                     </div>
+                    <div className="col">
+                        <div className="d-flex flex-column">
+                            <div className="w-100">
+                                <label htmlFor="comments" className="form-label fs-6 fw-bolder mt-2">
+                                    Comments</label>
+                                <textarea className="form-control form-control-solid mt-2"></textarea>
+                            </div>
+                            <div className="d-flex justify-content-end">
+                                <button type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
+                                </button>
+                                <button className="btn btn-light-success btn-sm m-2">Approved
+                                    <span className="svg-icon svg-icon svg-icon-1"><svg
+                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none">
+                                        <path opacity="0.3"
+                                            d="M10 18C9.7 18 9.5 17.9 9.3 17.7L2.3 10.7C1.9 10.3 1.9 9.7 2.3 9.3C2.7 8.9 3.29999 8.9 3.69999 9.3L10.7 16.3C11.1 16.7 11.1 17.3 10.7 17.7C10.5 17.9 10.3 18 10 18Z"
+                                            fill="black" />
+                                        <path
+                                            d="M10 18C9.7 18 9.5 17.9 9.3 17.7C8.9 17.3 8.9 16.7 9.3 16.3L20.3 5.3C20.7 4.9 21.3 4.9 21.7 5.3C22.1 5.7 22.1 6.30002 21.7 6.70002L10.7 17.7C10.5 17.9 10.3 18 10 18Z"
+                                            fill="black" />
+                                    </svg></span>
+                                </button>
+                                <button className="btn btn-light-warning btn-sm my-2">Not
+                                    Approved <span className="svg-icon svg-icon-1"><svg
+                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none">
+                                        <path opacity="0.3"
+                                            d="M6.7 19.4L5.3 18C4.9 17.6 4.9 17 5.3 16.6L16.6 5.3C17 4.9 17.6 4.9 18 5.3L19.4 6.7C19.8 7.1 19.8 7.7 19.4 8.1L8.1 19.4C7.8 19.8 7.1 19.8 6.7 19.4Z"
+                                            fill="black" />
+                                        <path
+                                            d="M19.5 18L18.1 19.4C17.7 19.8 17.1 19.8 16.7 19.4L5.40001 8.1C5.00001 7.7 5.00001 7.1 5.40001 6.7L6.80001 5.3C7.20001 4.9 7.80001 4.9 8.20001 5.3L19.5 16.6C19.9 16.9 19.9 17.6 19.5 18Z"
+                                            fill="black" />
+                                    </svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="row">
-                    <div className="col-6">
+                <div className="row mt-5">
+                    <div className="col">
                         <div className="d-flex flex-stack">
                             <label className={formLabel}>Attachments</label>
                             <div>
@@ -408,44 +444,6 @@ export const Form = (props: {
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-                    <div className="col-6">
-                        <div className="col d-flex flex-column ">
-                            <div className="w-100">
-                                <label htmlFor="comments" className="form-label fs-6 fw-bolder mt-2">
-                                    Comments</label>
-                                <textarea className="form-control form-control-solid mt-2"></textarea>
-                            </div>
-                            <div className="d-flex justify-content-end">
-                                <button type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
-                                </button>
-                                <button className="btn btn-light-success btn-sm m-2">Approved
-                                    <span className="svg-icon svg-icon svg-icon-1"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none">
-                                        <path opacity="0.3"
-                                            d="M10 18C9.7 18 9.5 17.9 9.3 17.7L2.3 10.7C1.9 10.3 1.9 9.7 2.3 9.3C2.7 8.9 3.29999 8.9 3.69999 9.3L10.7 16.3C11.1 16.7 11.1 17.3 10.7 17.7C10.5 17.9 10.3 18 10 18Z"
-                                            fill="black" />
-                                        <path
-                                            d="M10 18C9.7 18 9.5 17.9 9.3 17.7C8.9 17.3 8.9 16.7 9.3 16.3L20.3 5.3C20.7 4.9 21.3 4.9 21.7 5.3C22.1 5.7 22.1 6.30002 21.7 6.70002L10.7 17.7C10.5 17.9 10.3 18 10 18Z"
-                                            fill="black" />
-                                    </svg></span>
-                                </button>
-                                <button className="btn btn-light-warning btn-sm my-2">Not
-                                    Approved <span className="svg-icon svg-icon-1"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none">
-                                        <path opacity="0.3"
-                                            d="M6.7 19.4L5.3 18C4.9 17.6 4.9 17 5.3 16.6L16.6 5.3C17 4.9 17.6 4.9 18 5.3L19.4 6.7C19.8 7.1 19.8 7.7 19.4 8.1L8.1 19.4C7.8 19.8 7.1 19.8 6.7 19.4Z"
-                                            fill="black" />
-                                        <path
-                                            d="M19.5 18L18.1 19.4C17.7 19.8 17.1 19.8 16.7 19.4L5.40001 8.1C5.00001 7.7 5.00001 7.1 5.40001 6.7L6.80001 5.3C7.20001 4.9 7.80001 4.9 8.20001 5.3L19.5 16.6C19.9 16.9 19.9 17.6 19.5 18Z"
-                                            fill="black" />
-                                    </svg>
-                                    </span>
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,7 @@
+import { Field } from "formik"
+import { string } from "yup"
 import { number } from "yup/lib/locale"
+import { WorkFlow } from "../pages/WorkFlow"
 
 export type expensesType = {
     ExpenseId: number,
@@ -106,14 +109,14 @@ export type subsidiary = {
     Name: string
 }[]
 
-export type WorkFlowTableType = {
-    sNo: number
-    workflowName: string
-    numberOFLevels: number
-    createdBy: string
-    lastModifiedDateTime: Date
-    action: JSX.Element
-}[]
+// export type WorkFlowTableType = {
+//     sNo: number
+//     workflowName: string
+//     numberOFLevels: number
+//     createdBy: string
+//     lastModifiedDateTime: string
+//     action: JSX.Element
+// }[]
 
 export type userProfileType = {
     Id: number
@@ -131,4 +134,54 @@ export type userProfileType = {
     Active: boolean
     ResetRequired: boolean
     RoleId: number
+}[]
+
+export type WorkFlowField = {
+    Field: string,
+    Value: string
+}[]
+
+
+export type WorkFlowLevel = {
+    Level: number,
+    Approver: string,
+    Amount: number,
+    Percentage: number
+}[]
+
+export type WorkFlowApproval = {
+    Field: WorkFlowField,
+    Level: WorkFlowLevel
+}[]
+
+export type WorkFlowTableType = {
+    WorkFlowId: number
+    EnterpriseId: string
+    CompanyId: string
+    Name: string
+    WorkFlowTypeId: number
+    Approval: WorkFlowApproval
+    CreatedBy: string
+    CreatedTimestamp: Date
+    LastModifiedTimestamp: Date
+}
+
+
+export type WorkFlowType = {
+    WorkflowTypeId: number,
+    Name: string,
+    Description: string
+}[]
+
+export type FieldValue = {
+    Id: number,
+    Field: string,
+    Type: string,
+    Label: string[]
+}
+
+export type Fields = {
+    Id: number,
+    Type: string,
+    Value: FieldValue[]
 }[]

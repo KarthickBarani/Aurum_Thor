@@ -10,8 +10,7 @@ import { UserManagement } from '../pages/UserManagement';
 import { UserGrid } from '../components/Auth/UserGrid';
 import { UserDetail } from '../components/Auth/UserDetail';
 import { WorkFlow } from '../pages/WorkFlow';
-import { NewWorkFlow } from '../components/NewWorkFlow';
-import { WorkFlowTable } from '../components/WorkFlowTable';
+
 export const Router = () => {
   const [Data, setInvNumber] = useState({});
   const queryClient = new QueryClient();
@@ -26,8 +25,6 @@ export const Router = () => {
           <Route path='Register' element={<RegisterComp />} />
           <Route path='UserManagement' element={<UserManagement />} />
           <Route path='WorkFlow' element={<WorkFlow />} >
-            <Route path='NewWorkFlow' element={<NewWorkFlow />} />
-            <Route path='WorkFlowTable' element={<WorkFlowTable />} />
           </Route>
         </Routes>
       </BrowserRouter>

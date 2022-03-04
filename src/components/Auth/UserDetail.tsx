@@ -82,7 +82,7 @@ export const UserDetail = React.memo(
         });
 
         AxiosUpdate('/api/v1/UserProfile', formData).then((data) => {
-          data === true ? confirm('User updated successfully') : null;
+          data ? confirm('User updated successfully') : null;
         });
       },
     });
@@ -103,7 +103,7 @@ export const UserDetail = React.memo(
         console.log(values);
         let formData = JSON.stringify(values);
         AxiosInsert('/api/v1/UserProfile', formData).then((data) => {
-          data === true ? confirm('User inserted successfully') : null;
+          data ? confirm('User inserted successfully') : null;
         });
       },
     });

@@ -66,7 +66,7 @@ export const Home = (props: {
                 </div>
 
             </div>
-            <div className="row justify-content-between g-5 my-3">
+            <div className="row justify-content-between g-5 my-1">
                 <div className="col">
                     {isLoading ? <Loading /> : isError ? <Error /> : <Table setPass={setPass} data={data?.data} />}
                     {props.setInvNumber(Pass)}
