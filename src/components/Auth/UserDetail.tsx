@@ -44,6 +44,7 @@ export const UserDetail = React.memo(
       }).then((result) => {
         if (result.isConfirmed) {
           props?.setIsClicked(false);
+          header === 'User inserted successfully' && formikNewForm.resetForm();
         }
       });
     };
