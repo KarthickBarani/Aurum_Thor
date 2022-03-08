@@ -9,6 +9,7 @@ import { RegisterComp } from '../components/Auth/RegisterComp';
 import { UserManagement } from '../pages/UserManagement';
 import { UserGrid } from '../components/Auth/UserGrid';
 import { UserDetail } from '../components/Auth/UserDetail';
+import { Settings } from '../pages/Settings';
 import { WorkFlow } from '../pages/WorkFlow';
 
 export const Router = () => {
@@ -24,6 +25,7 @@ export const Router = () => {
           <Route path='Login' element={<Login />} />
           <Route path='Register' element={<RegisterComp />} />
           <Route path='UserManagement' element={<UserManagement />} />
+           <Route path='Settings' element={<Settings />} />
           <Route path='WorkFlow' element={<WorkFlow />} >
           </Route>
         </Routes>
