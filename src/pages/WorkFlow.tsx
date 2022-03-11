@@ -47,11 +47,7 @@ export const WorkFlow = () => {
         return axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow')
     }
 
-
-
     const { isLoading, data, isError, refetch } = useQuery('invDetails', fetchWorkflows)
-
-
 
     useEffect(() => {
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor')
@@ -81,7 +77,6 @@ export const WorkFlow = () => {
 
     }, [data?.data])
 
-
     const onSubmit = values => {
         console.log(values)
     }
@@ -91,8 +86,6 @@ export const WorkFlow = () => {
         initialValues,
         onSubmit
     })
-
-
 
     const save = () => {
         setIsLoading(true)
@@ -208,13 +201,15 @@ export const WorkFlow = () => {
             amount: [],
             percentage: []
         })
+        setDyFields([])
         refetch()
     }
 
     const addWorkFlow = () => {
         setToggleWorkflow(true)
     }
-    const addFields = (arr) => {
+
+    const addFields = arr => {
         let arrs = [...DyFields]
         arrs.push(arr)
         setDyFields(arrs)

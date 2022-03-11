@@ -109,14 +109,6 @@ export type subsidiary = {
     Name: string
 }[]
 
-// export type WorkFlowTableType = {
-//     sNo: number
-//     workflowName: string
-//     numberOFLevels: number
-//     createdBy: string
-//     lastModifiedDateTime: string
-//     action: JSX.Element
-// }[]
 
 export type userProfileType = {
     Id: number

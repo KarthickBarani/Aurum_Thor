@@ -1,9 +1,10 @@
-import { Router } from './router/Router';
+import { Root } from './router/Root';
+
 
 function App() {
 
   return (
-    <Router />
+    <Root />
   )
 }
 
