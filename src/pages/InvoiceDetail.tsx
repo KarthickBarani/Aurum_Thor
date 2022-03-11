@@ -82,7 +82,7 @@ import Swal from "sweetalert2"
 
 
 export const InvoiceDetail = (props: {
-    data: any
+    invNumber: number
 }) => {
 
 
@@ -151,7 +151,7 @@ export const InvoiceDetail = (props: {
     }
 
     const fetchInvDetails = () => {
-        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.data}`,)
+        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`,)
     }
 
     const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
@@ -220,7 +220,7 @@ export const InvoiceDetail = (props: {
                                 <div className="row d-flex h-100">
                                     <div id="pdf" className=" col-6 collapse show fade">
                                         <div className="m-3">
-                                            <PdfViewer pdfUrl={props.data} />
+                                            <PdfViewer pdfUrl={props.invNumber} />
                                         </div>
                                     </div>
                                     <div className={collapseClass}>

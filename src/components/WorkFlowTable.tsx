@@ -2,6 +2,8 @@
 import axios from "axios"
 import { v4 as uuidv4 } from 'uuid'
 import { WorkFlowTableType } from "../components/Interface"
+import { EditSvg } from "../Svg/EditSvg"
+import { RemoveSvg } from "../Svg/RomoveSvg"
 
 
 
@@ -65,7 +67,7 @@ export const WorkFlowTable = (props: {
                                 <td>{workFlow.CreatedBy}</td>
                                 <td>{workFlow.CreatedTimestamp}</td>
                                 <td>
-                                    <span role='button' onClick={() => updateHandler(index)}
+                                    {/* <span role='button' onClick={() => updateHandler(index)}
                                         className="svg-icon svg-icon-warning svg-icon-2"><svg xmlns="http://www.w3.org/2000/svg"
                                             width="24" height="24" viewBox="0 0 24 24" fill="none">
                                             <path opacity="0.3"
@@ -75,8 +77,10 @@ export const WorkFlowTable = (props: {
                                                 d="M5.574 21.3L3.692 21.928C3.46591 22.0032 3.22334 22.0141 2.99144 21.9594C2.75954 21.9046 2.54744 21.7864 2.3789 21.6179C2.21036 21.4495 2.09202 21.2375 2.03711 21.0056C1.9822 20.7737 1.99289 20.5312 2.06799 20.3051L2.696 18.422L5.574 21.3ZM4.13499 14.105L9.891 19.861L19.245 10.507L13.489 4.75098L4.13499 14.105Z"
                                                 fill="black" />
                                         </svg>
-                                    </span> &nbsp;&nbsp;
-                                    <span role='button' className="svg-icon svg-icon-2 svg-icon-danger"><svg
+                                    </span> */}
+                                    <EditSvg clsName="svg-icon svg-icon-warning svg-icon-2" function={() => updateHandler(index)} />
+                                    &nbsp;&nbsp;
+                                    {/* <span role='button' className="svg-icon svg-icon-2 svg-icon-danger"><svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                         viewBox="0 0 24 24" fill="none">
                                         <path
@@ -88,7 +92,8 @@ export const WorkFlowTable = (props: {
                                         <path opacity="0.5"
                                             d="M9 4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V4H9V4Z"
                                             fill="black" />
-                                    </svg></span>
+                                    </svg></span> */}
+                                    <RemoveSvg />
                                 </td>
                             </tr>
                         ))

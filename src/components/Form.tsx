@@ -359,7 +359,7 @@ export const Form = (props: {
                             <div className="d-flex justify-content-end">
                                 <button type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
                                 </button>
-                                <button className="btn btn-light-success btn-sm m-2">Approved
+                                {/* <button className="btn btn-light-success btn-sm m-2">Approved
                                     <span className="svg-icon svg-icon svg-icon-1"><svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                         viewBox="0 0 24 24" fill="none">
@@ -383,7 +383,7 @@ export const Form = (props: {
                                             fill="black" />
                                     </svg>
                                     </span>
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </div>
