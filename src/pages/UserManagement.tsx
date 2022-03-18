@@ -50,15 +50,13 @@ export const UserManagement = () => {
   const [isClicked, setIsClicked] = useState<boolean>();
   const [userDetail, setUserDetail] = useState<UserProfileData>();
 
-  let today: string = `${new Date().getFullYear()}-${
-    new Date().getMonth() + 1 < 10
-      ? `0${new Date().getMonth() + 1}`
-      : new Date().getMonth() + 1
-  }-${
-    new Date().getDate() < 10
+  let today: string = `${new Date().getFullYear()}-${new Date().getMonth() + 1 < 10
+    ? `0${new Date().getMonth() + 1}`
+    : new Date().getMonth() + 1
+    }-${new Date().getDate() < 10
       ? `0${new Date().getDate()}`
       : new Date().getDate()
-  }`;
+    }`;
 
   const fetchUsers = () => {
     return axios.get(

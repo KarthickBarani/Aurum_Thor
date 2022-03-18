@@ -47,9 +47,8 @@ export const ExpensesComp = (props: {
     const [allCheck, setAllCheck] = useState<boolean>(false)
     const [anyOne, setAnyOne] = useState<boolean>(false)
 
-    const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
-    const exSubtotal: number = props.expenses?.reduce(reducer, 0)
-    props.setExSubtotal(props.expenses?.reduce(reducer, 0))
+    const exSubtotal: number = (props.expenses)?.reduce((prev, crt) => prev + crt.Amount, 0)
+    props.setExSubtotal(exSubtotal)
 
     const set = (arr) => {
         for (let val of arr) {

@@ -75,6 +75,9 @@ export type invDetailsType = {
     LastModifiedDateTime: string,
     TransactionDate: string,
     ReceivedDate: string
+    StatusId: number,
+    StatusText: string,
+    SubmittedBy: string
 }
 
 export type vendors = {

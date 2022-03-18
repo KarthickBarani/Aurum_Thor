@@ -2,6 +2,8 @@ import { useTable, useSortBy, useGlobalFilter } from 'react-table'
 
 import { useNavigate } from 'react-router-dom'
 import { invDetailsType } from './Interface'
+import { TableGrid } from './TableGrid'
+import { TableFilter } from './TableFilter'
 
 
 
@@ -18,10 +20,9 @@ export const Table = (props:
 
     const data: invDetailsType = props.data
 
-    const columns = props.columns
 
-    const hideCols = ['terms', 'updated', 'assignment', 'currency']
-    const initialState = { ...columns, hiddenColumns: hideCols }
+    const hiddenColumns = ['terms', 'updated', 'assignment', 'currency']
+    const initialState = { ...props.columns, hiddenColumns }
 
     const {
         getTableProps,
@@ -33,7 +34,7 @@ export const Table = (props:
         prepareRow,
         allColumns,
         getToggleHideAllColumnsProps,
-    } = useTable({ columns, data, initialState }, useGlobalFilter, useSortBy)
+    } = useTable({ columns: props.columns, data, initialState }, useGlobalFilter, useSortBy)
 
     const { globalFilter } = state
 
@@ -41,37 +42,7 @@ export const Table = (props:
 
     return (
         <div className="card card-flush card-stretch shadow-sm">
-            <div className="card-header">
-                <span className="card-title fw-bolder fs-4 text-gray-800" > {props.children}
-                </span>
-
-                <div className="card-toolbar">
-                    <span className='sm-ms-auto'><input value={globalFilter || ''} onChange={e => { setGlobalFilter(e.target.value) }} className='form-control form-control-solid' placeholder='Search Here' /></span>
-                    <div className='dropdown'>
-                        <button type="button" className="btn btn-light m-2 dropdown-toggle" data-bs-toggle="dropdown" >
-                            Columns
-                        </button>
-                        <div className="dropdown-menu" >
-                            <div className=" px-3">
-                                <input type='checkbox' {...getToggleHideAllColumnsProps()} /> Toggle
-                                All
-                                {allColumns.map(column => {
-
-                                    return (
-                                        < div key={column.id} >
-                                            <label>
-                                                <input type="checkbox" {...column.getToggleHiddenProps()} />{' '}
-                                                {column.Header}
-                                            </label>
-                                        </div>
-                                    )
-                                }
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <TableFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} getToggleHideAllColumnsProps={getToggleHideAllColumnsProps} allColumns={allColumns}>{props.children}</TableFilter>
             <div className="card-body card-scroll" style={{ 'height': '65vh' }}>
                 {props.isTemp ?
                     <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
@@ -94,98 +65,10 @@ export const Table = (props:
                     null}
                 <div className="tab-content">
                     <div className="tab-pane fade" id="myApprovalTab" role="tabpanel">
-                        <div className="table-responsive">
-                            <table {...getTableProps()} className='table table-rounded table-hover gs-3 gx-3 '>
-                                <thead className='fw-bolder fs-6'>
-                                    {headerGroups.map(headerGroup => (
-                                        <tr {...headerGroup.getHeaderGroupProps()}>
-
-                                            {headerGroup.headers.map((column) => (
-                                                <th{...column.getHeaderProps(column.getSortByToggleProps())} >
-                                                    {column.render('Header')}
-                                                    <span className=' ps-3 text-end'>
-                                                        {column.isSorted
-                                                            ? column.isSortedDesc
-                                                                ? '     ◢'
-                                                                : '     ◣'
-                                                            : ''}
-                                                    </span>
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                </thead>
-                                <tbody {...getTableBodyProps()} className='fw-bold fs-7' >
-                                    {rows.map(row => {
-                                        prepareRow(row)
-                                        return (
-                                            <tr role={'button'} onClick={() => {
-                                                props.setInvNumber(row.original.InvoiceId)
-                                                setTimeout(() => navigation('/InvoiceDetail'), 1)
-                                            }}
-                                                {...row.getRowProps()} >
-                                                {
-                                                    row.cells.map(cell => {
-                                                        return (
-                                                            <td {...cell.getCellProps()}>
-                                                                {cell.render('Cell')}
-                                                            </td>
-                                                        )
-                                                    })
-                                                }
-                                            </tr>
-                                        )
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                        <TableGrid getTableProps={getTableProps} getTableBodyProps={getTableBodyProps} headerGroups={headerGroups} rows={rows} prepareRow={prepareRow} setInvNumber={props.setInvNumber} />
                     </div>
                     <div className="tab-pane fade show active" id="pending" role="tabpanel">
-                        <div className="table-responsive">
-                            <table {...getTableProps()} className='table table-rounded table-hover gs-3 gx-3 '>
-                                <thead className='fw-bolder fs-6'>
-                                    {headerGroups.map(headerGroup => (
-                                        <tr {...headerGroup.getHeaderGroupProps()}>
-
-                                            {headerGroup.headers.map((column) => (
-                                                <th{...column.getHeaderProps(column.getSortByToggleProps())} >
-                                                    {column.render('Header')}
-                                                    <span className=' ps-3 text-end'>
-                                                        {column.isSorted
-                                                            ? column.isSortedDesc
-                                                                ? '     ◢'
-                                                                : '     ◣'
-                                                            : ''}
-                                                    </span>
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                </thead>
-                                <tbody {...getTableBodyProps()} className='fw-bold fs-7' >
-                                    {rows.map(row => {
-                                        prepareRow(row)
-                                        return (
-                                            <tr role={'button'} onClick={() => {
-                                                props.setInvNumber(row.original.InvoiceId)
-                                                setTimeout(() => navigation('/InvoiceDetail'), 1)
-                                            }}
-                                                {...row.getRowProps()} >
-                                                {
-                                                    row.cells.map(cell => {
-                                                        return (
-                                                            <td {...cell.getCellProps()}>
-                                                                {cell.render('Cell')}
-                                                            </td>
-                                                        )
-                                                    })
-                                                }
-                                            </tr>
-                                        )
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                        <TableGrid getTableProps={getTableProps} getTableBodyProps={getTableBodyProps} headerGroups={headerGroups} rows={rows} prepareRow={prepareRow} setInvNumber={props.setInvNumber} />
                     </div>
                 </div>
             </div>

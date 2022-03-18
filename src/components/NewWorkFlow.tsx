@@ -1,5 +1,5 @@
 
-import { vendors, departments, locations, userProfileType, FieldValue } from "../components/Interface"
+import { vendors, departments, locations, userProfileType, FieldValue } from "./Interface"
 import { DynamicField } from "./DynamicField"
 import { LevelElement } from "./LevelElement"
 

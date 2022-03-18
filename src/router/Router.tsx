@@ -14,6 +14,7 @@ import { WorkFlow } from '../pages/WorkFlow';
 import axios from 'axios';
 import { InvoiceDetailsTable } from '../pages/InvoiceDetailsTable';
 import { useQuery } from 'react-query';
+import { invDetailsType } from '../components/Interface';
 
 export const Router = () => {
   const [invNumber, setInvNumber] = useState<number>(0);
@@ -22,7 +23,7 @@ export const Router = () => {
 
 
   const fetchTableData = () => {
-    return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`)
+    return axios.get<invDetailsType[]>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`)
   }
 
 
@@ -34,7 +35,7 @@ export const Router = () => {
       <Navbar />
       <Routes>
         <Route path='/' element={<Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} isError={isError} />} />
-        <Route path='InvoiceDetailTable' element={<InvoiceDetailsTable setInvNumber={setInvNumber} data={data?.data} />} />
+        <Route path='InvoiceDetailTable' element={<InvoiceDetailsTable isLoading={isLoading} isError={isError} setInvNumber={setInvNumber} data={data?.data} />} />
         <Route path='InvoiceDetail' element={<InvoiceDetail invNumber={invNumber} />} />
         <Route path='Login' element={<Login />} />
         <Route path='Register' element={<RegisterComp />} />

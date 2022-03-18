@@ -21,11 +21,11 @@ export const ListItemsComp = (props: {
     const [allCheck, setAllCheck] = useState<boolean>(false)
     const [anyOne, setAnyOne] = useState<boolean>(false)
 
-    const reducer = (prevVal: any, currentVal: { Amount: any }) => prevVal + (currentVal.Amount)
-    const reducer1 = (prevVal: any, currentVal: { POAmount: any }) => prevVal + (currentVal.POAmount)
-    const poSubtotal: number = props.listItems?.reduce(reducer, 0)
-    const poSubtotal1: number = props.listItems?.reduce(reducer1, 0)
-    props.setPOSubtotal(props.listItems?.reduce(reducer1, 0))
+    console.log(props?.listItems)
+    const poSubtotal = props?.listItems?.reduce((prev, crt) => (prev + crt.Amount), 0)
+    const poSubtotal1 = props.listItems?.reduce((prev, crt) => (prev + crt.POAmount), 0)
+    props.setPOSubtotal(poSubtotal1)
+    console.log(props?.listItems)
 
 
     const set = (arr) => {

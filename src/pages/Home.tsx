@@ -2,7 +2,7 @@
 import { Charts } from "../components/Charts"
 import { Table } from "../components/Table"
 import { Error } from '../components/Error'
-import { Column } from '../components/Column'
+import { Column, InvoiceMyApprovalColumn } from '../components/Column'
 
 import { useState } from "react"
 import axios from "axios"
@@ -13,19 +13,12 @@ import { useQuery } from "react-query"
 
 
 export const Home = (props: {
-    setInvNumber: any
+    setInvNumber: Function
     isLoading: boolean
     data: any
     isError: boolean
 }) => {
 
-
-    // const fetchTableData = () => {
-    //     return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`)
-    // }
-
-
-    // const { isLoading, data, isError } = useQuery('tableData', fetchTableData)
 
 
     return (
@@ -70,7 +63,7 @@ export const Home = (props: {
             </div>
             <div className="row justify-content-between g-5 my-1">
                 <div className="col">
-                    {props.isLoading ? <Loading /> : props.isError ? <Error /> : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={false} columns={Column}>Invoice Details</Table>}
+                    {props.isLoading ? <Loading /> : props.isError ? <Error /> : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={false} columns={InvoiceMyApprovalColumn}>Invoice Details</Table>}
                 </div>
             </div>
         </div>

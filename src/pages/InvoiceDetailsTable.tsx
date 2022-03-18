@@ -1,11 +1,22 @@
 import { Table } from "../components/Table"
-import { InvoiceColumn } from '../components/Column'
+import { InvoicePendingColumn, InvoiceMyApprovalColumn } from '../components/Column'
+import { Loading } from "../components/Loading"
+import { Error } from "../components/Error"
 
 
 export const InvoiceDetailsTable = (props: {
     setInvNumber: Function
     data: any
+    isLoading: Boolean
+    isError: Boolean
 }) => {
+
+    const columns = {
+        InvoicePendingColumn,
+        InvoiceMyApprovalColumn
+    }
+
+
     return (
         <div className="container-fluid">
             <div className="row mt-10">
@@ -15,7 +26,7 @@ export const InvoiceDetailsTable = (props: {
             </div>
             <div className="row mt-10">
                 <div className="col">
-                    <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={true} columns={InvoiceColumn} >Approval</Table>
+                    {props.isLoading ? <Loading /> : props.isError ? <Error /> : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={true} columns={InvoiceMyApprovalColumn} >Approval</Table>}
                 </div>
             </div>
         </div>
