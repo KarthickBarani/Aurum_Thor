@@ -233,15 +233,17 @@ export const WorkFlow = () => {
                                 </h4>
                                 <div className="card-toolbar">
                                     {
-                                        toggleWorkflow ?
+                                        toggleWorkflow
+                                            ?
+
                                             <>
                                                 <div className="dropdown">
-                                                    <button className="btn btn-active-light-primary btn-sm mx-2 btn-hover-scale dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <button className="btn btn-active-light-primary btn-sm mx-2 btn-hover-scale dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                                         Add Field &nbsp;
                                                     </button>
-                                                    <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                    <ul className="dropdown-menu">
                                                         {
-                                                            fields.filter(arr => arr.Type === workFLowType[type].Name)[0].Value.map(arr => <li key={arr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(arr)} > {arr.Field}</li>)
+                                                            fields.filter(arr => arr.Type === workFLowType[type].Name)[0]?.Value.map(arr => <li key={arr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(arr)} > {arr.Field}</li>)
                                                         }
                                                     </ul>
                                                 </div>
@@ -286,16 +288,17 @@ export const WorkFlow = () => {
                                                 null
                                                 :
                                                 <button onClick={addWorkFlow} title='Add Workflow' className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
-                                                    <span className="svg-icon svg-icon-3 svg-icon-primary"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none">
-                                                        <path opacity="0.3"
-                                                            d="M3 13V11C3 10.4 3.4 10 4 10H20C20.6 10 21 10.4 21 11V13C21 13.6 20.6 14 20 14H4C3.4 14 3 13.6 3 13Z"
-                                                            fill="black" />
-                                                        <path
-                                                            d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
-                                                            fill="black" />
-                                                    </svg>
+                                                    <span className="svg-icon svg-icon-3 svg-icon-primary">
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                            viewBox="0 0 24 24" fill="none">
+                                                            <path opacity="0.3"
+                                                                d="M3 13V11C3 10.4 3.4 10 4 10H20C20.6 10 21 10.4 21 11V13C21 13.6 20.6 14 20 14H4C3.4 14 3 13.6 3 13Z"
+                                                                fill="black" />
+                                                            <path
+                                                                d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
+                                                                fill="black" />
+                                                        </svg>
                                                     </span>
                                                 </button>
 

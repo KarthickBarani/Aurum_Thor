@@ -35,6 +35,23 @@ export const InvoiceDetail = (props: {
     const [locations, setLocation] = useState<locations>([] as locations)
     const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
 
+    const onSuccess = () => {
+        setInvDetails(data?.data)
+        setListItems(data?.data.LineItems)
+        setExpenses(data?.data.Expenses)
+    }
+
+
+    const fetchInvDetails = () => {
+        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`,)
+    }
+
+    const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
+        refetchOnWindowFocus: false,
+        onSuccess
+    })
+
+
     useEffect(() => {
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor').then(res => {
             setVendor(res.data)
@@ -50,11 +67,14 @@ export const InvoiceDetail = (props: {
         }).catch(err => console.log(err))
     }, [])
 
-    const onSuccess = () => {
+    useEffect(() => {
+        setModifyInvDetails(data?.data)
         setInvDetails(data?.data)
-        setListItems(data?.data.LineItems)
-        setExpenses(data?.data.Expenses)
-    }
+        setListItems(data?.data?.LineItems)
+        setExpenses(data?.data?.Expenses)
+    }, [data?.data])
+
+
     const save = () => {
         console.log(modifyInvDetails)
         setProcess(true)
@@ -84,27 +104,12 @@ export const InvoiceDetail = (props: {
         //     })
     }
 
-    const fetchInvDetails = () => {
-        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`,)
-    }
-
-    const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
-        refetchOnWindowFocus: false,
-        onSuccess
-    })
-
-    console.log('orign', data?.data)
-    useEffect(() => {
-        setModifyInvDetails(data?.data)
-        setInvDetails(data?.data)
-        setListItems(data?.data?.LineItems)
-        setExpenses(data?.data?.Expenses)
-    }, [data?.data])
-
-
-
     const pdfToggle = init ? 'Hide Invoice' : 'Show Invoice'
     const collapseClass = init ? 'col-6' : 'col-12'
+
+    console.log('load', isLoading)
+    console.log('success', isSuccess)
+
     return (
         <>
 
@@ -177,7 +182,7 @@ export const InvoiceDetail = (props: {
                                                 {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={departments} locations={locations} /> : null}
                                             </div>
                                             <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} setExSubtotal={setExSubtotal} departments={departments} locations={locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ExpensesComp expenses={expenses} setExpenses={setExpenses} setExSubtotal={setExSubtotal} departments={departments} locations={locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} /> : null}
                                             </div>
                                         </div>
                                     </div>

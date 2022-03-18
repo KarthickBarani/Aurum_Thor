@@ -16,7 +16,8 @@ export const WorkFlowTable = (props: {
 }) => {
 
     const updateHandler = (index) => {
-        axios.get<WorkFlowTableType>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/${props.workFlows?.filter(arr => arr.WorkFlowTypeId === props.type)[index]?.WorkFlowId}`)
+        console.log(props.workFlows?.filter(arr => arr.WorkFlowTypeId === props.type)[index]?.WorkFlowId)
+        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/${props.workFlows?.filter(arr => arr.WorkFlowTypeId === props.type)[index]?.WorkFlowId}`)
             .then(res => {
                 let arr: any = []
                 for (let i = 0; i < res.data?.Approval[0].Level.length; i++) {
