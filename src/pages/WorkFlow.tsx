@@ -14,12 +14,22 @@ import { Loading } from "../components/Loading"
 
 
 
-export const WorkFlow = () => {
+export const WorkFlow = (
+    props: {
+        vendors: vendors
+        departments: departments
+        locations: locations
+        setVendor: Function
+        setDepartments: Function
+        setLocation: Function
+    }
+) => {
 
-    const [vendors, setVendor] = useState<vendors>([] as vendors)
-    const [departments, setDepartments] = useState<departments>([] as departments)
-    const [locations, setLocation] = useState<locations>([] as locations)
+    // const [vendors, setVendor] = useState<vendors>([] as vendors)
+    // const [departments, setDepartments] = useState<departments>([] as departments)
+    // const [locations, setLocation] = useState<locations>([] as locations)
     const [users, setUsers] = useState<userProfileType>([] as userProfileType)
+    const [workFLowType, setWorkFlowType] = useState<WorkFlowType>([] as WorkFlowType)
 
     const [toggleWorkflow, setToggleWorkflow] = useState<boolean>(false)
     const [workFlows, setWorkFlows] = useState<WorkFlowTableType[]>([] as WorkFlowTableType[])
@@ -27,7 +37,6 @@ export const WorkFlow = () => {
     const [fields, setFields] = useState<Fields>([] as Fields)
     const [DyFields, setDyFields] = useState<FieldValue[]>([] as FieldValue[])
     const [levelElements, setLevelElements] = useState<number[]>([uuidv4()])
-    const [workFLowType, setWorkFlowType] = useState<WorkFlowType>([] as WorkFlowType)
     const [type, setType] = useState<number>(0)
     const [IsLoading, setIsLoading] = useState<boolean>(false)
     const [isNew, setIsNew] = useState<boolean>(true)
@@ -37,7 +46,6 @@ export const WorkFlow = () => {
         account: 0,
         department: 0,
         location: 0,
-
         approver: [],
         amount: [],
         percentage: []
@@ -51,13 +59,13 @@ export const WorkFlow = () => {
 
     useEffect(() => {
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor')
-            .then(res => setVendor(res.data))
+            .then(res => props.setVendor(res.data))
             .catch(err => console.log(err))
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Departments')
-            .then(res => setDepartments(res.data))
+            .then(res => props.setDepartments(res.data))
             .catch(err => console.log(err))
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Locations')
-            .then(res => setLocation(res.data))
+            .then(res => props.setLocation(res.data))
             .catch(err => console.log(err))
         axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/UserProfile')
             .then(res => setUsers(res.data))
@@ -309,7 +317,7 @@ export const WorkFlow = () => {
                             <div className="card-body card-scroll" style={{ 'height': '65vh' }} >
                                 {toggleWorkflow ?
                                     <>
-                                        <NewWorkFlow vendors={vendors} departments={departments} locations={locations} users={users} formik={formik} levelElements={levelElements} setLevelElements={setLevelElements} type={workFLowType[type].WorkflowTypeId} DyFields={DyFields} setDyFields={setDyFields} />
+                                        <NewWorkFlow vendors={props.vendors} departments={props.departments} locations={props.locations} users={users} formik={formik} levelElements={levelElements} setLevelElements={setLevelElements} type={workFLowType[type].WorkflowTypeId} DyFields={DyFields} setDyFields={setDyFields} />
                                     </>
                                     :
                                     isLoading

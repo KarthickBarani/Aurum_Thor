@@ -19,6 +19,14 @@ export const ExpensesComp = (props: {
 
 }) => {
 
+
+    const [recallProcess, setRecallProcess] = useState<boolean>(false)
+    const [toggle, setToggle] = useState<boolean>(false)
+    const [current, setCurrent] = useState<number | string>(0)
+    const [allCheck, setAllCheck] = useState<boolean>(false)
+    const [anyOne, setAnyOne] = useState<boolean>(false)
+
+
     const CopyList = () => {
         let newarr = [...props.expenses]
         let selArr = newarr.filter(arr => arr.isCheck !== false || undefined)
@@ -41,13 +49,8 @@ export const ExpensesComp = (props: {
         console.log(newarr)
     }
 
-    const [recallProcess, setRecallProcess] = useState<boolean>(false)
-    const [toggle, setToggle] = useState<boolean>(false)
-    const [current, setCurrent] = useState<number | string>(0)
-    const [allCheck, setAllCheck] = useState<boolean>(false)
-    const [anyOne, setAnyOne] = useState<boolean>(false)
 
-    const exSubtotal: number = (props.expenses)?.reduce((prev, crt) => prev + crt.Amount, 0)
+    const exSubtotal = (props.expenses)?.reduce((prev, crt) => prev + crt.Amount, 0)
     props.setExSubtotal(exSubtotal)
 
     const set = (arr) => {
@@ -86,7 +89,7 @@ export const ExpensesComp = (props: {
         console.log('anyone:', anyOne, 'all', allCheck)
     }
 
-    const onAllCheck = (e) => {
+    const onAllCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
         let newArr = [...props?.expenses]
         set(newArr)
         setAllCheck(e.target.checked)
@@ -217,7 +220,7 @@ export const ExpensesComp = (props: {
                     <thead>
                         <tr className="fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200">
                             <th><div className="form-check form-check-custom form-check-solid form-check-sm">
-                                <input className="form-check-input" type="checkbox" onChange={e => onAllCheck(e)} checked={allCheck} />
+                                <input className="form-check-input" type="checkbox" onChange={onAllCheck} checked={allCheck} />
                             </div></th>
                             <th className="min-w-150px">Account</th>
                             <th className="min-w-150px">Amount</th>

@@ -1,6 +1,4 @@
 import { useTable, useSortBy, useGlobalFilter } from 'react-table'
-
-import { useNavigate } from 'react-router-dom'
 import { invDetailsType } from './Interface'
 import { TableGrid } from './TableGrid'
 import { TableFilter } from './TableFilter'
@@ -16,7 +14,7 @@ export const Table = (props:
         columns: any
     }) => {
 
-    const navigation = useNavigate()
+
 
     const data: invDetailsType = props.data
 

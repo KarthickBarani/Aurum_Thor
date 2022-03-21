@@ -113,7 +113,7 @@ export const TableGrid = (props: {
                                     return (
                                         <tr role={'button'} onClick={() => {
                                             props.setInvNumber(row.original.InvoiceId)
-                                            setTimeout(() => navigation('/InvoiceDetail'), 1)
+                                            setTimeout(() => navigation('/InvoiceDetail'), 10)
                                         }}
                                             {...row.getRowProps()} >
                                             {

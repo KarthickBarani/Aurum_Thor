@@ -15,9 +15,19 @@ import Swal from "sweetalert2"
 
 
 
+
 export const InvoiceDetail = (props: {
     invNumber: number
+    vendors: vendors
+    departments: departments
+    locations: locations
+    subsidiary: subsidiary
+    setVendor: Function
+    setDepartments: Function
+    setLocation: Function
+    setSubsidiaries: Function
 }) => {
+
 
 
     const [init, set] = useState(true)
@@ -30,16 +40,10 @@ export const InvoiceDetail = (props: {
     const [exSubtotal, setExSubtotal] = useState<number>(0)
     const [POSubtotal, setPOSubtotal] = useState<number>(0)
 
-    const [vendors, setVendor] = useState<vendors>([] as vendors)
-    const [departments, setDepartments] = useState<departments>([] as departments)
-    const [locations, setLocation] = useState<locations>([] as locations)
-    const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
-
-    const onSuccess = () => {
-        setInvDetails(data?.data)
-        setListItems(data?.data.LineItems)
-        setExpenses(data?.data.Expenses)
-    }
+    // const [vendors, setVendor] = useState<vendors>([] as vendors)
+    // const [departments, setDepartments] = useState<departments>([] as departments)
+    // const [locations, setLocation] = useState<locations>([] as locations)
+    // const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
 
 
     const fetchInvDetails = () => {
@@ -48,24 +52,11 @@ export const InvoiceDetail = (props: {
 
     const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
         refetchOnWindowFocus: false,
-        onSuccess
+        // onSuccess
     })
 
 
-    useEffect(() => {
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor').then(res => {
-            setVendor(res.data)
-        }).catch(err => console.log(err))
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Departments').then(res => {
-            setDepartments(res.data)
-        }).catch(err => console.log(err))
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Locations').then(res => {
-            setLocation(res.data)
-        }).catch(err => console.log(err))
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Subsidiaries').then(res => {
-            setSubsidiaries(res.data)
-        }).catch(err => console.log(err))
-    }, [])
+
 
     useEffect(() => {
         setModifyInvDetails(data?.data)
@@ -79,36 +70,34 @@ export const InvoiceDetail = (props: {
         console.log(modifyInvDetails)
         setProcess(true)
         setProcess(false)
-        // axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, modifyInvDetails)
-        //     .then(res => {
-        //         console.log('Response:', res)
-        //         setProcess(false)
-        //         Swal.fire(
-        //             {
-        //                 title: '<h1>Saved</h1>',
-        //                 icon: 'success',
-        //                 timer: 4000,
-        //             }
-        //         )
-        //     })
-        //     .catch(err => {
-        //         console.log('Error:', err)
-        //         setProcess(false)
-        //         Swal.fire(
-        //             {
-        //                 title: 'Error',
-        //                 icon: 'error',
-        //                 timer: 1000,
-        //             }
-        //         )
-        //     })
+        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, modifyInvDetails)
+            .then(res => {
+                console.log('Response:', res)
+                setProcess(false)
+                Swal.fire(
+                    {
+                        title: '<h1>Saved</h1>',
+                        icon: 'success',
+                        timer: 4000,
+                    }
+                )
+            })
+            .catch(err => {
+                console.log('Error:', err)
+                setProcess(false)
+                Swal.fire(
+                    {
+                        title: 'Error',
+                        icon: 'error',
+                        timer: 1000,
+                    }
+                )
+            })
     }
 
     const pdfToggle = init ? 'Hide Invoice' : 'Show Invoice'
     const collapseClass = init ? 'col-6' : 'col-12'
 
-    console.log('load', isLoading)
-    console.log('success', isSuccess)
 
     return (
         <>
@@ -125,7 +114,7 @@ export const InvoiceDetail = (props: {
                             <div className="card-header bg-white">
                                 <h3 className="card-title fw-bolders">Invoice Details</h3>
                                 <div className="card-toolbar">
-                                    <button onClick={save} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-scale" disabled >
+                                    <button onClick={save} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-scale" >
                                         {process ? <span className="spinner-border spinner-border-sm text-primary"></span> : <span className="svg-icon svg-icon-primary svg-icon-1 px-5">
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 xmlnsXlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
@@ -142,8 +131,8 @@ export const InvoiceDetail = (props: {
                                 </div>
                             </div>
                             <div className="card-body">
-                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={vendors}
-                                    departments={departments} locations={locations} setModifyInvDetails={setModifyInvDetails} origin={data?.data} subsidiaries={subsidiaries} ></Form> : null}
+                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
+                                    departments={props.departments} locations={props.locations} setModifyInvDetails={setModifyInvDetails} origin={data?.data} subsidiaries={props.subsidiary} ></Form> : null}
                             </div>
                         </div>
                     </div >
@@ -179,10 +168,10 @@ export const InvoiceDetail = (props: {
 
                                         <div className="tab-content h-95">
                                             <div className="tab-pane fade h-100" id="itemsTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={departments} locations={locations} /> : null}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={props.departments} locations={props.locations} /> : null}
                                             </div>
                                             <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ExpensesComp expenses={expenses} setExpenses={setExpenses} setExSubtotal={setExSubtotal} departments={departments} locations={locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} /> : null}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ExpensesComp expenses={expenses} setExpenses={setExpenses} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} /> : null}
                                             </div>
                                         </div>
                                     </div>

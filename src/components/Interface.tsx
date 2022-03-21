@@ -48,7 +48,7 @@ export type invDetailsType = {
     LocationId: number,
     VendorId: number,
     VendorCode: string | number,
-    VendorName: string,
+    VendorName: string | number,
     VendorAddress: string,
     VendorAddress2: string,
     VendorAddress3: string,
