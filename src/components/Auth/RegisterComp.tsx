@@ -127,14 +127,8 @@ export const RegisterComp = () => {
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className='container-fluid'>
-        <div className='row my-10'>
-          <div className='col'>
-            <h4 className='text-white'>Login</h4>
-          </div>
-        </div>
-
-        <div className='row'>
-          <div className='col'>
+        <div className='row justify-content-center'>
+          <div className='col-5'>
             <div
               className='card card-flush shadow-sm'
               style={{ minHeight: '70vh' }}

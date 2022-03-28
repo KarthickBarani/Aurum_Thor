@@ -2,11 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { userProfileType } from "./Interface"
 
 export const LevelElement = (props: {
+
     levelElements: number[]
     index: number
+    type: number
     setLevelElements: Function
     formik: any
-    users?: userProfileType
+    users?: userProfileType[]
 }) => {
 
 
@@ -98,15 +100,19 @@ export const LevelElement = (props: {
                                 </div>
                             </div>
                         </div>
-                        {/* <div className="col-4">
-                            <div className="form-group">
-                                <label htmlFor={'percentage[' + props.index + ']'} className="form-label">Percentage</label>
-                                <div className="input-group input-group-sm">
-                                    <input name={'percentage[' + props.index + ']'} id={'percentage[' + props.index + ']'} type="text" maxLength={3} pattern='^[0-100]$' className="form-control from-control-sm" value={props.formik.values.percentage[props.index]} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} />
-                                    <span className="input-group-text">%</span>
+                        {
+                            props.type === 1 ?
+                                <div className="col-4">
+                                    <div className="form-group">
+                                        <label htmlFor={'percentage[' + props.index + ']'} className="form-label">Percentage</label>
+                                        <div className="input-group input-group-sm">
+                                            <input name={'percentage[' + props.index + ']'} id={'percentage[' + props.index + ']'} type="text" maxLength={3} pattern='^[0-100]$' className="form-control from-control-sm" value={props.formik.values.percentage[props.index]} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} />
+                                            <span className="input-group-text">%</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div> */}
+                                : null
+                        }
                         <div className="col-4 align-self-end">
                             <div className="row">
                                 <div className="col-6">{props.index !== 0 ? <button onClick={removeLevel} title="Delete" className="btn btn-active-light-danger btn-icon btn-sm btn-hover-rise">

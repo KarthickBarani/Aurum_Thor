@@ -1,13 +1,18 @@
 
 import { useFormik } from "formik"
 import { useEffect } from "react"
-import { invDetailsType, vendors, departments, locations, subsidiary } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType } from '../components/Interface'
 import * as Yup from 'yup'
 import moment from "moment"
+import axios from "axios"
+import Swal from "sweetalert2"
+import { useNavigate } from "react-router-dom"
+import { UserManagement } from "../pages/UserManagement"
 
 
 
 export const Form = (props: {
+    invNumber: number
     invDetails: invDetailsType,
     exSubtotal: number,
     POSubtotal: number,
@@ -17,12 +22,15 @@ export const Form = (props: {
     vendors: vendors,
     departments: departments,
     locations: locations
+    users: userProfileType[]
+    userid: number
     origin: invDetailsType
 }) => {
 
+    const navigation = useNavigate()
 
     const initialValues = {
-        vendorName: props.invDetails?.VendorId,
+        vendorName: props.invDetails?.VendorId?.toString(),
         vendorId: props.invDetails?.VendorCode,
         remitTo: props.invDetails?.CustomerName,
         vendorAddress1: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[0] : props.invDetails?.VendorAddress?.split(',')[0],
@@ -38,14 +46,14 @@ export const Form = (props: {
         invoiceNumber: props.invDetails?.InvoiceNumber,
         invoiceDate: moment(props.invDetails?.InvoiceDate).format('MM/DD/yyyy'),
         postingPeriod: '',
-        dueDate: moment(props.invDetails?.DueDate).format('MM/DD/yyyy'),
+        dueDate: moment(props.invDetails?.DueDate).format('MM/DD/yyyy') === '01/01/0001' ? '' : moment(props.invDetails?.DueDate).format('MM/DD/yyyy'),
         invoiceAmount: props.invDetails?.TotalAmount,
         currency: 'USD',
         tax: props.invDetails?.TaxTotal.toFixed(2),
         exSubtotal: props.exSubtotal?.toFixed(2),
         poSubtotal: props.POSubtotal?.toFixed(2),
         memo: '',
-        approver: '',
+        approver: 0,
         comment: ''
     }
 
@@ -70,14 +78,14 @@ export const Form = (props: {
         invoiceNumber: Yup.string().required('Required !'),
         invoiceDate: Yup.date().required('Required !').typeError('invaild Date Format: "mm/dd/yyyy"'),
         postingPeriod: Yup.string().notRequired(),
-        dueDate: Yup.date().notRequired(),
+        dueDate: Yup.date().notRequired().typeError('invaild Date Format: "mm/dd/yyyy"'),
         invoiceAmount: Yup.string().required('Required !'),
         currency: Yup.string().required('Required !'),
         tax: Yup.string().required('Required !'),
         exSubtotal: Yup.string().required('Required !'),
         poSubtotal: Yup.string().required('Required !'),
-        memo: Yup.string().required('Required !'),
-        approver: Yup.string().required('Required !'),
+        memo: Yup.string().notRequired(),
+        approver: Yup.string().notRequired(),
         comment: Yup.string().required('Required !'),
     })
 
@@ -87,6 +95,90 @@ export const Form = (props: {
         onSubmit,
         validationSchema,
     })
+
+    const submitApproval = () => {
+        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
+            StatusId: 0,
+            Comments: formik.values.comment,
+            NextApproverId: formik.values.approver === 0 ? null : formik.values.approver
+        })
+            .then(() => {
+                Swal.fire(
+                    {
+                        title: '<h1>Submited</h1>',
+                        icon: 'success',
+                        timer: 4000,
+                    }
+                )
+                navigation('/Home')
+                console.log(formik.values.approver)
+            })
+            .catch(() => {
+                Swal.fire(
+                    {
+                        title: 'Not Submited',
+                        icon: 'error',
+                        timer: 4000,
+                    }
+                )
+                console.log(formik.values.approver)
+            })
+    }
+
+    const approved = () => {
+        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
+            StatusId: 4,
+            Comments: formik.values.comment,
+            NextApproverId: formik.values.approver === 0 ? null : formik.values.approver
+        })
+            .then(() => {
+                Swal.fire(
+                    {
+                        title: '<h1>Submited</h1>',
+                        icon: 'success',
+                        timer: 4000,
+                    }
+                )
+                navigation('/Home')
+            })
+            .catch(() => {
+                Swal.fire(
+                    {
+                        title: 'Not Submited',
+                        icon: 'error',
+                        timer: 4000,
+                    }
+                )
+            })
+    }
+
+    const notApproved = () => {
+        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
+            StatusId: 5,
+            Comments: formik.values.comment,
+            NextApproverId: formik.values.approver === 0 ? null : formik.values.approver
+
+        })
+            .then(() => {
+                Swal.fire(
+                    {
+                        title: '<h1>Submited</h1>',
+                        icon: 'success',
+                        timer: 4000,
+                    }
+                )
+                navigation('/Home')
+            })
+            .catch(() => {
+                Swal.fire(
+                    {
+                        title: 'Not Submited',
+                        icon: 'error',
+                        timer: 4000,
+                    }
+                )
+            })
+    }
 
 
     useEffect(() => {
@@ -110,7 +202,7 @@ export const Form = (props: {
         })
         props.setModifyInvDetails({
             ...props.invDetails,
-            DueDate: new Date(formik.values.dueDate || "0001-01-01T00:00:00"),
+            DueDate: moment(formik.values.dueDate).format('MM/DD/yyyy'),
             InvoiceDate: new Date(formik.values.invoiceDate),
             InvoiceNumber: formik.values.invoiceNumber,
             TaxTotal: Number(formik.values.tax),
@@ -130,7 +222,7 @@ export const Form = (props: {
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2 '
 
-
+    console.log(formik.values.approver)
 
     return (
         < form onSubmit={formik.handleSubmit} >
@@ -165,7 +257,7 @@ export const Form = (props: {
                         <div className="form-group text-start">
                             <label htmlFor="remitTo" className={formLabel}>Remit
                                 To</label>
-                            <select id="remitTo" name="remitTo" className={formik.errors.remitTo && formik.touched.remitTo && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} onBlur={formik.handleBlur} >
+                            <select id="remitTo" name="remitTo" className={formik.errors.remitTo && formik.touched.remitTo && formik.dirty ? formInput + ' is-invalid' : formInput} value={formik.values.remitTo} onChange={formik.handleChange} onBlur={formik.handleBlur} >
                                 <option>{formik.values.remitTo}</option>
                             </select>
                         </div>
@@ -347,7 +439,15 @@ export const Form = (props: {
                         {formik.errors.memo && formik.touched.memo && formik.dirty ? <small className="text-danger ">{formik.errors.memo}</small> : null}
                         <div className="form-group">
                             <label htmlFor="approver" className={formLabel}>Approver</label>
-                            <input id="approver" name="approver" type="text" className={formik.errors.approver && formik.touched.approver && formik.dirty ? formInput + ' is-invalid' : formInput} onBlur={formik.handleBlur} onChange={formik.handleChange} value={formik.values.approver} />
+                            <select id="approver" name="approver" value={formik.values.approver} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
+                                <option key={0} value={0}></option>
+                                {props.users.filter(arr => arr.Id !== props.userid).map(user => {
+                                    return (
+                                        <option key={user.Id} value={user.Id} >{user.LastName} {user.FirstName}</option>
+                                    )
+                                }
+                                )}
+                            </select>
                         </div>
                         {formik.errors.approver && formik.touched.approver && formik.dirty ? <small className="text-danger ">{formik.errors.approver}</small> : null}
                     </div>
@@ -358,19 +458,20 @@ export const Form = (props: {
                                     Comments</label>
                                 <textarea id="comment" name="comment" rows={5} className={formik.errors.comment && formik.touched.comment && formik.dirty ? formInput + ' is-invalid' : formInput} onBlur={formik.handleBlur} onChange={formik.handleChange} value={formik.values.comment} />
                             </div>
-                            {formik.errors.comment && formik.touched.comment && formik.dirty ? <small className="text-danger ">{formik.errors.comment}</small> : null}
+                            {formik.errors.comment && formik.touched.comment ? <small className="text-danger ">{formik.errors.comment}</small> : null}
+                            <h1>{formik?.isValid}</h1>
                             <div className="d-flex justify-content-end">
                                 {
 
-                                    props.invDetails?.StatusId === 0
+                                    props.invDetails?.StatusId === 1 || props.invDetails?.StatusId === 5
                                         ?
-                                        <button type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
+                                        <button onClick={submitApproval} type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
                                         </button>
                                         :
-                                        props.invDetails?.StatusId === 1
+                                        props.invDetails?.StatusId === 2 || props.invDetails?.StatusId === 3
                                             ?
                                             <>
-                                                <button className="btn btn-light-success btn-sm m-2">Approved
+                                                <button onClick={approved} className="btn btn-light-success btn-sm m-2">Approved
                                                     <span className="svg-icon svg-icon svg-icon-1"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none">
@@ -382,7 +483,7 @@ export const Form = (props: {
                                                             fill="black" />
                                                     </svg></span>
                                                 </button>
-                                                <button className="btn btn-light-warning btn-sm my-2">Not
+                                                <button onClick={notApproved} className="btn btn-light-warning btn-sm my-2">Not
                                                     Approved <span className="svg-icon svg-icon-1"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none">

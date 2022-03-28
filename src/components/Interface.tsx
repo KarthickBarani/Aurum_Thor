@@ -112,6 +112,19 @@ export type subsidiary = {
     Name: string
 }[]
 
+export type account = {
+    AccountId: number,
+    AccountName: string,
+    AccountNumber: number,
+    AccountType: string,
+    DepartmentId: number,
+    LocationId: number,
+    Inventory: boolean,
+    IsInActive: boolean,
+    LegalName: string,
+    LastSyncedDateTime: Date
+}[]
+
 
 export type userProfileType = {
     Id: number
@@ -129,7 +142,7 @@ export type userProfileType = {
     Active: boolean
     ResetRequired: boolean
     RoleId: number
-}[]
+}
 
 export type WorkFlowField = {
     Field: string,
@@ -180,3 +193,18 @@ export type Fields = {
     Type: string,
     Value: FieldValue[]
 }[]
+
+export type AuthUser = {
+    Message: string
+    Status: boolean
+    User: userProfileType
+}
+
+export type ApprovalHistory = {
+    ApproverName: string
+    Status: number
+    Level: number
+    StatusText: string
+    Comments: string
+    ActionOn: Date
+}

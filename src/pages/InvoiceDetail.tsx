@@ -9,7 +9,7 @@ import { PdfViewer } from "../components/PdfViewer"
 import { ListItemsComp } from "../components/ListItemsComp"
 import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
-import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary } from '../components/Interface'
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType } from '../components/Interface'
 import Swal from "sweetalert2"
 
 
@@ -18,14 +18,13 @@ import Swal from "sweetalert2"
 
 export const InvoiceDetail = (props: {
     invNumber: number
+    users: userProfileType[]
     vendors: vendors
     departments: departments
     locations: locations
     subsidiary: subsidiary
-    setVendor: Function
-    setDepartments: Function
-    setLocation: Function
-    setSubsidiaries: Function
+    userid: number
+    account: account
 }) => {
 
 
@@ -37,33 +36,36 @@ export const InvoiceDetail = (props: {
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [listItems, setListItems] = useState<lineItemsType>({} as lineItemsType)
     const [expenses, setExpenses] = useState<expensesType>({} as expensesType)
+    const [approvalHistory, setApprovalHistory] = useState<ApprovalHistory[]>([] as ApprovalHistory[])
     const [exSubtotal, setExSubtotal] = useState<number>(0)
     const [POSubtotal, setPOSubtotal] = useState<number>(0)
 
-    // const [vendors, setVendor] = useState<vendors>([] as vendors)
-    // const [departments, setDepartments] = useState<departments>([] as departments)
-    // const [locations, setLocation] = useState<locations>([] as locations)
-    // const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
 
 
     const fetchInvDetails = () => {
-        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`,)
+        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`)
     }
 
     const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
         refetchOnWindowFocus: false,
-        // onSuccess
+
     })
 
 
 
 
     useEffect(() => {
+        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
+            .then(res => {
+                setApprovalHistory(res.data)
+                console.log(res.data)
+            })
+            .catch(err => console.log(err))
         setModifyInvDetails(data?.data)
         setInvDetails(data?.data)
         setListItems(data?.data?.LineItems)
         setExpenses(data?.data?.Expenses)
-    }, [data?.data])
+    }, [data, props.invNumber])
 
 
     const save = () => {
@@ -131,7 +133,7 @@ export const InvoiceDetail = (props: {
                                 </div>
                             </div>
                             <div className="card-body">
-                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
+                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form users={props.users} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
                                     departments={props.departments} locations={props.locations} setModifyInvDetails={setModifyInvDetails} origin={data?.data} subsidiaries={props.subsidiary} ></Form> : null}
                             </div>
                         </div>
@@ -171,7 +173,7 @@ export const InvoiceDetail = (props: {
                                                 {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={props.departments} locations={props.locations} /> : null}
                                             </div>
                                             <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ExpensesComp expenses={expenses} setExpenses={setExpenses} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} /> : null}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ExpensesComp expenses={expenses} setExpenses={setExpenses} account={props.account} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} /> : null}
                                             </div>
                                         </div>
                                     </div>
@@ -184,20 +186,26 @@ export const InvoiceDetail = (props: {
                                             </div>
                                         </div>
                                         <div className="table-responsive">
-                                            <table className="table table-rounded bg-light border table-row-gray-300 gs-3">
-                                                <thead className="fs-6 fw-bolder">
-                                                    <tr>
+                                            <table className="table table-striped gy-3 gs-7 table-hover p-2 table-rounded">
+                                                <thead >
+                                                    <tr className="fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200">
                                                         <th>Approver</th>
                                                         <th>Date Time</th>
                                                         <th>Comments</th>
+                                                        <th>Status</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="fs-6 fw-bold bg-white">
-                                                    <tr>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                    </tr>
+                                                <tbody>
+                                                    {
+                                                        approvalHistory?.map(History => (
+                                                            <tr>
+                                                                <td>{History.ApproverName}</td>
+                                                                <td>{History.ActionOn}</td>
+                                                                <td>{History.Comments}</td>
+                                                                <td>{History.StatusText}</td>
+                                                            </tr>
+                                                        ))
+                                                    }
                                                 </tbody>
                                             </table>
                                         </div>

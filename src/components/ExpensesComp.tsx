@@ -2,7 +2,7 @@
 import axios from "axios"
 import { useState } from "react"
 import Swal from 'sweetalert2'
-import { expensesType, departments, locations, invDetailsType } from './Interface'
+import { expensesType, departments, locations, invDetailsType, account } from './Interface'
 
 
 
@@ -14,6 +14,7 @@ export const ExpensesComp = (props: {
     setExSubtotal: Function
     departments: departments,
     locations: locations,
+    account: account
     modifyInvDetails: invDetailsType
     setModifyInvDetails: Function
 
@@ -236,9 +237,21 @@ export const ExpensesComp = (props: {
                                     <td ><div className="form-check form-check-custom form-check-solid form-check-sm">
                                         <input className="form-check-input" type="checkbox" onChange={(e) => onCheck(e, index)} checked={expense.isCheck} />
                                     </div></td>
-                                    <td ><select name="" id="" className="form-select form-select-transparent form-select-sm">
-                                        <option></option>
-                                    </select></td>
+                                    <td onDoubleClick={
+                                        () => {
+                                            setToggle(true)
+                                            setCurrent(expense.ExpenseId)
+                                        }
+                                    } ><select name="" id="" value={expense.Amount} className="form-select form-select-transparent form-select-sm" onChange={e => {
+                                        let newarry = [...props.expenses]
+                                        newarry[index].DepartmentId = Number(e.target.value)
+                                        props.setExpenses(newarry)
+                                    }}>
+                                            <option key={0} value={0} className="text-gray"></option>
+                                            {props.account.map(acc => (
+                                                <option key={acc.AccountId} value={acc.AccountId} >{acc.AccountName}</option>
+                                            ))}
+                                        </select></td>
                                     <td onDoubleClick={
                                         () => {
                                             setToggle(true)
