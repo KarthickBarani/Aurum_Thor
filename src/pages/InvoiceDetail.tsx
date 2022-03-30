@@ -25,6 +25,7 @@ export const InvoiceDetail = (props: {
     subsidiary: subsidiary
     userid: number
     account: account
+    refetch: Function
 }) => {
 
 
@@ -32,6 +33,9 @@ export const InvoiceDetail = (props: {
     const [init, set] = useState(true)
     const [process, setProcess] = useState(false)
 
+    const [isError, setIsError] = useState<boolean>(true)
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [origin, setOrigin] = useState<invDetailsType>({} as invDetailsType)
     const [modifyInvDetails, setModifyInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [listItems, setListItems] = useState<lineItemsType>({} as lineItemsType)
@@ -42,15 +46,31 @@ export const InvoiceDetail = (props: {
 
 
 
-    const fetchInvDetails = () => {
-        return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`)
-    }
+    // const fetchInvDetails = () => {
+    //     return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`)
+    // }
 
-    const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
-        refetchOnWindowFocus: false,
+    // const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
+    //     refetchOnWindowFocus: false,
+    // })
 
-    })
-
+    useEffect(() => {
+        setIsLoading(true)
+        axios.get<invDetailsType>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`)
+            .then(res => {
+                setOrigin(res.data)
+                setModifyInvDetails(res.data)
+                setInvDetails(res.data)
+                setListItems(res.data.LineItems)
+                setExpenses(res.data.Expenses)
+                setIsLoading(false)
+                setIsError(false)
+            })
+            .catch(err => {
+                setIsLoading(false)
+                console.log(err)
+            })
+    }, [props.invNumber])
 
 
 
@@ -61,11 +81,7 @@ export const InvoiceDetail = (props: {
                 console.log(res.data)
             })
             .catch(err => console.log(err))
-        setModifyInvDetails(data?.data)
-        setInvDetails(data?.data)
-        setListItems(data?.data?.LineItems)
-        setExpenses(data?.data?.Expenses)
-    }, [data, props.invNumber])
+    }, [props.invNumber])
 
 
     const save = () => {
@@ -102,6 +118,7 @@ export const InvoiceDetail = (props: {
 
 
     return (
+
         <>
 
             <div className="container-fluid">
@@ -133,8 +150,8 @@ export const InvoiceDetail = (props: {
                                 </div>
                             </div>
                             <div className="card-body">
-                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <Form users={props.users} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
-                                    departments={props.departments} locations={props.locations} setModifyInvDetails={setModifyInvDetails} origin={data?.data} subsidiaries={props.subsidiary} ></Form> : null}
+                                {isLoading ? <Loading /> : isError ? <Error /> : <Form refetch={props.refetch} users={props.users} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
+                                    departments={props.departments} locations={props.locations} setModifyInvDetails={setModifyInvDetails} origin={origin} subsidiaries={props.subsidiary} ></Form>}
                             </div>
                         </div>
                     </div >
@@ -170,10 +187,10 @@ export const InvoiceDetail = (props: {
 
                                         <div className="tab-content h-95">
                                             <div className="tab-pane fade h-100" id="itemsTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={props.departments} locations={props.locations} /> : null}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={props.departments} locations={props.locations} />}
                                             </div>
                                             <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : isSuccess ? <ExpensesComp expenses={expenses} setExpenses={setExpenses} account={props.account} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} /> : null}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} account={props.account} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />}
                                             </div>
                                         </div>
                                     </div>
@@ -197,8 +214,8 @@ export const InvoiceDetail = (props: {
                                                 </thead>
                                                 <tbody>
                                                     {
-                                                        approvalHistory?.map(History => (
-                                                            <tr>
+                                                        approvalHistory?.map((History, index) => (
+                                                            <tr key={index} >
                                                                 <td>{History.ApproverName}</td>
                                                                 <td>{History.ActionOn}</td>
                                                                 <td>{History.Comments}</td>

@@ -40,6 +40,8 @@ export const Router = () => {
     return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`)
   }
 
+
+
   useEffect(() => {
     axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor').then(res => {
       setVendor(res.data)
@@ -75,7 +77,8 @@ export const Router = () => {
   }, [])
 
 
-  const { isLoading, data, isError } = useQuery('tableData', fetchTableData)
+  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData)
+
 
 
   return (
@@ -86,7 +89,7 @@ export const Router = () => {
         <Route path='/' element={<Login setAuthUser={setAuthUser} />} />
         <Route path='/Home' element={<Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} isError={isError} />} />
         <Route path='InvoiceDetailTable' element={<InvoiceDetailsTable data={datum} approval={approval} pending={pending} setData={setData} setInvNumber={setInvNumber} />} />
-        <Route path='InvoiceDetail' element={<InvoiceDetail users={users} userid={authUser?.User?.Id} invNumber={invNumber} vendors={vendors}
+        <Route path='InvoiceDetail' element={<InvoiceDetail refetch={refetch} users={users} userid={authUser?.User?.Id} invNumber={invNumber} vendors={vendors}
           departments={departments} locations={locations} subsidiary={subsidiaries} account={account} />} />
         <Route path='Register' element={<RegisterComp />} />
         <Route path='UserManagement' element={<UserManagement />} />

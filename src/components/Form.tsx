@@ -25,6 +25,7 @@ export const Form = (props: {
     users: userProfileType[]
     userid: number
     origin: invDetailsType
+    refetch: Function
 }) => {
 
     const navigation = useNavigate()
@@ -96,49 +97,21 @@ export const Form = (props: {
         validationSchema,
     })
 
-    const submitApproval = () => {
+    const Submit = (Status: number, Action: string) => {
         axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
-            StatusId: 0,
+            StatusId: Status,
             Comments: formik.values.comment,
             NextApproverId: formik.values.approver === 0 ? null : formik.values.approver
         })
             .then(() => {
                 Swal.fire(
                     {
-                        title: '<h1>Submited</h1>',
+                        title: '<h1>' + { Action } + '</h1>',
                         icon: 'success',
                         timer: 4000,
                     }
                 )
-                navigation('/Home')
-                console.log(formik.values.approver)
-            })
-            .catch(() => {
-                Swal.fire(
-                    {
-                        title: 'Not Submited',
-                        icon: 'error',
-                        timer: 4000,
-                    }
-                )
-                console.log(formik.values.approver)
-            })
-    }
-
-    const approved = () => {
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
-            StatusId: 4,
-            Comments: formik.values.comment,
-            NextApproverId: formik.values.approver === 0 ? null : formik.values.approver
-        })
-            .then(() => {
-                Swal.fire(
-                    {
-                        title: '<h1>Submited</h1>',
-                        icon: 'success',
-                        timer: 4000,
-                    }
-                )
+                props.refetch()
                 navigation('/Home')
             })
             .catch(() => {
@@ -152,38 +125,10 @@ export const Form = (props: {
             })
     }
 
-    const notApproved = () => {
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
-            StatusId: 5,
-            Comments: formik.values.comment,
-            NextApproverId: formik.values.approver === 0 ? null : formik.values.approver
-
-        })
-            .then(() => {
-                Swal.fire(
-                    {
-                        title: '<h1>Submited</h1>',
-                        icon: 'success',
-                        timer: 4000,
-                    }
-                )
-                navigation('/Home')
-            })
-            .catch(() => {
-                Swal.fire(
-                    {
-                        title: 'Not Submited',
-                        icon: 'error',
-                        timer: 4000,
-                    }
-                )
-            })
-    }
 
 
     useEffect(() => {
         let ind = props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails?.VendorName))
-        console.log(`${ind}`, props.vendors[ind]?.RemitCity)
         props.setInvDetails({
             ...props.invDetails,
             // DueDate: formik.values.dueDate ? new Date(1 / 1 / 1) : new Date(1 / 1 / 1),
@@ -221,8 +166,6 @@ export const Form = (props: {
     const formInput = 'form-control form-control-solid mb-1'
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2 '
-
-    console.log(formik.values.approver)
 
     return (
         < form onSubmit={formik.handleSubmit} >
@@ -465,13 +408,13 @@ export const Form = (props: {
 
                                     props.invDetails?.StatusId === 1 || props.invDetails?.StatusId === 5
                                         ?
-                                        <button onClick={submitApproval} type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
+                                        <button onClick={() => Submit(0, 'Submit')} type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
                                         </button>
                                         :
                                         props.invDetails?.StatusId === 2 || props.invDetails?.StatusId === 3
                                             ?
                                             <>
-                                                <button onClick={approved} className="btn btn-light-success btn-sm m-2">Approved
+                                                <button onClick={() => Submit(4, 'Approved')} className="btn btn-light-success btn-sm m-2">Approved
                                                     <span className="svg-icon svg-icon svg-icon-1"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none">
@@ -483,7 +426,7 @@ export const Form = (props: {
                                                             fill="black" />
                                                     </svg></span>
                                                 </button>
-                                                <button onClick={notApproved} className="btn btn-light-warning btn-sm my-2">Not
+                                                <button onClick={() => Submit(5, 'Not Approved')} className="btn btn-light-warning btn-sm my-2">Not
                                                     Approved <span className="svg-icon svg-icon-1"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none">

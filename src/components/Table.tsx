@@ -33,7 +33,6 @@ export const Table = (props:
                     row.row.original.StatusId === 6 ?
                         <input type="checkbox"
                             onChange={(e) => {
-                                console.log(row)
                                 row.row.values.select = e.target.checked
                                 console.log(`${row.row.index}`, row.row.values.select)
                             }}
@@ -48,8 +47,12 @@ export const Table = (props:
                 return (
                     <>
                         <span role='button' title="View" onClick={() => {
+
                             props.setInvNumber(row.InvoiceId)
-                            navigation('/InvoiceDetail')
+
+                            setTimeout(() => {
+                                navigation('/InvoiceDetail')
+                            }, 1000);
                         }} className="svg-icon svg-icon-primary svg-icon-1"><svg
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                 <path opacity="0.3"
@@ -120,7 +123,7 @@ export const Table = (props:
             Header: 'Pending With',
             accessor: 'PendingWith'
         }
-    ], []
+    ], [navigation, props]
     )
 
 

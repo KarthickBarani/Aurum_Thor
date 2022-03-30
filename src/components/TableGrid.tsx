@@ -14,7 +14,7 @@ export const TableGrid = (props: {
 
     return (
 
-        <div className="card-body card-scroll" style={{ 'height': '65vh' }}>
+        <div className="card-body card-scroll" style={{ 'height': '45vh' }}>
             <div className="table-responsive">
                 <table {...props.getTableProps()} className='table table-rounded table-hover gs-3 gx-3'>
                     <thead className='fw-bolder fs-6'>
