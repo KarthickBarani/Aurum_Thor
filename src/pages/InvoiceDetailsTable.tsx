@@ -5,7 +5,7 @@ import { Error } from "../components/Error"
 import { AuthUser, invDetailsType } from "../components/Interface"
 import { useTable, useSortBy, useGlobalFilter } from 'react-table'
 import { useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import axios from "axios"
 
 
@@ -42,6 +42,8 @@ export const InvoiceDetailsTable = (props: {
 
     const [columns, setColumns] = useState(InvoiceMyApprovalColumn)
 
+    const data = useMemo(() => props.data, [props.data])
+
 
     const navigation = useNavigate()
 
@@ -59,7 +61,7 @@ export const InvoiceDetailsTable = (props: {
         prepareRow,
         allColumns,
         getToggleHideAllColumnsProps,
-    } = useTable({ columns, data: props.data, initialState }, useGlobalFilter, useSortBy)
+    } = useTable({ columns, data, initialState }, useGlobalFilter, useSortBy)
 
     const { globalFilter } = state
 

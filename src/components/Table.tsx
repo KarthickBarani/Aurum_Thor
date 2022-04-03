@@ -47,12 +47,8 @@ export const Table = (props:
                 return (
                     <>
                         <span role='button' title="View" onClick={() => {
-
                             props.setInvNumber(row.InvoiceId)
-
-                            setTimeout(() => {
-                                navigation('/InvoiceDetail')
-                            }, 1000);
+                            navigation('/InvoiceDetail')
                         }} className="svg-icon svg-icon-primary svg-icon-1"><svg
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                 <path opacity="0.3"

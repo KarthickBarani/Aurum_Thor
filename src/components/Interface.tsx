@@ -152,7 +152,7 @@ export type WorkFlowField = {
 
 export type WorkFlowLevel = {
     Level: number,
-    Approver: string,
+    Approver: number | string,
     Amount: number,
     Percentage: number
 }[]

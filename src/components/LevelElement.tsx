@@ -1,3 +1,4 @@
+import { Formik } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
 import { userProfileType } from "./Interface"
 
@@ -19,6 +20,7 @@ export const LevelElement = (props: {
         console.log('Add', arr)
         props.setLevelElements(arr)
     }
+
     const removeLevel = () => {
         let delarr = props.levelElements.filter(arr => props.levelElements.indexOf(arr) !== props.index)
         props.formik.values.amount.splice(props.index, 1)
@@ -45,6 +47,7 @@ export const LevelElement = (props: {
         console.table(props.formik.values.percentage)
         props.setLevelElements(arr)
     }
+
     const moveDown = () => {
         if (props.levelElements.length > 1) {
             let arr = [...props.levelElements]
@@ -106,7 +109,11 @@ export const LevelElement = (props: {
                                     <div className="form-group">
                                         <label htmlFor={'percentage[' + props.index + ']'} className="form-label">Percentage</label>
                                         <div className="input-group input-group-sm">
-                                            <input name={'percentage[' + props.index + ']'} id={'percentage[' + props.index + ']'} type="text" maxLength={3} pattern='^[0-100]$' className="form-control from-control-sm" value={props.formik.values.percentage[props.index]} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} />
+                                            <input name={'percentage[' + props.index + ']'} id={'percentage[' + props.index + ']'} type="number" maxLength={3} max={100} className="form-control from-control-sm" value={props.formik.values.percentage[props.index]} onChange={(e) => {
+                                                props.formik.handleChange(e)
+                                                if (Number(e.target.value) > 100)
+                                                    e.target.value = '100'
+                                            }} onBlur={props.formik.handleBlur} />
                                             <span className="input-group-text">%</span>
                                         </div>
                                     </div>

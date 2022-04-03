@@ -1,7 +1,7 @@
 
 import { useFormik } from "formik"
 import { useEffect } from "react"
-import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, WorkFlowLevel } from '../components/Interface'
 import * as Yup from 'yup'
 import moment from "moment"
 import axios from "axios"
@@ -22,6 +22,7 @@ export const Form = (props: {
     vendors: vendors,
     departments: departments,
     locations: locations
+    approvers: WorkFlowLevel
     users: userProfileType[]
     userid: number
     origin: invDetailsType
@@ -65,7 +66,7 @@ export const Form = (props: {
     const validationSchema = Yup.object({
         vendorName: Yup.number().required('Required !'),
         vendorId: Yup.number().required('Required !').positive().typeError('Must be a number'),
-        remitTo: Yup.number().required('Required !'),
+        remitTo: Yup.number().notRequired(),
         vendorAddress1: Yup.string().required('Required !'),
         vendorAddress2: Yup.string().required('Required !'),
         vendorAddress3: Yup.string().required('Required !'),
@@ -87,7 +88,7 @@ export const Form = (props: {
         poSubtotal: Yup.string().required('Required !'),
         memo: Yup.string().notRequired(),
         approver: Yup.string().notRequired(),
-        comment: Yup.string().required('Required !'),
+        comment: Yup.string().notRequired(),
     })
 
     const formik = useFormik({
@@ -382,22 +383,39 @@ export const Form = (props: {
                         {formik.errors.memo && formik.touched.memo && formik.dirty ? <small className="text-danger ">{formik.errors.memo}</small> : null}
                         <div className="form-group">
                             <label htmlFor="approver" className={formLabel}>Approver</label>
-                            <select id="approver" name="approver" value={formik.values.approver} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
-                                <option key={0} value={0}></option>
-                                {props.users.filter(arr => arr.Id !== props.userid).map(user => {
-                                    return (
-                                        <option key={user.Id} value={user.Id} >{user.LastName} {user.FirstName}</option>
-                                    )
-                                }
-                                )}
-                            </select>
+                            <div className="d-flex flex-stack">
+                                <select id="approver" name="approver" value={formik.values.approver} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
+                                    <option key={0} value={0}></option>
+                                    {/* {props.users.filter(arr => arr.Id !== props.userid).map(user => {
+                                        return (
+                                            <option key={user.Id} value={user.Id} >{user.LastName} {user.FirstName}</option>
+                                        )
+                                    }
+                                    )} */}
+                                    {
+                                        props.approvers.map(approver => (<option key={approver.Approver} value={approver.Approver}>{props.users[props.users.findIndex(arr => arr.Id === approver.Approver)]?.LastName} {props.users[props.users.findIndex(arr => arr.Id === approver.Approver)]?.FirstName} {` Level-${approver.Level}`}</option>))
+                                    }
+                                </select>
+                                <button className="btn btn-active-light-Primary btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none">
+                                        <path opacity="0.3"
+                                            d="M3 13V11C3 10.4 3.4 10 4 10H20C20.6 10 21 10.4 21 11V13C21 13.6 20.6 14 20 14H4C3.4 14 3 13.6 3 13Z"
+                                            fill="black" />
+                                        <path
+                                            d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
+                                            fill="black" />
+                                    </svg>
+                                </span></button>
+                            </div>
                         </div>
                         {formik.errors.approver && formik.touched.approver && formik.dirty ? <small className="text-danger ">{formik.errors.approver}</small> : null}
                     </div>
                     <div className="col">
                         <div className="d-flex flex-column">
                             <div className="form-group w-100">
-                                <label htmlFor="comments" className={formLabel + 'required'}>
+                                <label htmlFor="comments" className={formLabel + ''}>
                                     Comments</label>
                                 <textarea id="comment" name="comment" rows={5} className={formik.errors.comment && formik.touched.comment && formik.dirty ? formInput + ' is-invalid' : formInput} onBlur={formik.handleBlur} onChange={formik.handleChange} value={formik.values.comment} />
                             </div>
