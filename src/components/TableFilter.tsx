@@ -18,22 +18,28 @@ export const TableFilter = (props: {
                         <button type="button" className="btn btn-light m-2 dropdown-toggle" data-bs-toggle="dropdown" >
                             Columns
                         </button>
-                        <div className="dropdown-menu" >
-                            <div className=" px-3">
-                                <input type='checkbox' {...props.getToggleHideAllColumnsProps()} /> Toggle
-                                All
-                                {props.allColumns.map(column => {
+                        <div className="dropdown-menu dropdown-menu-end" >
+                            <div className="d-flex w-200px h-300px p-4">
+                                <div className="flex-column w-100 overflow-scroll">
+                                    <div key={0} >
+                                        <label className="form-label">
+                                            <input type='checkbox' {...props.getToggleHideAllColumnsProps()} /> Toggle
+                                            All
+                                        </label>
+                                    </div>
+                                    {props.allColumns.map(column => {
 
-                                    return (
-                                        < div key={column.id} >
-                                            <label>
-                                                <input type="checkbox" {...column.getToggleHiddenProps()} />{' '}
-                                                {column.Header}
-                                            </label>
-                                        </div>
-                                    )
-                                }
-                                )}
+                                        return (
+                                            < div key={column.id} >
+                                                <label className="form-label">
+                                                    <input type="checkbox" {...column.getToggleHiddenProps()} />{' '}
+                                                    {column.Header}
+                                                </label>
+                                            </div>
+                                        )
+                                    }
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

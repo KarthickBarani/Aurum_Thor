@@ -19,6 +19,8 @@ import { vendors, departments, locations, subsidiary, account, AuthUser, invDeta
 
 
 export const Router = () => {
+
+
   const [invNumber, setInvNumber] = useState<number>(0)
 
   // const authUser: AuthUser = JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))

@@ -1,8 +1,6 @@
 
 import axios from "axios"
-import { useEffect, useState } from "react"
-import { useQuery } from "react-query"
-
+import React, { useEffect, useState } from "react"
 import { Error } from "../components/Error"
 import { Form } from "../components/Form"
 import { PdfViewer } from "../components/PdfViewer"
@@ -11,7 +9,7 @@ import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
 import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, WorkFlowTableType, WorkFlowLevel } from '../components/Interface'
 import Swal from "sweetalert2"
-import { LevelElement } from "../components/LevelElement"
+
 
 
 
@@ -49,20 +47,12 @@ export const InvoiceDetail = (props: {
 
 
 
-    // const fetchInvDetails = () => {
-    //     return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`)
-    // }
-
-    // const { isLoading, data, isError, isSuccess } = useQuery('invDetails', fetchInvDetails, {
-    //     refetchOnWindowFocus: false,
-    // })
 
     useEffect(() => {
 
         axios.get<WorkFlowTableType[]>('https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow')
             .then(res => {
                 setWorkFlows(res.data)
-                console.log('now', res.data.filter(arr => arr.WorkFlowTypeId === 1)[0].Approval[0].Level.map(arr => arr.Approver))
                 setApprover(res.data.filter(arr => arr.WorkFlowTypeId === 1)[0].Approval[0].Level)
             })
             .catch(err => {
@@ -99,74 +89,43 @@ export const InvoiceDetail = (props: {
             .catch(err => console.log(err))
     }, [props.invNumber])
 
-    // const addLevel = () => {
-    //     let arr = [approvers]
-    //     arr.push(
-    //         {
-    //             Level: ,
-    //             Approver: number,
-    //             Amount: number,
-    //             Percentage: number
-    //         }
-    //     )
-    //     console.log('Add', arr)
-    //     setApprover(arr)
-    // }
-    // const removeLevel = () => {
-    //     let delarr = props.levelElements.filter(arr => props.levelElements.indexOf(arr) !== props.index)
-    //     props.formik.values.amount.splice(props.index, 1)
-    //     props.setLevelElements(delarr)
-    //     console.log(delarr)
-    // }
+    const addLevel = () => {
+        let arr = [...approvers]
+        arr.push({
+            Level: approvers.length + 1,
+            Approver: 0,
+            Amount: 0,
+            Percentage: 0,
+        })
+        setApprover(arr)
+    }
+    const removeLevel = (index) => {
+        let delarr = approvers.filter(arr => approvers.indexOf(arr) !== index)
+        setApprover(delarr)
+        console.log(delarr)
+    }
 
-    // const moveUp = () => {
-    //     let arr = [...props.levelElements]
-    //     console.table(arr)
-    //     let temp = arr[props.index]
-    //     arr[props.index] = arr[props.index - 1]
-    //     arr[props.index - 1] = temp
-    //     let tempAppVal = props.formik.values?.approver[props.index]
-    //     props.formik.values.approver[props.index] = props.formik.values?.approver[props.index - 1]
-    //     props.formik.values.approver[props.index - 1] = tempAppVal
-    //     console.table(props.formik.values.approver)
-    //     let tempAmtVal = props.formik.values?.amount[props.index]
-    //     props.formik.values.amount[props.index] = props.formik.values?.amount[props.index - 1]
-    //     props.formik.values.amount[props.index - 1] = tempAmtVal
-    //     console.table(props.formik.values.amount)
-    //     let tempPerVal = props.formik.values?.percentage[props.index]
-    //     props.formik.values.percentage[props.index] = props.formik.values?.percentage[props.index - 1]
-    //     props.formik.values.percentage[props.index - 1] = tempPerVal
-    //     console.table(props.formik.values.percentage)
-    //     props.setLevelElements(arr)
-    // }
-    // const moveDown = () => {
-    //     if (props.levelElements.length > 1) {
-    //         let arr = [...props.levelElements]
-    //         console.table(arr)
-    //         let temp = arr[props.index]
-    //         arr[props.index] = arr[props.index + 1]
-    //         arr[props.index + 1] = temp
-    //         let tempAppVal = props.formik.values?.approver[props.index]
-    //         props.formik.values.approver[props.index] = props.formik.values?.approver[props.index + 1]
-    //         props.formik.values.approver[props.index + 1] = tempAppVal
-    //         console.table(props.formik.values.approver)
-    //         let tempAmtVal = props.formik.values?.amount[props.index]
-    //         props.formik.values.amount[props.index] = props.formik.values?.amount[props.index + 1]
-    //         props.formik.values.amount[props.index + 1] = tempAmtVal
-    //         console.table(props.formik.values.amount)
-    //         let tempPerVal = props.formik.values?.percentage[props.index]
-    //         props.formik.values.percentage[props.index] = props.formik.values?.percentage[props.index + 1]
-    //         props.formik.values.percentage[props.index + 1] = tempPerVal
-    //         console.table(props.formik.values.percentage)
-    //         props.setLevelElements(arr)
-    //     }
-    // }
+    const moveUp = (index) => {
+        let arr = [...approvers]
+        console.table(arr)
+        let temp = arr[index]
+        arr[index] = arr[index - 1]
+        arr[index - 1] = temp
+        setApprover(arr)
+    }
+    const moveDown = (index) => {
+        let arr = [...approvers]
+        console.table(arr)
+        let temp = arr[index]
+        arr[index] = arr[index + 1]
+        arr[index + 1] = temp
+        setApprover(arr)
+    }
 
 
     const save = () => {
         console.log(modifyInvDetails)
         setProcess(true)
-        setProcess(false)
         axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, modifyInvDetails)
             .then(res => {
                 console.log('Response:', res)
@@ -345,23 +304,15 @@ export const InvoiceDetail = (props: {
                     </div>
                 </div>
             </div>
-            <div className="modal modal-flush fade" tabIndex={-1} id="level">
-                <div className="modal-dialog modal-lg">
+            <div className="modal fade" tabIndex={-1} id="level">
+                <div className="modal-dialog modal-lg modal-dialog-centered">
                     <div className="modal-content">
-                        {/* <div className="modal-header">
-                            <h5 className="modal-title">Levels</h5>
-
-                            <div className="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                                <span className="svg-icon svg-icon-2x">x</span>
-                            </div>
-
-                        </div> */}
 
                         <div className="modal-body">
                             {
                                 approvers.map((approver, index) => (
-                                    <>
-                                        <div className="row my-2">
+                                    <React.Fragment key={index}>
+                                        <div className="row m-4">
                                             <div className="col-8">
                                                 <div className="row">
                                                     <div className="col-2 align-self-center">
@@ -383,6 +334,7 @@ export const InvoiceDetail = (props: {
                                                                     <option key={user.Id} value={user.Id}>{`${user.FirstName} ${user.LastName}`}</option>
                                                                 ))
                                                             }
+                                                            {/* {console.log('check', props.users?.filter((arr, index) => arr?.Id === approvers[index]?.Approver))} */}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -391,11 +343,7 @@ export const InvoiceDetail = (props: {
                                                 <div className="row">
                                                     <div className="col-12">
                                                         <div className="row">
-                                                            <div className="col-6">{index !== 0 ? <button onClick={() => {
-                                                                let delarr = approvers.filter(arr => approvers.indexOf(arr) !== index)
-                                                                setApprover(delarr)
-                                                                console.log(delarr)
-                                                            }} title="Delete" className="btn btn-active-light-danger btn-icon btn-sm btn-hover-rise">
+                                                            <div className="col-6">{index !== 0 ? <button onClick={() => removeLevel(index)} title="Delete" className="btn btn-active-light-danger btn-icon btn-sm btn-hover-rise">
                                                                 <span className="svg-icon svg-icon-2 svg-icon-danger mx-1"><svg
                                                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                                     viewBox="0 0 24 24" fill="none">
@@ -410,16 +358,7 @@ export const InvoiceDetail = (props: {
                                                                         fill="black" />
                                                                 </svg></span>
                                                             </button> : null}
-                                                                {index === approvers.length - 1 ? <button onClick={() => {
-                                                                    let arr = [...approvers]
-                                                                    arr.push({
-                                                                        Level: approvers.length + 1,
-                                                                        Approver: 0,
-                                                                        Amount: 0,
-                                                                        Percentage: 0,
-                                                                    })
-                                                                    setApprover(arr)
-                                                                }} title="Add Level" className="btn btn-active-light-Primary btn-icon btn-sm  btn-hover-rise">
+                                                                {index === approvers.length - 1 ? <button onClick={addLevel} title="Add Level" className="btn btn-active-light-Primary btn-icon btn-sm  btn-hover-rise">
                                                                     <span className="svg-icon svg-icon-2 svg-icon-primary">
                                                                         <svg
                                                                             xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -437,56 +376,28 @@ export const InvoiceDetail = (props: {
                                                             <div className="col-6 align-self-center">
                                                                 {
                                                                     index === 0 ?
-                                                                        <span onClick={() => {
-                                                                            let arr = [...approvers]
-                                                                            console.table(arr)
-                                                                            let temp = arr[index]
-                                                                            arr[index] = arr[index + 1]
-                                                                            arr[index + 1] = temp
-                                                                            setApprover(arr)
-                                                                        }} role='button' title="Down" className="svg-icon svg-icon-primary svg-icon-1 ms-auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                                                <path opacity="0.5" d="M12.5657 9.63427L16.75 5.44995C17.1642 5.03574 17.8358 5.03574 18.25 5.44995C18.6642 5.86416 18.6642 6.53574 18.25 6.94995L12.7071 12.4928C12.3166 12.8834 11.6834 12.8834 11.2929 12.4928L5.75 6.94995C5.33579 6.53574 5.33579 5.86416 5.75 5.44995C6.16421 5.03574 6.83579 5.03574 7.25 5.44995L11.4343 9.63427C11.7467 9.94669 12.2533 9.94668 12.5657 9.63427Z" fill="black" />
-                                                                                <path d="M12.5657 15.6343L16.75 11.45C17.1642 11.0357 17.8358 11.0357 18.25 11.45C18.6642 11.8642 18.6642 12.5357 18.25 12.95L12.7071 18.4928C12.3166 18.8834 11.6834 18.8834 11.2929 18.4928L5.75 12.95C5.33579 12.5357 5.33579 11.8642 5.75 11.45C6.16421 11.0357 6.83579 11.0357 7.25 11.45L11.4343 15.6343C11.7467 15.9467 12.2533 15.9467 12.5657 15.6343Z" fill="black" />
-                                                                            </svg></span>
+                                                                        <span onClick={() => moveDown(index)} role='button' title="Down" className="svg-icon svg-icon-primary svg-icon-1 ms-auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                                            <path opacity="0.5" d="M12.5657 9.63427L16.75 5.44995C17.1642 5.03574 17.8358 5.03574 18.25 5.44995C18.6642 5.86416 18.6642 6.53574 18.25 6.94995L12.7071 12.4928C12.3166 12.8834 11.6834 12.8834 11.2929 12.4928L5.75 6.94995C5.33579 6.53574 5.33579 5.86416 5.75 5.44995C6.16421 5.03574 6.83579 5.03574 7.25 5.44995L11.4343 9.63427C11.7467 9.94669 12.2533 9.94668 12.5657 9.63427Z" fill="black" />
+                                                                            <path d="M12.5657 15.6343L16.75 11.45C17.1642 11.0357 17.8358 11.0357 18.25 11.45C18.6642 11.8642 18.6642 12.5357 18.25 12.95L12.7071 18.4928C12.3166 18.8834 11.6834 18.8834 11.2929 18.4928L5.75 12.95C5.33579 12.5357 5.33579 11.8642 5.75 11.45C6.16421 11.0357 6.83579 11.0357 7.25 11.45L11.4343 15.6343C11.7467 15.9467 12.2533 15.9467 12.5657 15.6343Z" fill="black" />
+                                                                        </svg></span>
                                                                         :
                                                                         <>
                                                                             {
                                                                                 index === approvers.length - 1 ?
-                                                                                    <span onClick={() => {
-                                                                                        let arr = [...approvers]
-                                                                                        console.table(arr)
-                                                                                        let temp = arr[index]
-                                                                                        arr[index] = arr[index - 1]
-                                                                                        arr[index - 1] = temp
-                                                                                        setApprover(arr)
-                                                                                    }} role='button' title="up" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                                                    <span onClick={() => moveUp(index)} role='button' title="up" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                                                        <path opacity="0.5" d="M11.4343 14.3657L7.25 18.55C6.83579 18.9643 6.16421 18.9643 5.75 18.55C5.33579 18.1358 5.33579 17.4643 5.75 17.05L11.2929 11.5072C11.6834 11.1166 12.3166 11.1166 12.7071 11.5072L18.25 17.05C18.6642 17.4643 18.6642 18.1358 18.25 18.55C17.8358 18.9643 17.1642 18.9643 16.75 18.55L12.5657 14.3657C12.2533 14.0533 11.7467 14.0533 11.4343 14.3657Z" fill="black" />
+                                                                                        <path d="M11.4343 8.36573L7.25 12.55C6.83579 12.9643 6.16421 12.9643 5.75 12.55C5.33579 12.1358 5.33579 11.4643 5.75 11.05L11.2929 5.50716C11.6834 5.11663 12.3166 5.11663 12.7071 5.50715L18.25 11.05C18.6642 11.4643 18.6642 12.1358 18.25 12.55C17.8358 12.9643 17.1642 12.9643 16.75 12.55L12.5657 8.36573C12.2533 8.05331 11.7467 8.05332 11.4343 8.36573Z" fill="black" />
+                                                                                    </svg></span>
+                                                                                    :
+                                                                                    <>
+                                                                                        <span onClick={() => moveUp(index)} role='button' title="up" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                                                                             <path opacity="0.5" d="M11.4343 14.3657L7.25 18.55C6.83579 18.9643 6.16421 18.9643 5.75 18.55C5.33579 18.1358 5.33579 17.4643 5.75 17.05L11.2929 11.5072C11.6834 11.1166 12.3166 11.1166 12.7071 11.5072L18.25 17.05C18.6642 17.4643 18.6642 18.1358 18.25 18.55C17.8358 18.9643 17.1642 18.9643 16.75 18.55L12.5657 14.3657C12.2533 14.0533 11.7467 14.0533 11.4343 14.3657Z" fill="black" />
                                                                                             <path d="M11.4343 8.36573L7.25 12.55C6.83579 12.9643 6.16421 12.9643 5.75 12.55C5.33579 12.1358 5.33579 11.4643 5.75 11.05L11.2929 5.50716C11.6834 5.11663 12.3166 5.11663 12.7071 5.50715L18.25 11.05C18.6642 11.4643 18.6642 12.1358 18.25 12.55C17.8358 12.9643 17.1642 12.9643 16.75 12.55L12.5657 8.36573C12.2533 8.05331 11.7467 8.05332 11.4343 8.36573Z" fill="black" />
                                                                                         </svg></span>
-                                                                                    :
-                                                                                    <>
-                                                                                        <span onClick={() => {
-                                                                                            let arr = [...approvers]
-                                                                                            console.table(arr)
-                                                                                            let temp = arr[index]
-                                                                                            arr[index] = arr[index - 1]
-                                                                                            arr[index - 1] = temp
-                                                                                            setApprover(arr)
-                                                                                        }} role='button' title="up" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                                                                <path opacity="0.5" d="M11.4343 14.3657L7.25 18.55C6.83579 18.9643 6.16421 18.9643 5.75 18.55C5.33579 18.1358 5.33579 17.4643 5.75 17.05L11.2929 11.5072C11.6834 11.1166 12.3166 11.1166 12.7071 11.5072L18.25 17.05C18.6642 17.4643 18.6642 18.1358 18.25 18.55C17.8358 18.9643 17.1642 18.9643 16.75 18.55L12.5657 14.3657C12.2533 14.0533 11.7467 14.0533 11.4343 14.3657Z" fill="black" />
-                                                                                                <path d="M11.4343 8.36573L7.25 12.55C6.83579 12.9643 6.16421 12.9643 5.75 12.55C5.33579 12.1358 5.33579 11.4643 5.75 11.05L11.2929 5.50716C11.6834 5.11663 12.3166 5.11663 12.7071 5.50715L18.25 11.05C18.6642 11.4643 18.6642 12.1358 18.25 12.55C17.8358 12.9643 17.1642 12.9643 16.75 12.55L12.5657 8.36573C12.2533 8.05331 11.7467 8.05332 11.4343 8.36573Z" fill="black" />
-                                                                                            </svg></span>
-                                                                                        <span onClick={() => {
-                                                                                            let arr = [...approvers]
-                                                                                            console.table(arr)
-                                                                                            let temp = arr[index]
-                                                                                            arr[index] = arr[index + 1]
-                                                                                            arr[index + 1] = temp
-                                                                                            setApprover(arr)
-                                                                                        }} role='button' title="Down" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                                                                <path opacity="0.5" d="M12.5657 9.63427L16.75 5.44995C17.1642 5.03574 17.8358 5.03574 18.25 5.44995C18.6642 5.86416 18.6642 6.53574 18.25 6.94995L12.7071 12.4928C12.3166 12.8834 11.6834 12.8834 11.2929 12.4928L5.75 6.94995C5.33579 6.53574 5.33579 5.86416 5.75 5.44995C6.16421 5.03574 6.83579 5.03574 7.25 5.44995L11.4343 9.63427C11.7467 9.94669 12.2533 9.94668 12.5657 9.63427Z" fill="black" />
-                                                                                                <path d="M12.5657 15.6343L16.75 11.45C17.1642 11.0357 17.8358 11.0357 18.25 11.45C18.6642 11.8642 18.6642 12.5357 18.25 12.95L12.7071 18.4928C12.3166 18.8834 11.6834 18.8834 11.2929 18.4928L5.75 12.95C5.33579 12.5357 5.33579 11.8642 5.75 11.45C6.16421 11.0357 6.83579 11.0357 7.25 11.45L11.4343 15.6343C11.7467 15.9467 12.2533 15.9467 12.5657 15.6343Z" fill="black" />
-                                                                                            </svg></span>
+                                                                                        <span onClick={() => moveDown(index)} role='button' title="Down" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                                                            <path opacity="0.5" d="M12.5657 9.63427L16.75 5.44995C17.1642 5.03574 17.8358 5.03574 18.25 5.44995C18.6642 5.86416 18.6642 6.53574 18.25 6.94995L12.7071 12.4928C12.3166 12.8834 11.6834 12.8834 11.2929 12.4928L5.75 6.94995C5.33579 6.53574 5.33579 5.86416 5.75 5.44995C6.16421 5.03574 6.83579 5.03574 7.25 5.44995L11.4343 9.63427C11.7467 9.94669 12.2533 9.94668 12.5657 9.63427Z" fill="black" />
+                                                                                            <path d="M12.5657 15.6343L16.75 11.45C17.1642 11.0357 17.8358 11.0357 18.25 11.45C18.6642 11.8642 18.6642 12.5357 18.25 12.95L12.7071 18.4928C12.3166 18.8834 11.6834 18.8834 11.2929 18.4928L5.75 12.95C5.33579 12.5357 5.33579 11.8642 5.75 11.45C6.16421 11.0357 6.83579 11.0357 7.25 11.45L11.4343 15.6343C11.7467 15.9467 12.2533 15.9467 12.5657 15.6343Z" fill="black" />
+                                                                                        </svg></span>
                                                                                     </>
 
                                                                             }
@@ -500,14 +411,28 @@ export const InvoiceDetail = (props: {
                                             </div>
                                             <div className="separator border-1 border-light my-2"></div>
                                         </div>
-                                    </>
+                                    </React.Fragment>
                                 ))
                             }
-                        </div>
+                            <div className="d-flex justify-content-end">
 
-                        <div className="modal-footer">
-                            <button className="btn btn-light btn-sm" data-bs-dismiss="modal">Close</button>
-                            <button className="btn btn-light-primary btn-sm" onClick={() => console.log(approvers)}>Submit</button>
+                                <button className="mx-2 btn btn-light btn-sm" data-bs-dismiss="modal">Close</button>
+                                <button className="mx-2 btn btn-light-primary btn-sm" onClick={() => {
+                                    setProcess(true)
+                                    axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, approvers)
+                                        .then(res => {
+                                            console.log(res.data)
+                                            setProcess(false)
+                                        })
+                                        .catch(err => {
+                                            console.error(err)
+                                            setProcess(false)
+                                        })
+                                }}>
+
+                                    {process ? <span className="spinner-border spinner-border-sm align-middle ms-2"></span> : <span>Save</span>}</button>
+
+                            </div>
                         </div>
                     </div>
                 </div>

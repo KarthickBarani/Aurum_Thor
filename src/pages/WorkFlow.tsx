@@ -49,6 +49,7 @@ export const WorkFlow = (
         percentage: []
     })
 
+
     const fetchWorkflows = () => {
         return axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow')
     }
@@ -83,6 +84,7 @@ export const WorkFlow = (
         initialValues,
         onSubmit
     })
+
 
     const save = () => {
         setIsLoading(true)
@@ -306,7 +308,7 @@ export const WorkFlow = (
                             <div className="card-body card-scroll" style={{ 'height': '65vh' }} >
                                 {toggleWorkflow ?
                                     <>
-                                        <NewWorkFlow vendors={props.vendors} departments={props.departments} locations={props.locations} account={props.account} users={users} formik={formik} levelElements={levelElements} setLevelElements={setLevelElements} type={workFLowType[type].WorkflowTypeId} DyFields={DyFields} setDyFields={setDyFields} />
+                                        <NewWorkFlow vendors={props.vendors} departments={props.departments} locations={props.locations} account={props.account} users={users} formik={formik} levelElements={levelElements} setLevelElements={setLevelElements} setInitialValues={setInitialValues} type={workFLowType[type].WorkflowTypeId} DyFields={DyFields} setDyFields={setDyFields} />
                                     </>
                                     :
                                     isLoading

@@ -15,6 +15,7 @@ export const NewWorkFlow = (props: {
     DyFields: FieldValue[]
     setDyFields: Function
     setLevelElements: Function
+    setInitialValues: Function
 }) => {
 
 
@@ -88,7 +89,7 @@ export const NewWorkFlow = (props: {
 
                 {
                     props.levelElements.map((elements, index) => (
-                        <LevelElement type={props.type} key={elements} index={index} levelElements={props.levelElements} setLevelElements={props.setLevelElements} formik={props.formik} users={props?.users} />
+                        <LevelElement type={props.type} key={elements} index={index} levelElements={props.levelElements} setLevelElements={props.setLevelElements} setInitialValues={props.setInitialValues} formik={props.formik} users={props?.users} />
                     )
                     )
                 }

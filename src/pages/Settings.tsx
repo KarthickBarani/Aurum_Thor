@@ -99,7 +99,8 @@ export const Settings = () => {
                       data-bs-toggle='tab'
                       href='#kt_tab_pane_5'
                       onClick={() => {
-                        setClicked(false), setPage('Line Item');
+                        setClicked(false)
+                        setPage('Line Item');
                       }}
                     >
                       Line Item
@@ -111,7 +112,8 @@ export const Settings = () => {
                       data-bs-toggle='tab'
                       href='#kt_tab_pane_6'
                       onClick={() => {
-                        setClicked(false), setPage('Expense');
+                        setClicked(false)
+                        setPage('Expense');
                       }}
                     >
                       Expense Item

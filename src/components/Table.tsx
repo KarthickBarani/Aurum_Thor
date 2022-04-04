@@ -20,6 +20,7 @@ export const Table = (props:
 
     const data: invDetailsType = props.data
 
+
     const columns = React.useMemo(() => [
         {
             Header: '#',
@@ -121,7 +122,6 @@ export const Table = (props:
         }
     ], [navigation, props]
     )
-
 
     const hiddenColumns = ['terms', 'updated', 'assignment', 'currency']
     const initialState = { ...columns, hiddenColumns }
