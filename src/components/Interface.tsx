@@ -160,7 +160,7 @@ export type WorkFlowLevel = {
 export type WorkFlowApproval = {
     Field: WorkFlowField,
     Level: WorkFlowLevel
-}[]
+}
 
 export type WorkFlowTableType = {
     WorkFlowId: number
@@ -168,7 +168,7 @@ export type WorkFlowTableType = {
     CompanyId: string
     Name: string
     WorkFlowTypeId: number
-    Approval: WorkFlowApproval
+    Approval: WorkFlowApproval[]
     CreatedBy: string
     CreatedTimestamp: Date
     LastModifiedTimestamp: Date
@@ -207,4 +207,18 @@ export type ApprovalHistory = {
     StatusText: string
     Comments: string
     ActionOn: Date
+}
+
+export type NextApprovers = {
+    ApproverId: number,
+    ApproverName: string,
+    Status: number,
+    Level: number,
+    StatusText: string,
+    Comments: string,
+    ActionOn: Date
+}
+
+export type dummy = {
+    Approval: WorkFlowApproval
 }

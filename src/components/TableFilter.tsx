@@ -13,12 +13,12 @@ export const TableFilter = (props: {
                 </span>
 
                 <div className="card-toolbar">
-                    <span className='sm-ms-auto'><input value={props.globalFilter || ''} onChange={e => { props.setGlobalFilter(e.target.value) }} className='form-control form-control-solid' placeholder='Search Here' /></span>
+                    <span className='sm-ms-auto'><input value={props.globalFilter || ''} onChange={e => { props.setGlobalFilter(e.target.value) }} className='form-control form-control-sm form-control-solid' placeholder='Search Here' /></span>
                     <div className='dropdown'>
-                        <button type="button" className="btn btn-light m-2 dropdown-toggle" data-bs-toggle="dropdown" >
+                        <button type="button" className="btn btn-sm btn-light m-2 dropdown-toggle" data-bs-toggle="dropdown" >
                             Columns
                         </button>
-                        <div className="dropdown-menu dropdown-menu-end" >
+                        <div className="dropdown-menu dropdown-menu-end mt-3 me-3" >
                             <div className="d-flex w-200px h-300px p-4">
                                 <div className="flex-column w-100 overflow-scroll">
                                     <div key={0} >

@@ -75,10 +75,10 @@ export const Navbar = (props: {
                     </Link>
                     <ul className="dropdown-menu shadow-lg dropdown-menu-end text-center w-auto" aria-labelledby="navbarDarkDropdownMenuLink">
                       <div className="d-flex w-100 p-2">
-                        <div className="flex-column symbol symbol-50px align-self-center ">
+                        <div className="symbol symbol-50px align-self-center ">
                           <div className="symbol-label fs-2 fw-bold text-success">{props.user?.User?.FirstName[0]}</div>
                         </div>
-                        <div className='flex-column mx-2 align-self-end'>
+                        <div className='mx-2 align-self-end'>
                           <p className='pt-4 fs-5 text-start text-gray-800' >{props.user?.User?.LastName} {props.user?.User?.FirstName}<br /><span className='fs-7 text-start text-gray-400'>{props.user?.User?.UserName}</span></p>
                         </div>
                       </div>

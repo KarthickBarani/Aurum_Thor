@@ -1,12 +1,13 @@
 
 import { useFormik } from "formik"
 import { useEffect } from "react"
-import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, WorkFlowLevel } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, WorkFlowLevel, NextApprovers, WorkFlowApproval } from '../components/Interface'
 import * as Yup from 'yup'
 import moment from "moment"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useNavigate } from "react-router-dom"
+import { date } from "yup/lib/locale"
 
 
 
@@ -22,11 +23,13 @@ export const Form = (props: {
     vendors: vendors,
     departments: departments,
     locations: locations
-    approvers: WorkFlowLevel
+    approvers: WorkFlowApproval
+    nextApprovers: NextApprovers[]
     users: userProfileType[]
     userid: number
     origin: invDetailsType
     refetch: Function
+    setValid: Function
 }) => {
 
     const navigation = useNavigate()
@@ -34,7 +37,7 @@ export const Form = (props: {
     const initialValues = {
         vendorName: props.invDetails?.VendorId?.toString(),
         vendorId: props.invDetails?.VendorCode,
-        remitTo: props.invDetails?.CustomerName,
+        remitTo: props.invDetails?.VendorId,
         vendorAddress1: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[0] : props.invDetails?.VendorAddress?.split(',')[0],
         vendorAddress2: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[1] : props.invDetails?.VendorAddress?.split(',')[1] + '-' + props.invDetails?.VendorAddress?.split(',')[2],
         vendorAddress3: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[2] : props.invDetails?.VendorAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
@@ -48,7 +51,7 @@ export const Form = (props: {
         invoiceNumber: props.invDetails?.InvoiceNumber,
         invoiceDate: moment(props.invDetails?.InvoiceDate).format('MM/DD/yyyy'),
         postingPeriod: '',
-        dueDate: moment(props.invDetails?.DueDate).format('MM/DD/yyyy') === '01/01/0001' ? '' : moment(props.invDetails?.DueDate).format('MM/DD/yyyy'),
+        dueDate: moment(props.invDetails?.DueDate).format('MM/DD/yyyy'),
         invoiceAmount: props.invDetails?.TotalAmount,
         currency: 'USD',
         tax: props.invDetails?.TaxTotal.toFixed(2),
@@ -96,6 +99,7 @@ export const Form = (props: {
         initialValues,
         onSubmit,
         validationSchema,
+        validate: () => { }
     })
 
     const Submit = (Status: number, Action: string) => {
@@ -148,7 +152,7 @@ export const Form = (props: {
         })
         props.setModifyInvDetails({
             ...props.invDetails,
-            DueDate: moment(formik.values.dueDate).format('MM/DD/yyyy'),
+            DueDate: new Date(formik.values.dueDate),
             InvoiceDate: new Date(formik.values.invoiceDate),
             InvoiceNumber: formik.values.invoiceNumber,
             TaxTotal: Number(formik.values.tax),
@@ -161,12 +165,13 @@ export const Form = (props: {
             DepartmentId: formik.values.department,
             LocationId: formik.values.location
         })
-
+        props.setValid(formik.isValid)
     }, [formik.values])
 
     const formInput = 'form-control form-control-solid mb-1'
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2 '
+
 
     return (
         < form onSubmit={formik.handleSubmit} >
@@ -375,28 +380,16 @@ export const Form = (props: {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col">
+                    <div className="col-6">
                         <div className="form-group">
                             <label htmlFor="memo" className={formLabel}>Memo</label>
                             <input id="memo" name="memo" type="text" className={formik.errors.memo && formik.touched.memo && formik.dirty ? formInput + ' is-invalid' : formInput} onBlur={formik.handleBlur} onChange={formik.handleChange} value={formik.values.memo} />
                         </div>
                         {formik.errors.memo && formik.touched.memo && formik.dirty ? <small className="text-danger ">{formik.errors.memo}</small> : null}
                         <div className="form-group">
-                            <label htmlFor="approver" className={formLabel}>Approver</label>
                             <div className="d-flex flex-stack">
-                                <select id="approver" name="approver" value={formik.values.approver} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
-                                    <option key={0} value={0}></option>
-                                    {/* {props.users.filter(arr => arr.Id !== props.userid).map(user => {
-                                        return (
-                                            <option key={user.Id} value={user.Id} >{user.LastName} {user.FirstName}</option>
-                                        )
-                                    }
-                                    )} */}
-                                    {
-                                        props.approvers.map(approver => (<option key={approver.Approver} value={approver.Approver}>{props.users[props.users.findIndex(arr => arr.Id === approver.Approver)]?.LastName} {props.users[props.users.findIndex(arr => arr.Id === approver.Approver)]?.FirstName} {` Level-${approver.Level}`}</option>))
-                                    }
-                                </select>
-                                <button className="btn btn-active-light-Primary btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
+                                <label htmlFor="approver" className={formLabel}>Next Approvers</label>
+                                {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0) === [] ? <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                         viewBox="0 0 24 24" fill="none">
@@ -407,12 +400,20 @@ export const Form = (props: {
                                             d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
                                             fill="black" />
                                     </svg>
-                                </span></button>
+                                </span></button> : null}
                             </div>
                         </div>
-                        {formik.errors.approver && formik.touched.approver && formik.dirty ? <small className="text-danger ">{formik.errors.approver}</small> : null}
+                        <ul className="list-group list-group-flush hover-scroll h-100px">
+                            {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0) === [] ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
+                                <li className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
+                            )) : <li><h4 className="pt-3 text-center">This invoice is ready to post <span className="svg-icon svg-icon-success svg-icon-2x"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path opacity="0.5" d="M12.8956 13.4982L10.7949 11.2651C10.2697 10.7068 9.38251 10.7068 8.85731 11.2651C8.37559 11.7772 8.37559 12.5757 8.85731 13.0878L12.7499 17.2257C13.1448 17.6455 13.8118 17.6455 14.2066 17.2257L21.1427 9.85252C21.6244 9.34044 21.6244 8.54191 21.1427 8.02984C20.6175 7.47154 19.7303 7.47154 19.2051 8.02984L14.061 13.4982C13.7451 13.834 13.2115 13.834 12.8956 13.4982Z" fill="black" />
+                                <path d="M7.89557 13.4982L5.79487 11.2651C5.26967 10.7068 4.38251 10.7068 3.85731 11.2651C3.37559 11.7772 3.37559 12.5757 3.85731 13.0878L7.74989 17.2257C8.14476 17.6455 8.81176 17.6455 9.20663 17.2257L16.1427 9.85252C16.6244 9.34044 16.6244 8.54191 16.1427 8.02984C15.6175 7.47154 14.7303 7.47154 14.2051 8.02984L9.06096 13.4982C8.74506 13.834 8.21146 13.834 7.89557 13.4982Z" fill="black" />
+                            </svg></span></h4></li>
+                            }
+                        </ul>
                     </div>
-                    <div className="col">
+                    <div className="col-6">
                         <div className="d-flex flex-column">
                             <div className="form-group w-100">
                                 <label htmlFor="comments" className={formLabel + ''}>
