@@ -35,7 +35,7 @@ export const InvoiceDetail = (props: {
     const [init, set] = useState(true)
     const [process, setProcess] = useState(false)
 
-    const [isValid, setValid] = useState<boolean>(false)
+    const [isValid, setValid] = useState<boolean>(true)
     const [isError, setIsError] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [origin, setOrigin] = useState<invDetailsType>({} as invDetailsType)
@@ -50,6 +50,7 @@ export const InvoiceDetail = (props: {
     const [POSubtotal, setPOSubtotal] = useState<number>(0)
     const [nextApprovers, setNextApprover] = useState<NextApprovers[]>([] as NextApprovers[])
 
+    const [filterApprover, setFilterApprover] = useState<WorkFlowLevel>([] as WorkFlowLevel)
 
 
 
@@ -63,6 +64,19 @@ export const InvoiceDetail = (props: {
             .catch(err => {
                 console.error(err)
             })
+        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/NextApprovers/${props.invNumber}`)
+            .then(res => {
+                setNextApprover(res.data)
+                // setFilterApprover(approvers?.Level?.filter(arr => res.data[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))].Status !== 4))
+                setFilterApprover(res.data)
+            })
+            .catch(err => console.log(err))
+        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
+            .then(res => {
+                setApprovalHistory(res.data)
+                console.log(res.data)
+            })
+            .catch(err => console.log(err))
     }, [props.invNumber])
 
     useEffect(() => {
@@ -87,49 +101,39 @@ export const InvoiceDetail = (props: {
 
 
     useEffect(() => {
-        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/NextApprovers/${props.invNumber}`)
-            .then(res => {
-                setNextApprover(res.data)
-            })
-            .catch(err => console.log(err))
-        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
-            .then(res => {
-                setApprovalHistory(res.data)
-                console.log(res.data)
-            })
-            .catch(err => console.log(err))
+
     }, [props.invNumber])
 
     const addLevel = () => {
-        let arr = { ...approvers }
-        arr.Level.push({
-            Level: approvers.Level.length + 1,
+        let arr = [...filterApprover]
+        arr.push({
+            Level: filterApprover.length + 1,
             Approver: 0,
             Amount: 0,
             Percentage: 0,
         })
-        setApprover(arr)
+        setFilterApprover(arr)
     }
     const removeLevel = (index) => {
-        let delarr: WorkFlowApproval = { ...approvers }
-        delarr.Level.filter(arr => approvers.Level.indexOf(arr) !== index)
-        setApprover(delarr)
+        let delarr: WorkFlowLevel = [...filterApprover]
+        delarr.filter(arr => filterApprover.indexOf(arr) !== index)
+        setFilterApprover(delarr)
         console.log(delarr)
     }
 
     const moveUp = (index) => {
-        let arr: WorkFlowApproval = { ...approvers }
-        let temp = arr.Level[index]
-        arr.Level[index] = arr.Level[index - 1]
-        arr.Level[index - 1] = temp
-        setApprover(arr)
+        let arr: WorkFlowLevel = [...filterApprover]
+        let temp = arr[index]
+        arr[index] = arr[index - 1]
+        arr[index - 1] = temp
+        setFilterApprover(arr)
     }
     const moveDown = (index) => {
-        let arr = { ...approvers }
-        let temp = arr.Level[index]
-        arr.Level[index] = arr.Level[index + 1]
-        arr.Level[index + 1] = temp
-        setApprover(arr)
+        let arr: WorkFlowLevel = [...filterApprover]
+        let temp = arr[index]
+        arr[index] = arr[index + 1]
+        arr[index + 1] = temp
+        setFilterApprover(arr)
     }
 
 
@@ -160,11 +164,6 @@ export const InvoiceDetail = (props: {
                 )
             })
     }
-
-    const isApproved = (user: string) => {
-        nextApprovers.find(arr => { return (arr.Status === 3 && arr.ApproverId.toString() === user) })
-    }
-
 
 
     const pdfToggle = init ? 'Hide Invoice' : 'Show Invoice'
@@ -326,18 +325,18 @@ export const InvoiceDetail = (props: {
 
                         <div className="modal-body">
                             {
-                                approvers.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4)?.map((approver, index) => (
+                                filterApprover?.map((approver, index) => (
                                     <React.Fragment key={index}>
                                         <div className="row m-4">
                                             <div className="col-8">
                                                 <div className="row">
-                                                    <div className="col-12">
+                                                    <div className="col-6">
                                                         <label htmlFor={'approver[' + index + ']'} className="form-label">Approver</label>
-                                                        <select name={'approver[' + index + ']'} id={'approver[' + index + ']'} value={approver.Approver} onChange={
+                                                        <select name={'approver[' + index + ']'} id={'approver[' + index + ']'} value={approver?.Approver} onChange={
                                                             (e) => {
-                                                                let arr: WorkFlowApproval = { ...approvers }
-                                                                arr.Level[index].Approver = e.target.value
-                                                                setApprover(arr)
+                                                                let arr: WorkFlowLevel = [...filterApprover]
+                                                                arr[index].Approver = e.target.value
+                                                                setFilterApprover(arr)
                                                                 console.log(e.target.value)
                                                             }
                                                         } className="form-select form-select-sm">
@@ -349,6 +348,34 @@ export const InvoiceDetail = (props: {
                                                             }
                                                             {/* {console.log('check', props.users?.filter((arr, index) => arr?.Id === approvers[index]?.Approver))} */}
                                                         </select>
+                                                    </div>
+                                                    <div className="col-3">
+                                                        <div className="form-group">
+                                                            <label htmlFor={'amount[' + index + ']'} className="form-label">Amount</label>
+                                                            <div className="input-group input-group-sm">
+                                                                <span className="input-group-text">$</span>
+                                                                <input name={'amount[' + index + ']'} id={'amount[' + index + ']'} min={0} type="number" className="form-control from-control-sm" value={approver.Amount} onChange={(e) => {
+                                                                    let arr: WorkFlowLevel = [...filterApprover]
+                                                                    arr[index].Amount = e.target.valueAsNumber
+                                                                    setFilterApprover(arr)
+                                                                    console.log(e.target.value)
+                                                                }} />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-3">
+                                                        <div className="form-group">
+                                                            <label htmlFor={'percentage[' + index + ']'} className="form-label">percentage</label>
+                                                            <div className="input-group input-group-sm">
+                                                                <input name={'percentage[' + index + ']'} id={'percentage[' + index + ']'} min={0} max={100} type="number" className="form-control from-control-sm" value={approver.Percentage} onChange={(e) => {
+                                                                    let arr: WorkFlowLevel = [...filterApprover]
+                                                                    arr[index].Percentage = e.target.valueAsNumber > 100 ? 100 : e.target.valueAsNumber
+                                                                    setFilterApprover(arr)
+                                                                    console.log(e.target.value)
+                                                                }} />
+                                                                <span className="input-group-text">%</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -371,7 +398,7 @@ export const InvoiceDetail = (props: {
                                                                         fill="black" />
                                                                 </svg></span>
                                                             </button> : null}
-                                                                {index === approvers.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4).length - 1 ? <button onClick={addLevel} title="Add Level" className="btn btn-active-light-Primary btn-icon btn-sm  btn-hover-rise">
+                                                                {index === filterApprover?.length - 1 ? <button onClick={addLevel} title="Add Level" className="btn btn-active-light-Primary btn-icon btn-sm  btn-hover-rise">
                                                                     <span className="svg-icon svg-icon-2 svg-icon-primary">
                                                                         <svg
                                                                             xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -396,7 +423,7 @@ export const InvoiceDetail = (props: {
                                                                         :
                                                                         <>
                                                                             {
-                                                                                index === approvers.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4).length - 1 ?
+                                                                                index === filterApprover.length - 1 ?
                                                                                     <span onClick={() => moveUp(index)} role='button' title="up" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                                                                         <path opacity="0.5" d="M11.4343 14.3657L7.25 18.55C6.83579 18.9643 6.16421 18.9643 5.75 18.55C5.33579 18.1358 5.33579 17.4643 5.75 17.05L11.2929 11.5072C11.6834 11.1166 12.3166 11.1166 12.7071 11.5072L18.25 17.05C18.6642 17.4643 18.6642 18.1358 18.25 18.55C17.8358 18.9643 17.1642 18.9643 16.75 18.55L12.5657 14.3657C12.2533 14.0533 11.7467 14.0533 11.4343 14.3657Z" fill="black" />
                                                                                         <path d="M11.4343 8.36573L7.25 12.55C6.83579 12.9643 6.16421 12.9643 5.75 12.55C5.33579 12.1358 5.33579 11.4643 5.75 11.05L11.2929 5.50716C11.6834 5.11663 12.3166 5.11663 12.7071 5.50715L18.25 11.05C18.6642 11.4643 18.6642 12.1358 18.25 12.55C17.8358 12.9643 17.1642 12.9643 16.75 12.55L12.5657 8.36573C12.2533 8.05331 11.7467 8.05332 11.4343 8.36573Z" fill="black" />
@@ -431,16 +458,20 @@ export const InvoiceDetail = (props: {
 
                                 <button className="mx-2 btn btn-light btn-sm" data-bs-dismiss="modal">Close</button>
                                 <button className="mx-2 btn btn-light-primary btn-sm" onClick={() => {
-                                    setProcess(true)
-                                    axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, approvers)
-                                        .then(res => {
-                                            console.log(res.data)
-                                            setProcess(false)
-                                        })
-                                        .catch(err => {
-                                            console.error(err)
-                                            setProcess(false)
-                                        })
+                                    let obj: WorkFlowApproval = { ...approvers }
+                                    let temp = filterApprover.filter(arr => obj.Level.includes(arr))
+                                    console.table(filterApprover.filter(arr => !obj.Level.includes(arr)))
+                                    console.table(filterApprover)
+                                    // setProcess(true)
+                                    // axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, approvers)
+                                    //     .then(res => {
+                                    //         console.log(res.data)
+                                    //         setProcess(false)
+                                    //     })
+                                    //     .catch(err => {
+                                    //         console.error(err)
+                                    //         setProcess(false)
+                                    //     })
                                 }}>
 
                                     {process ? <span className="spinner-border spinner-border-sm align-middle ms-2"></span> : <span>Save</span>}</button>

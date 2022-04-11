@@ -210,7 +210,7 @@ export type ApprovalHistory = {
 }
 
 export type NextApprovers = {
-    ApproverId: number,
+    ApproverId: number | string,
     ApproverName: string,
     Status: number,
     Level: number,
