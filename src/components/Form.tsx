@@ -5,8 +5,9 @@ import { invDetailsType, vendors, departments, locations, subsidiary, userProfil
 import * as Yup from 'yup'
 import moment from "moment"
 import axios from "axios"
-import Swal from "sweetalert2"
+import Swal, { SweetAlertIcon } from "sweetalert2"
 import { useNavigate } from "react-router-dom"
+
 
 
 
@@ -81,9 +82,9 @@ export const Form = (props: {
         address3: Yup.string().required('Required !'),
         poNo: Yup.string().notRequired(),
         invoiceNumber: Yup.string().required('Required !'),
-        invoiceDate: Yup.date().required('Required !').typeError('invaild Date Format: "mm-dd-yyyy"').max('12/31/9999').min('01/01/1900'),
+        invoiceDate: Yup.date().required('Required !').typeError('invaild Date Format: "mm-dd-yyyy"').max('12-31-9999').min('01-01-1900'),
         postingPeriod: Yup.string().notRequired(),
-        dueDate: Yup.date().notRequired().typeError('invaild Date Format: "mm-dd-yyyy"').max('12-31-9999').min('01/01/1900'),
+        dueDate: Yup.date().notRequired().typeError('invaild Date Format: "mm-dd-yyyy"').max('12-31-9999').min('01-01-1900'),
         invoiceAmount: Yup.string().required('Required !'),
         currency: Yup.string().notRequired(),
         tax: Yup.string().notRequired(),
@@ -98,11 +99,10 @@ export const Form = (props: {
         enableReinitialize: true,
         initialValues,
         onSubmit,
-        validationSchema,
-        validate: () => { }
+        validationSchema
     })
 
-    const Submit = (Status: number, Action: string) => {
+    const Submit = (Status: number, Action: string, MessageType: SweetAlertIcon) => {
         axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
             StatusId: Status,
             Comments: formik.values.comment,
@@ -111,8 +111,8 @@ export const Form = (props: {
             .then(() => {
                 Swal.fire(
                     {
-                        title: '<h1>' + { Action } + '</h1>',
-                        icon: 'success',
+                        title: `<h1>${Action}</h1>`,
+                        icon: MessageType,
                         timer: 4000,
                     }
                 )
@@ -166,7 +166,7 @@ export const Form = (props: {
             LocationId: formik.values.location
         })
         props.setValid(formik.isValid)
-    }, [formik.values])
+    }, [formik.values, formik.isValid])
 
     const formInput = 'form-control form-control-solid'
     const formSelect = 'form-select form-select-solid'
@@ -315,7 +315,7 @@ export const Form = (props: {
                             <input id="invoiceDate" name="invoiceDate"
                                 className={formik.errors.invoiceDate && formik.touched.invoiceDate && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values.invoiceDate} onBlur={formik.handleBlur} />
                         </div>
-                        {formik.errors.invoiceDate && formik.touched.invoiceDate && formik.dirty ? <small className="text-danger ">{new Date(formik.errors.invoiceDate)}</small> : null}
+                        {formik.errors.invoiceDate && formik.touched.invoiceDate && formik.dirty ? <small className="text-danger ">{formik.errors.invoiceDate}</small> : null}
                     </div>
                     <div className=" col-3">
                         <div className="form-group">
@@ -389,7 +389,7 @@ export const Form = (props: {
                         <div className="form-group">
                             <div className="d-flex flex-stack">
                                 <label htmlFor="approver" className={formLabel}>Next Approvers</label>
-                                {/* {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
+                                {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                         viewBox="0 0 24 24" fill="none">
@@ -400,8 +400,8 @@ export const Form = (props: {
                                             d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
                                             fill="black" />
                                     </svg>
-                                </span></button> : null} */}
-                                <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
+                                </span></button> : null}
+                                {/* <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                         viewBox="0 0 24 24" fill="none">
@@ -412,19 +412,16 @@ export const Form = (props: {
                                             d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
                                             fill="black" />
                                     </svg>
-                                </span></button>
+                                </span></button> */}
                             </div>
                         </div>
                         <ul className="list-group list-group-flush hover-scroll h-100px">
-                            {/* {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
+                            {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
                                 <li key={user.ApproverId} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
-                            )) : <li><h4 className="pt-4 text-center">This invoice is ready to post <span className="svg-icon svg-icon-success svg-icon-2x"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path opacity="0.5" d="M12.8956 13.4982L10.7949 11.2651C10.2697 10.7068 9.38251 10.7068 8.85731 11.2651C8.37559 11.7772 8.37559 12.5757 8.85731 13.0878L12.7499 17.2257C13.1448 17.6455 13.8118 17.6455 14.2066 17.2257L21.1427 9.85252C21.6244 9.34044 21.6244 8.54191 21.1427 8.02984C20.6175 7.47154 19.7303 7.47154 19.2051 8.02984L14.061 13.4982C13.7451 13.834 13.2115 13.834 12.8956 13.4982Z" fill="black" />
-                                <path d="M7.89557 13.4982L5.79487 11.2651C5.26967 10.7068 4.38251 10.7068 3.85731 11.2651C3.37559 11.7772 3.37559 12.5757 3.85731 13.0878L7.74989 17.2257C8.14476 17.6455 8.81176 17.6455 9.20663 17.2257L16.1427 9.85252C16.6244 9.34044 16.6244 8.54191 16.1427 8.02984C15.6175 7.47154 14.7303 7.47154 14.2051 8.02984L9.06096 13.4982C8.74506 13.834 8.21146 13.834 7.89557 13.4982Z" fill="black" />
-                            </svg></span></h4></li>} */}
-                            {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
+                            )) : null}
+                            {/* {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
                                 <li key={user.ApproverId} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
-                            ))}
+                            ))} */}
                         </ul>
                     </div>
                     <div className="col-6">
@@ -441,13 +438,13 @@ export const Form = (props: {
 
                                     props.invDetails?.StatusId === 1 || props.invDetails?.StatusId === 5
                                         ?
-                                        <button onClick={() => Submit(0, 'Submit')} type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
+                                        <button onClick={() => Submit(0, 'Submit', 'success')} type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
                                         </button>
                                         :
                                         props.invDetails?.StatusId === 2 || props.invDetails?.StatusId === 3
                                             ?
                                             <>
-                                                <button onClick={() => Submit(4, 'Approved')} className="btn btn-light-success btn-sm m-2">Approved
+                                                <button onClick={() => Submit(4, 'Approved', 'info')} className="btn btn-light-success btn-sm m-2">Approved
                                                     <span className="svg-icon svg-icon svg-icon-1"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none">
@@ -459,7 +456,7 @@ export const Form = (props: {
                                                             fill="black" />
                                                     </svg></span>
                                                 </button>
-                                                <button onClick={() => Submit(5, 'Not Approved')} className="btn btn-light-warning btn-sm my-2">Not
+                                                <button onClick={() => Submit(5, 'Not Approved', 'warning')} className="btn btn-light-warning btn-sm my-2">Not
                                                     Approved <span className="svg-icon svg-icon-1"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none">

@@ -453,8 +453,6 @@ export const InvoiceDetail = (props: {
                                 <button className="mx-2 btn btn-light btn-sm" data-bs-dismiss="modal">Close</button>
                                 <button className="mx-2 btn btn-light-primary btn-sm" onClick={() => {
                                     let obj = { ...approvers }
-                                    let arr = [...obj.Level, { isOld: true }]
-
                                     let temp = obj.Level.filter(arr => nextApprovers[nextApprovers.findIndex(farr => farr.ApproverId === arr.Approver)]?.Status === 4)
                                     console.log('temp', temp)
                                     let final = temp.concat(filterApprover)
