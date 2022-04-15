@@ -1,13 +1,13 @@
 
 import { useFormik } from "formik"
 import { useEffect } from "react"
-import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, WorkFlowLevel, NextApprovers, WorkFlowApproval, dummy } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, WorkFlowApproval } from '../components/Interface'
 import * as Yup from 'yup'
 import moment from "moment"
 import axios from "axios"
 import Swal from "sweetalert2"
 import { useNavigate } from "react-router-dom"
-import { date } from "yup/lib/locale"
+
 
 
 
@@ -49,9 +49,9 @@ export const Form = (props: {
         address3: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitState + ',' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitCountry : props.invDetails?.RemittanceAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
         poNo: props.invDetails?.PurchaseNumber,
         invoiceNumber: props.invDetails?.InvoiceNumber,
-        invoiceDate: moment(props.invDetails?.InvoiceDate).format('MM/DD/yyyy'),
+        invoiceDate: moment(props.invDetails?.InvoiceDate).format('MM-DD-yyyy'),
         postingPeriod: '',
-        dueDate: moment(props.invDetails?.DueDate).format('MM/DD/yyyy'),
+        dueDate: moment(props.invDetails?.DueDate).format('MM-DD-yyyy'),
         invoiceAmount: props.invDetails?.TotalAmount,
         currency: 'USD',
         tax: props.invDetails?.TaxTotal.toFixed(2),
@@ -81,14 +81,14 @@ export const Form = (props: {
         address3: Yup.string().required('Required !'),
         poNo: Yup.string().notRequired(),
         invoiceNumber: Yup.string().required('Required !'),
-        invoiceDate: Yup.date().required('Required !').typeError('invaild Date Format: "mm/dd/yyyy"'),
+        invoiceDate: Yup.date().required('Required !').typeError('invaild Date Format: "mm-dd-yyyy"').max('12/31/9999').min('01/01/1900'),
         postingPeriod: Yup.string().notRequired(),
-        dueDate: Yup.date().notRequired().typeError('invaild Date Format: "mm/dd/yyyy"'),
+        dueDate: Yup.date().notRequired().typeError('invaild Date Format: "mm-dd-yyyy"').max('12-31-9999').min('01/01/1900'),
         invoiceAmount: Yup.string().required('Required !'),
-        currency: Yup.string().required('Required !'),
-        tax: Yup.string().required('Required !'),
-        exSubtotal: Yup.string().required('Required !'),
-        poSubtotal: Yup.string().required('Required !'),
+        currency: Yup.string().notRequired(),
+        tax: Yup.string().notRequired(),
+        exSubtotal: Yup.string().notRequired(),
+        poSubtotal: Yup.string().notRequired(),
         memo: Yup.string().notRequired(),
         approver: Yup.string().notRequired(),
         comment: Yup.string().notRequired(),
@@ -165,10 +165,10 @@ export const Form = (props: {
             DepartmentId: formik.values.department,
             LocationId: formik.values.location
         })
-        props.setValid(!formik.isValid)
+        props.setValid(formik.isValid)
     }, [formik.values])
 
-    const formInput = 'form-control form-control-solid mb-1'
+    const formInput = 'form-control form-control-solid'
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2 '
 
@@ -312,10 +312,10 @@ export const Form = (props: {
                         <div className="form-group">
                             <label htmlFor="invoiceDate" className={formLabel + 'required'}>Invoice
                                 Date</label>
-                            <input id="invoiceDate" name="invoiceDate" data-inputmask="'mask': '99/99/9999','placeholder': 'mm/dd/yyyy' "
+                            <input id="invoiceDate" name="invoiceDate"
                                 className={formik.errors.invoiceDate && formik.touched.invoiceDate && formik.dirty ? formInput + ' is-invalid' : formInput} onChange={formik.handleChange} value={formik.values.invoiceDate} onBlur={formik.handleBlur} />
                         </div>
-                        {formik.errors.invoiceDate && formik.touched.invoiceDate && formik.dirty ? <small className="text-danger ">{formik.errors.invoiceDate}</small> : null}
+                        {formik.errors.invoiceDate && formik.touched.invoiceDate && formik.dirty ? <small className="text-danger ">{new Date(formik.errors.invoiceDate)}</small> : null}
                     </div>
                     <div className=" col-3">
                         <div className="form-group">
@@ -389,7 +389,7 @@ export const Form = (props: {
                         <div className="form-group">
                             <div className="d-flex flex-stack">
                                 <label htmlFor="approver" className={formLabel}>Next Approvers</label>
-                                {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
+                                {/* {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                         viewBox="0 0 24 24" fill="none">
@@ -400,16 +400,31 @@ export const Form = (props: {
                                             d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
                                             fill="black" />
                                     </svg>
-                                </span></button> : null}
+                                </span></button> : null} */}
+                                <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none">
+                                        <path opacity="0.3"
+                                            d="M3 13V11C3 10.4 3.4 10 4 10H20C20.6 10 21 10.4 21 11V13C21 13.6 20.6 14 20 14H4C3.4 14 3 13.6 3 13Z"
+                                            fill="black" />
+                                        <path
+                                            d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
+                                            fill="black" />
+                                    </svg>
+                                </span></button>
                             </div>
                         </div>
                         <ul className="list-group list-group-flush hover-scroll h-100px">
-                            {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
+                            {/* {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
                                 <li key={user.ApproverId} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
                             )) : <li><h4 className="pt-4 text-center">This invoice is ready to post <span className="svg-icon svg-icon-success svg-icon-2x"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                 <path opacity="0.5" d="M12.8956 13.4982L10.7949 11.2651C10.2697 10.7068 9.38251 10.7068 8.85731 11.2651C8.37559 11.7772 8.37559 12.5757 8.85731 13.0878L12.7499 17.2257C13.1448 17.6455 13.8118 17.6455 14.2066 17.2257L21.1427 9.85252C21.6244 9.34044 21.6244 8.54191 21.1427 8.02984C20.6175 7.47154 19.7303 7.47154 19.2051 8.02984L14.061 13.4982C13.7451 13.834 13.2115 13.834 12.8956 13.4982Z" fill="black" />
                                 <path d="M7.89557 13.4982L5.79487 11.2651C5.26967 10.7068 4.38251 10.7068 3.85731 11.2651C3.37559 11.7772 3.37559 12.5757 3.85731 13.0878L7.74989 17.2257C8.14476 17.6455 8.81176 17.6455 9.20663 17.2257L16.1427 9.85252C16.6244 9.34044 16.6244 8.54191 16.1427 8.02984C15.6175 7.47154 14.7303 7.47154 14.2051 8.02984L9.06096 13.4982C8.74506 13.834 8.21146 13.834 7.89557 13.4982Z" fill="black" />
-                            </svg></span></h4></li>}
+                            </svg></span></h4></li>} */}
+                            {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
+                                <li key={user.ApproverId} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
+                            ))}
                         </ul>
                     </div>
                     <div className="col-6">

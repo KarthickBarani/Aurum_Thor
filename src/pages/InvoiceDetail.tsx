@@ -7,11 +7,10 @@ import { PdfViewer } from "../components/PdfViewer"
 import { ListItemsComp } from "../components/ListItemsComp"
 import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
-import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, WorkFlowTableType, WorkFlowLevel, NextApprovers, WorkFlowApproval, dummy } from '../components/Interface'
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, WorkFlowLevel, NextApprovers, WorkFlowApproval, dummy } from '../components/Interface'
 import Swal from "sweetalert2"
-import { userInfo } from "os"
-import { arrayBuffer } from "stream/consumers"
-import { verify } from "crypto"
+
+
 
 
 
@@ -35,6 +34,7 @@ export const InvoiceDetail = (props: {
     const [init, set] = useState(true)
     const [process, setProcess] = useState(false)
 
+    const [trigger, setTrigger] = useState(false)
     const [isValid, setValid] = useState<boolean>(true)
     const [isError, setIsError] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -43,41 +43,39 @@ export const InvoiceDetail = (props: {
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [listItems, setListItems] = useState<lineItemsType>({} as lineItemsType)
     const [expenses, setExpenses] = useState<expensesType>({} as expensesType)
-    const [approvers, setApprover] = useState<WorkFlowApproval>({} as WorkFlowApproval)
     const [approvalHistory, setApprovalHistory] = useState<ApprovalHistory[]>([] as ApprovalHistory[])
-    const [workFlows, setWorkFlows] = useState<WorkFlowTableType[]>([] as WorkFlowTableType[])
+    // const [workFlows, setWorkFlows] = useState<WorkFlowTableType[]>([] as WorkFlowTableType[])
     const [exSubtotal, setExSubtotal] = useState<number>(0)
     const [POSubtotal, setPOSubtotal] = useState<number>(0)
     const [nextApprovers, setNextApprover] = useState<NextApprovers[]>([] as NextApprovers[])
+    const [approvers, setApprover] = useState<WorkFlowApproval>({} as WorkFlowApproval)
 
     const [filterApprover, setFilterApprover] = useState<WorkFlowLevel>([] as WorkFlowLevel)
 
 
 
     useEffect(() => {
-
-        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
+        axios.get<dummy>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
             .then(res => {
-                setWorkFlows(res.data)
                 setApprover(res.data.Approval[0])
+                axios.get<NextApprovers[]>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/NextApprovers/${props.invNumber}`)
+                    .then(ress => {
+                        setNextApprover(ress.data)
+                        setFilterApprover(res.data.Approval[0]?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
+                        // console.log('filterssss', res.data.Approval[0]?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
+                    })
+                    .catch(err => console.log(err))
             })
             .catch(err => {
                 console.error(err)
             })
-        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/NextApprovers/${props.invNumber}`)
-            .then(res => {
-                setNextApprover(res.data)
-                // setFilterApprover(approvers?.Level?.filter(arr => res.data[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))].Status !== 4))
-                setFilterApprover(res.data)
-            })
-            .catch(err => console.log(err))
         axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
             .then(res => {
                 setApprovalHistory(res.data)
                 console.log(res.data)
             })
             .catch(err => console.log(err))
-    }, [props.invNumber])
+    }, [props.invNumber, trigger])
 
     useEffect(() => {
         setIsLoading(true)
@@ -99,15 +97,10 @@ export const InvoiceDetail = (props: {
     }, [props.invNumber])
 
 
-
-    useEffect(() => {
-
-    }, [props.invNumber])
-
     const addLevel = () => {
         let arr = [...filterApprover]
         arr.push({
-            Level: filterApprover.length + 1,
+            Level: filterApprover[filterApprover.length - 1].Level + 1,
             Approver: 0,
             Amount: 0,
             Percentage: 0,
@@ -116,9 +109,9 @@ export const InvoiceDetail = (props: {
     }
     const removeLevel = (index) => {
         let delarr: WorkFlowLevel = [...filterApprover]
-        delarr.filter(arr => filterApprover.indexOf(arr) !== index)
+        delarr.splice(index, 1)
         setFilterApprover(delarr)
-        console.log(delarr)
+        console.log('app', delarr)
     }
 
     const moveUp = (index) => {
@@ -324,6 +317,7 @@ export const InvoiceDetail = (props: {
                     <div className="modal-content">
 
                         <div className="modal-body">
+                            {console.log('filter', filterApprover)}
                             {
                                 filterApprover?.map((approver, index) => (
                                     <React.Fragment key={index}>
@@ -458,20 +452,26 @@ export const InvoiceDetail = (props: {
 
                                 <button className="mx-2 btn btn-light btn-sm" data-bs-dismiss="modal">Close</button>
                                 <button className="mx-2 btn btn-light-primary btn-sm" onClick={() => {
-                                    let obj: WorkFlowApproval = { ...approvers }
-                                    let temp = filterApprover.filter(arr => obj.Level.includes(arr))
-                                    console.table(filterApprover.filter(arr => !obj.Level.includes(arr)))
-                                    console.table(filterApprover)
-                                    // setProcess(true)
-                                    // axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, approvers)
-                                    //     .then(res => {
-                                    //         console.log(res.data)
-                                    //         setProcess(false)
-                                    //     })
-                                    //     .catch(err => {
-                                    //         console.error(err)
-                                    //         setProcess(false)
-                                    //     })
+                                    let obj = { ...approvers }
+                                    let arr = [...obj.Level, { isOld: true }]
+
+                                    let temp = obj.Level.filter(arr => nextApprovers[nextApprovers.findIndex(farr => farr.ApproverId === arr.Approver)]?.Status === 4)
+                                    console.log('temp', temp)
+                                    let final = temp.concat(filterApprover)
+                                    console.log('final', final)
+                                    obj.Level = final
+                                    setProcess(true)
+                                    axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, [obj])
+                                        .then(res => {
+                                            console.log(res.data)
+                                            setProcess(false)
+                                            setTrigger(!trigger)
+                                        })
+                                        .catch(err => {
+                                            console.error(err)
+                                            setProcess(false)
+                                            setTrigger(!trigger)
+                                        })
                                 }}>
 
                                     {process ? <span className="spinner-border spinner-border-sm align-middle ms-2"></span> : <span>Save</span>}</button>
