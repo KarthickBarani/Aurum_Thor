@@ -1,5 +1,5 @@
 import { useState } from "react"
-import Swal from "sweetalert2"
+import { SweetAlert } from "../Function/alert"
 import { lineItemsType, invDetailsType, departments, locations } from './Interface'
 
 
@@ -106,34 +106,51 @@ export const ListItemsComp = (props: {
     }
 
     const deleteListItems = () => {
-        Swal.fire({
-            title: 'Are you sure delete?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            let newarr = [...props.listItems]
-            if (result.isConfirmed) {
-                set(newarr)
-                console.log(newarr)
-                let delarr = newarr.filter(arr => (arr.isCheck === false))
-                console.log(delarr)
-                props.setListItems(delarr)
-                props.setModifyInvDetails({ ...props.modifyInvDetails, LineItems: delarr })
-                setAllCheck(false)
-                setAnyOne(false)
-                console.log('Delete :', delarr)
-                Swal.fire(
-                    {
-                        title: 'Deleted',
-                        icon: 'success',
-                        timer: 1000
-                    }
-                )
-            }
-        })
+        SweetAlert('Are you sure delete?', 'warning', undefined, true, '#3085d6', '#d33', 'Yes, delete it!')
+            .then(result => {
+                let newarr = [...props.listItems]
+                if (result.isConfirmed) {
+                    set(newarr)
+                    console.log(newarr)
+                    let delarr = newarr.filter(arr => (arr.isCheck === false))
+                    console.log(delarr)
+                    props.setListItems(delarr)
+                    props.setModifyInvDetails({ ...props.modifyInvDetails, LineItems: delarr })
+                    setAllCheck(false)
+                    setAnyOne(false)
+                    console.log('Delete :', delarr)
+                    SweetAlert('Deleted', 'success', 1000)
+                }
+            })
+
+        // Swal.fire({
+        //     title: 'Are you sure delete?',
+        //     icon: 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonColor: '#3085d6',
+        //     cancelButtonColor: '#d33',
+        //     confirmButtonText: 'Yes, delete it!'
+        // }).then((result) => {
+        //     let newarr = [...props.listItems]
+        //     if (result.isConfirmed) {
+        //         set(newarr)
+        //         console.log(newarr)
+        //         let delarr = newarr.filter(arr => (arr.isCheck === false))
+        //         console.log(delarr)
+        //         props.setListItems(delarr)
+        //         props.setModifyInvDetails({ ...props.modifyInvDetails, LineItems: delarr })
+        //         setAllCheck(false)
+        //         setAnyOne(false)
+        //         console.log('Delete :', delarr)
+        //         Swal.fire(
+        //             {
+        //                 title: 'Deleted',
+        //                 icon: 'success',
+        //                 timer: 1000
+        //             }
+        //         )
+        //     }
+        // })
     }
 
     return (
@@ -186,8 +203,8 @@ export const ListItemsComp = (props: {
                             <th className="min-w-150px">Department</th>
                             <th className="min-w-150px">Location</th>
                             <th className="min-w-100px">Inv Rate</th>
-                            <th className="min-w-150px">Inv Amount</th>
                             <th className="min-w-100px">PO Rate</th>
+                            <th className="min-w-150px">Inv Amount</th>
                             <th className="min-w-150px">PO Amount</th>
                         </tr>
                     </thead>
@@ -247,6 +264,7 @@ export const ListItemsComp = (props: {
                                                     : `$ ${listItem.UnitPrice.toFixed(2)}`
                                             }
                                         </td>
+                                        <td>{`$ ${listItem.POUnitPrice.toFixed(2)}`}</td>
                                         <td onDoubleClick={() => {
                                             setToggle(true)
                                             setCurrent(listItem.LineItemId)
@@ -264,7 +282,6 @@ export const ListItemsComp = (props: {
                                                     }} />
                                                     : current === listItem.LineItemId ? `$ ${(listItem.Quantity * listItem.UnitPrice).toFixed(2)}` : `$ ${listItem.Amount.toFixed(2)}`
                                             }</td>
-                                        <td>{`$ ${listItem.POUnitPrice.toFixed(2)}`}</td>
                                         <td>{`$ ${listItem.POAmount.toFixed(2)}`}</td>
                                     </tr>
                                 )
@@ -273,10 +290,9 @@ export const ListItemsComp = (props: {
                     </tbody>
                     <tfoot>
                         <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
-                            <th colSpan={8}></th>
+                            <th colSpan={9}></th>
                             <th className="min-w-150px">Items Subtotal</th>
                             <th>{`$ ${poSubtotal?.toFixed(2)}`}</th>
-                            <th className="min-w-150px">PO Subtotal</th>
                             <th>{`$ ${poSubtotal1?.toFixed(2)}`}</th>
                         </tr>
                     </tfoot>

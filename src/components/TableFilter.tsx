@@ -1,3 +1,4 @@
+
 export const TableFilter = (props: {
     globalFilter: any
     setGlobalFilter: Function
@@ -26,6 +27,7 @@ export const TableFilter = (props: {
                                             <input type='checkbox' {...props.getToggleHideAllColumnsProps()} /> Toggle
                                             All
                                         </label>
+
                                     </div>
                                     {props.allColumns.map(column => {
 

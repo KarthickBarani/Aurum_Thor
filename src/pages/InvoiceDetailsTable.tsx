@@ -1,12 +1,11 @@
-import { Table } from "../components/Table"
+
 import { InvoicePendingColumn, InvoiceMyApprovalColumn } from '../components/Column'
-import { Loading } from "../components/Loading"
-import { Error } from "../components/Error"
-import { AuthUser, invDetailsType } from "../components/Interface"
+
+import { invDetailsType } from "../components/Interface"
 import { useTable, useSortBy, useGlobalFilter } from 'react-table'
 import { useNavigate } from "react-router-dom"
-import { useEffect, useMemo, useState } from "react"
-import axios from "axios"
+import { useMemo, useState } from "react"
+
 
 
 export const InvoiceDetailsTable = (props: {
@@ -17,27 +16,6 @@ export const InvoiceDetailsTable = (props: {
     setData: Function
 }) => {
 
-
-    // const [isLoading, setIsLoading] = useState<boolean>(true)
-    // const [isError, setIsError] = useState<boolean>(false)
-
-    // useEffect(() => {
-    //     axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Approvals/${props.user}`)
-    //         .then(res => {
-    //             setData(res.data)
-    //             setApproval(res.data)
-    //             setIsLoading(false)
-    //         })
-    //         .catch(err => console.log(err))
-    //     axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Pendings/${props.user}`)
-    //         .then(res => {
-    //             setIsLoading(false)
-    //             setIsError(true)
-    //             setPending(res.data)
-    //         })
-    //         .catch(err => console.log(err))
-
-    // }, [data])
 
 
     const [columns, setColumns] = useState(InvoiceMyApprovalColumn)
@@ -68,7 +46,7 @@ export const InvoiceDetailsTable = (props: {
 
     const onRowClick = (row) => {
         props.setInvNumber(row.original.InvoiceId)
-        setTimeout(() => navigation('/InvoiceDetail'), 1)
+        navigation('/InvoiceDetail')
     }
 
     return (
@@ -113,7 +91,6 @@ export const InvoiceDetailsTable = (props: {
                             </div>
                         </div>
                         <div className="card-body card-scroll" style={{ 'height': '65vh' }}>
-                            {/* {isLoading ? <Loading /> : isError ? <Error /> : */}
                             <>
                                 <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
                                     <li className="nav-item">
@@ -183,10 +160,9 @@ export const InvoiceDetailsTable = (props: {
                                     </div>
                                 </div>
                             </>
-                            {/* } */}
+
                         </div>
                     </div>
-                    {/* {props.isLoading ? <Loading /> : props.isError ? <Error /> : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={true} columns={InvoiceMyApprovalColumn} >Approval</Table>} */}
                 </div>
             </div>
         </div>

@@ -106,7 +106,7 @@ export const Form = (props: {
         axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
             StatusId: Status,
             Comments: formik.values.comment,
-            NextApproverId: formik.values.approver === 0 ? null : formik.values.approver
+            NextApproverId: props.nextApprovers[0]?.ApproverId
         })
             .then(() => {
                 Swal.fire(
@@ -444,7 +444,7 @@ export const Form = (props: {
                                         props.invDetails?.StatusId === 2 || props.invDetails?.StatusId === 3
                                             ?
                                             <>
-                                                <button onClick={() => Submit(4, 'Approved', 'info')} className="btn btn-light-success btn-sm m-2">Approved
+                                                <button onClick={() => Submit(4, 'Approved', 'success')} className="btn btn-light-success btn-sm m-2">Approved
                                                     <span className="svg-icon svg-icon svg-icon-1"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none">

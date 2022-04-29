@@ -13,7 +13,7 @@ import { WorkFlow } from '../pages/WorkFlow';
 import axios from 'axios';
 import { InvoiceDetailsTable } from '../pages/InvoiceDetailsTable';
 import { useQuery } from 'react-query';
-import { vendors, departments, locations, subsidiary, account, AuthUser, invDetailsType, userProfileType, WorkFlowTableType } from '../components/Interface'
+import { vendors, departments, locations, subsidiary, account, AuthUser, invDetailsType, userProfileType } from '../components/Interface'
 
 
 
@@ -41,12 +41,6 @@ export const Router = () => {
   const fetchTableData = () => {
     return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`)
   }
-
-  const fetchWorkflows = () => {
-    return axios.get<WorkFlowTableType>('https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow')
-  }
-
-  const workflows = useQuery('invDetails', fetchWorkflows)
 
 
 

@@ -1,7 +1,7 @@
 
 import axios from "axios"
 import { useState } from "react"
-import Swal from 'sweetalert2'
+import { SweetAlert } from "../Function/alert"
 import { expensesType, departments, locations, invDetailsType, account } from './Interface'
 
 
@@ -120,34 +120,24 @@ export const ExpensesComp = (props: {
     }
 
     const deleteExpenses = () => {
-        Swal.fire({
-            title: 'Are you sure delete?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            let newarr = [...props?.expenses]
-            if (result.isConfirmed) {
-                set(newarr)
-                console.log(newarr)
-                let delarr = newarr.filter(arr => (arr.isCheck === false))
-                console.log(delarr)
-                props.setExpenses(delarr)
-                props.setModifyInvDetails({ ...props.modifyInvDetails, Expenses: delarr })
-                setAllCheck(false)
-                setAnyOne(false)
-                console.log('Delete :', delarr)
-                Swal.fire(
-                    {
-                        title: 'Deleted',
-                        icon: 'success',
-                        timer: 1000
+        SweetAlert('Are you sure delete?', 'warning', undefined, true, '#3085d6', '#d33', 'Yes, delete it!')
+            .then(
+                result => {
+                    let newarr = [...props?.expenses]
+                    if (result.isConfirmed) {
+                        set(newarr)
+                        console.log(newarr)
+                        let delarr = newarr.filter(arr => (arr.isCheck === false))
+                        console.log(delarr)
+                        props.setExpenses(delarr)
+                        props.setModifyInvDetails({ ...props.modifyInvDetails, Expenses: delarr })
+                        setAllCheck(false)
+                        setAnyOne(false)
+                        console.log('Delete :', delarr)
+                        SweetAlert('Deleted', 'success', 1000)
                     }
-                )
-            }
-        })
+                }
+            )
     }
 
     return (
