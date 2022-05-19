@@ -19,11 +19,11 @@ export const TableGrid = (props: {
                 <table {...props.getTableProps()} className='table table-rounded table-hover gs-3 gx-3'>
                     <thead className='fw-bolder fs-6'>
                         {props.headerGroups.map(headerGroup => (
-                            <tr {...headerGroup.getHeaderGroupProps()}>
+                            <tr  {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map((column) => (
                                     <th{...column.getHeaderProps(column.getSortByToggleProps())} >
                                         {column.render('Header')}
-                                        <span className=' ps-3 text-end'>
+                                        <span className='ps-3 text-end'>
                                             {column.isSorted
                                                 ? column.isSortedDesc
                                                     ? '     ◢'

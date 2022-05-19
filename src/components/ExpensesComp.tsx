@@ -120,7 +120,7 @@ export const ExpensesComp = (props: {
     }
 
     const deleteExpenses = () => {
-        SweetAlert('Are you sure delete?', 'warning', undefined, true, '#3085d6', '#d33', 'Yes, delete it!')
+        SweetAlert({ title: 'Are you sure delete?', icon: 'warning', timer: undefined, showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, delete it!' })
             .then(
                 result => {
                     let newarr = [...props?.expenses]
@@ -134,7 +134,7 @@ export const ExpensesComp = (props: {
                         setAllCheck(false)
                         setAnyOne(false)
                         console.log('Delete :', delarr)
-                        SweetAlert('Deleted', 'success', 1000)
+                        SweetAlert({ title: 'Deleted', icon: 'success', timer: 1000 })
                     }
                 }
             )

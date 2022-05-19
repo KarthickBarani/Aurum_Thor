@@ -1,11 +1,13 @@
 
-import { vendors, departments, locations, userProfileType, FieldValue, account } from "./Interface"
+import { vendors, departments, locations, userProfileType, FieldValue, account, WorkFlowTableType } from "./Interface"
 import { DynamicField } from "./DynamicField"
 import { LevelElement } from "./LevelElement"
 
 export const NewWorkFlow = (props: {
+    workFlow: WorkFlowTableType
+    setWorkFlowFields: Function
     vendors: vendors
-    departments: departments
+    Department: departments
     locations: locations
     account: account
     users: userProfileType[]
@@ -30,7 +32,32 @@ export const NewWorkFlow = (props: {
                                 <label htmlFor="workflowName" className="form-label">Name</label>
                                 <input name="workflowName" id="workflowName" type="text" value={props.formik.values.workflowName} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} className="form-control form-control-sm" />
                             </div>
-                            {
+                            {/* {console.log('check', props.workFlow.Approval.Fields)} */}
+                            {props.workFlow.Approval.Fields?.map((filed, index) => {
+                                return (
+                                    <div key={index} className="col-3 mt-2">
+                                        <label htmlFor={filed.Type} className="form-label">{filed.Type}</label>
+                                        <select name={filed.Type} id={filed.Type} value={filed.Id} onChange={e => {
+                                            let arr = [...props.workFlow.Approval.Fields]
+                                            let type = props[filed.Type].find(arr => arr.DepartmentId === Number(e.target.value))
+                                            arr[index].Id = type?.DepartmentId as number
+                                            arr[index].FieldName = type?.DepartmentName as string
+                                            props.setWorkFlowFields(arr)
+                                        }} className="form-select form-select-sm">
+                                            <option key={0} value={0} ></option>
+                                            {console.log('dept', props.Department)}
+                                            {
+                                                props[filed.Type]?.map(dept => (
+                                                    <option key={dept.DepartmentId} value={dept.DepartmentId} onClick={e => {
+
+                                                    }} >{dept.DepartmentName}</option>
+                                                ))
+                                            }
+                                        </select>
+                                    </div>
+                                )
+                            })}
+                            {/* {
                                 props.type === 2 ?
                                     <>
                                         <div className="col-3 mt-2">
@@ -69,7 +96,7 @@ export const NewWorkFlow = (props: {
                                     </>
                                     :
                                     null
-                            }
+                            } */}
                             {props.DyFields.map((field, index) => (<DynamicField key={field.Id} index={index} field={field} DyFields={props.DyFields} setDyFields={props.setDyFields} />))}
                         </div>
                         <div className="separator border-1 border-gray my-5"></div>

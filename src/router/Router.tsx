@@ -14,6 +14,7 @@ import axios from 'axios';
 import { InvoiceDetailsTable } from '../pages/InvoiceDetailsTable';
 import { useQuery } from 'react-query';
 import { vendors, departments, locations, subsidiary, account, AuthUser, invDetailsType, userProfileType } from '../components/Interface'
+import { AxiosGet } from '../helpers/Axios';
 
 
 
@@ -22,9 +23,6 @@ export const Router = () => {
 
 
   const [invNumber, setInvNumber] = useState<number>(0)
-
-  // const authUser: AuthUser = JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))
-
 
   const [authUser, setAuthUser] = useState<AuthUser>(JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user')))))
   const [users, setUsers] = useState<userProfileType[]>([] as userProfileType[])
@@ -45,37 +43,64 @@ export const Router = () => {
 
 
   useEffect(() => {
-    axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor').then(res => {
-      setVendor(res.data)
-    }).catch(err => console.log(err))
-    axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Departments').then(res => {
-      setDepartments(res.data)
-    }).catch(err => console.log(err))
-    axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Locations').then(res => {
-      setLocation(res.data)
-    }).catch(err => console.log(err))
-    axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Subsidiaries').then(res => {
-      setSubsidiaries(res.data)
-    }).catch(err => console.log(err))
-    axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Accounts').then(res => {
-      setAccount(res.data)
-    }).catch(err => console.log(err))
-    axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/UserProfile').then(res => {
-      setUsers(res.data)
-    }).catch(err => console.log(err))
-    axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Approvals/${authUser?.User?.Id}`)
+    AxiosGet('/api/v1/vendor')
+      .then(res => setVendor(res))
+      .catch(err => console.log(err))
+    AxiosGet('/api/v1/vendor/Departments')
+      .then(res => setDepartments(res))
+      .catch(err => console.log(err))
+    AxiosGet('/api/v1/vendor/Locations')
+      .then(res => setLocation(res))
+      .catch(err => console.log(err))
+    AxiosGet('/api/v1/vendor/Subsidiaries')
+      .then(res => setSubsidiaries(res))
+      .catch(err => console.log(err))
+    AxiosGet('/api/v1/vendor/Accounts')
+      .then(res => setAccount(res))
+      .catch(err => console.log(err))
+    AxiosGet('/api/v1/UserProfile')
+      .then(res => setUsers(res))
+      .catch(err => console.log(err))
+    AxiosGet(`/api/v1/Invoice/Approvals/${authUser?.User?.Id}`)
       .then(res => {
-        setData(res.data)
-        setApproval(res.data)
-
+        setApproval(res)
+        setData(res)
       })
       .catch(err => console.log(err))
-    axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Pendings/${authUser?.User?.Id}`)
-      .then(res => {
-
-        setPending(res.data)
-      })
+    AxiosGet(`/api/v1/Invoice/Pendings/${authUser?.User?.Id}`)
+      .then(res => setPending(res))
       .catch(err => console.log(err))
+    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor').then(res => {
+    //   setVendor(res.data)
+    // }).catch(err => console.log(err))
+    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Departments').then(res => {
+    //   setDepartments(res.data)
+    // }).catch(err => console.log(err))
+    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Locations').then(res => {
+    //   setLocation(res.data)
+    // }).catch(err => console.log(err))
+    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Subsidiaries').then(res => {
+    //   setSubsidiaries(res.data)
+    // }).catch(err => console.log(err))
+    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Accounts').then(res => {
+    //   setAccount(res.data)
+    // }).catch(err => console.log(err))
+    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/UserProfile').then(res => {
+    //   setUsers(res.data)
+    // }).catch(err => console.log(err))
+    // axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Approvals/${authUser?.User?.Id}`)
+    //   .then(res => {
+    //     setData(res.data)
+    //     setApproval(res.data)
+
+    //   })
+    //   .catch(err => console.log(err))
+    // axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Pendings/${authUser?.User?.Id}`)
+    //   .then(res => {
+
+    //     setPending(res.data)
+    //   })
+    //   .catch(err => console.log(err))
   }, [authUser])
 
 

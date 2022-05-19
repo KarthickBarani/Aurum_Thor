@@ -53,7 +53,7 @@ export const InvoiceDetailsTable = (props: {
         <div className="container-fluid">
             <div className="row mt-10">
                 <div className="col">
-                    <h4 className="text-white" >Approval</h4>
+                    <h4 className="text-white">Approval</h4>
                 </div>
             </div>
             <div className="row mt-10">
@@ -117,11 +117,10 @@ export const InvoiceDetailsTable = (props: {
 
                                 <div className="tab-content">
                                     <div className="table-responsive">
-                                        <table {...getTableProps()} className='table table-rounded table-hover gs-3 gx-3'>
+                                        <table {...getTableProps()} className='table table-rounded table-stripted table-hover gs-3 gx-3'>
                                             <thead className='fw-bolder fs-6'>
                                                 {headerGroups.map(headerGroup => (
                                                     <tr {...headerGroup.getHeaderGroupProps()}>
-
                                                         {headerGroup.headers.map((column) => (
                                                             <th{...column.getHeaderProps(column.getSortByToggleProps())} >
                                                                 {column.render('Header')}

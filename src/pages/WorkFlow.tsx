@@ -1,4 +1,4 @@
-import { vendors, departments, locations, WorkFlowTableType, userProfileType, WorkFlowType, Fields, FieldValue, account } from "../components/Interface"
+import { vendors, departments, locations, WorkFlowTableType, userProfileType, WorkFlowType, Fields, FieldValue, account, WorkFlowApproval, WorkFlowFields } from "../components/Interface"
 import { useEffect, useState } from "react"
 import { NewWorkFlow } from "../components/NewWorkFlow"
 import { WorkFlowTable } from "../components/WorkFlowTable"
@@ -23,21 +23,19 @@ export const WorkFlow = (
     }
 ) => {
 
-    // const [vendors, setVendor] = useState<vendors>([] as vendors)
-    // const [departments, setDepartments] = useState<departments>([] as departments)
-    // const [locations, setLocation] = useState<locations>([] as locations)
     const [users, setUsers] = useState<userProfileType[]>([] as userProfileType[])
     const [workFLowType, setWorkFlowType] = useState<WorkFlowType>([] as WorkFlowType)
 
     const [toggleWorkflow, setToggleWorkflow] = useState<boolean>(false)
     const [workFlows, setWorkFlows] = useState<WorkFlowTableType[]>([] as WorkFlowTableType[])
-    const [workflow, setWorkflow] = useState<WorkFlowTableType>({} as WorkFlowTableType)
+    const [workFlow, setWorkFlow] = useState<WorkFlowTableType>({} as WorkFlowTableType)
     const [fields, setFields] = useState<Fields>([] as Fields)
     const [DyFields, setDyFields] = useState<FieldValue[]>([] as FieldValue[])
     const [levelElements, setLevelElements] = useState<number[]>([uuidv4()])
     const [type, setType] = useState<number>(0)
     const [IsLoading, setIsLoading] = useState<boolean>(false)
     const [isNew, setIsNew] = useState<boolean>(true)
+    const [workFlowFields, setWorkFlowFields] = useState<WorkFlowFields>([] as WorkFlowFields)
     const [initialValues, setInitialValues] = useState({
         WorkFlowId: '',
         workflowName: '',
@@ -95,13 +93,8 @@ export const WorkFlow = (
             CompanyId: '',
             Name: formik.values.workflowName,
             WorkFlowTypeId: workFLowType[type].WorkflowTypeId,
-            Approval: [{
-                Field: [
-                    {
-                        Field: '',
-                        Value: ''
-                    }
-                ],
+            Approval: {
+                Fields: workFlowFields,
                 Level: levelElements?.map((element, index) => (
                     {
                         Level: index + 1,
@@ -110,7 +103,7 @@ export const WorkFlow = (
                         Percentage: formik.values.percentage[index]
                     }
                 ))
-            }],
+            },
             CreatedBy: '',
             CreatedTimestamp: new Date(),
             LastModifiedTimestamp: new Date(),
@@ -177,18 +170,18 @@ export const WorkFlow = (
     const back = () => {
         setToggleWorkflow(false)
         setIsNew(true)
-        setWorkflow(
-            {
-                WorkFlowId: 0,
-                EnterpriseId: '',
-                CompanyId: '',
-                Name: '',
-                WorkFlowTypeId: 0,
-                Approval: [],
-                CreatedBy: '',
-                CreatedTimestamp: new Date(),
-                LastModifiedTimestamp: new Date()
-            })
+        // setWorkflow(
+        //     {
+        //         WorkFlowId: 0,
+        //         EnterpriseId: '',
+        //         CompanyId: '',
+        //         Name: '',
+        //         WorkFlowTypeId: 0,
+        //         Approval: {},
+        //         CreatedBy: '',
+        //         CreatedTimestamp: new Date(),
+        //         LastModifiedTimestamp: new Date()
+        //     })
         setInitialValues({
             WorkFlowId: '',
             workflowName: '',
@@ -242,7 +235,7 @@ export const WorkFlow = (
                                                     </button>
                                                     <ul className="dropdown-menu">
                                                         {
-                                                            fields.filter(arr => arr.Type === workFLowType[type].Name)[0]?.Value.map(arr => <li key={arr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(arr)} > {arr.Field}</li>)
+                                                            fields.filter(arr => arr.Type === workFLowType[type].Name).map(arr => <li key={arr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(arr)} > {arr.Type}</li>)
                                                         }
                                                     </ul>
                                                 </div>
@@ -308,7 +301,8 @@ export const WorkFlow = (
                             <div className="card-body card-scroll" style={{ 'height': '65vh' }} >
                                 {toggleWorkflow ?
                                     <>
-                                        <NewWorkFlow vendors={props.vendors} departments={props.departments} locations={props.locations} account={props.account} users={users} formik={formik} levelElements={levelElements} setLevelElements={setLevelElements} setInitialValues={setInitialValues} type={workFLowType[type].WorkflowTypeId} DyFields={DyFields} setDyFields={setDyFields} />
+
+                                        <NewWorkFlow workFlow={workFlow} setWorkFlowFields={setWorkFlowFields} vendors={props.vendors} Department={props.departments} locations={props.locations} account={props.account} users={users} formik={formik} levelElements={levelElements} setLevelElements={setLevelElements} setInitialValues={setInitialValues} type={workFLowType[type].WorkflowTypeId} DyFields={DyFields} setDyFields={setDyFields} />
                                     </>
                                     :
                                     isLoading
@@ -321,15 +315,15 @@ export const WorkFlow = (
                                             <>
                                                 <ul className="nav nav-tabs nav-line-tabs mb-5 fs-6">
                                                     {workFLowType.map((types, index) => (
-                                                        <li key={types.WorkflowTypeId} className="nav-item">
+                                                        <li key={index} className="nav-item">
                                                             <a className={`nav-link ${index === type ? 'active' : ''} fw-bolder text-gray-800`} onClick={() => setType(index)} data-bs-toggle="tab" href={`#tab-${index}`}>{types.Name}</a>
                                                         </li>
                                                     ))}
                                                 </ul>
                                                 <div className="tab-content" id="myTabContent">
                                                     {workFLowType.map((types, index) => (
-                                                        <div key={types.WorkflowTypeId} className="tab-pane fade show active" id={`tab-${index}`} role="tabpanel">
-                                                            {workFLowType[type].WorkflowTypeId === workFLowType[index].WorkflowTypeId ? <WorkFlowTable isNew={isNew} setIsNew={setIsNew} setInitialValues={setInitialValues} setLevelElements={setLevelElements} workFlows={workFlows} setToggleWorkflow={setToggleWorkflow} type={types.WorkflowTypeId} /> : null}
+                                                        <div key={index} className="tab-pane fade show active" id={`tab-${index}`} role="tabpanel">
+                                                            {workFLowType[type].WorkflowTypeId === workFLowType[index].WorkflowTypeId ? <WorkFlowTable isNew={isNew} setIsNew={setIsNew} setInitialValues={setInitialValues} setLevelElements={setLevelElements} workFlows={workFlows} setWorkFlow={setWorkFlow} setToggleWorkflow={setToggleWorkflow} type={types.WorkflowTypeId} /> : null}
                                                         </div>)
                                                     )}
                                                 </div>

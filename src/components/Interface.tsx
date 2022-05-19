@@ -144,9 +144,22 @@ export type userProfileType = {
     RoleId: number
 }
 
-export type WorkFlowField = {
-    Field: string,
-    Value: string
+export type WorkFlowFields = {
+    Id: number,
+    FieldName: string,
+    Type: string
+
+}[]
+
+export type Fields = {
+    Id: number,
+    Type: string,
+    Value: {
+        Id: number,
+        Field: string,
+        Type: string,
+        Label: string[]
+    }[]
 }[]
 
 
@@ -158,7 +171,7 @@ export type WorkFlowLevel = {
 }[]
 
 export type WorkFlowApproval = {
-    Field: WorkFlowField,
+    Fields: WorkFlowFields,
     Level: WorkFlowLevel
 }
 
@@ -168,7 +181,7 @@ export type WorkFlowTableType = {
     CompanyId: string
     Name: string
     WorkFlowTypeId: number
-    Approval: WorkFlowApproval[]
+    Approval: WorkFlowApproval
     CreatedBy: string
     CreatedTimestamp: Date
     LastModifiedTimestamp: Date
@@ -188,11 +201,6 @@ export type FieldValue = {
     Label: string[]
 }
 
-export type Fields = {
-    Id: number,
-    Type: string,
-    Value: FieldValue[]
-}[]
 
 export type AuthUser = {
     Message: string

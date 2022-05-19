@@ -118,7 +118,7 @@ export const Table = (props:
             accessor: 'StatusText'
         }, {
             Header: 'Pending With',
-            accessor: 'PendingWith'
+            accessor: row => row.StatusId === 3 ? row.PendingWith : null
         }
     ], [navigation, props]
     )

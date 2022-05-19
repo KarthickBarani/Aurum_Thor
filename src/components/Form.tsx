@@ -106,7 +106,7 @@ export const Form = (props: {
         axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
             StatusId: Status,
             Comments: formik.values.comment,
-            NextApproverId: props.nextApprovers[0]?.ApproverId
+            NextApproverId: props.nextApprovers.length === 0 ? null : props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0)[0]?.ApproverId
         })
             .then(() => {
                 Swal.fire(
@@ -127,6 +127,12 @@ export const Form = (props: {
                         timer: 4000,
                     }
                 )
+                console.log({
+                    StatusId: Status,
+                    Comments: formik.values.comment,
+                    NextApproverId: props.nextApprovers.length === 0 ? null : props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0)[0]?.ApproverId
+                })
+
             })
     }
 
@@ -388,8 +394,8 @@ export const Form = (props: {
                         {formik.errors.memo && formik.touched.memo && formik.dirty ? <small className="text-danger ">{formik.errors.memo}</small> : null}
                         <div className="form-group">
                             <div className="d-flex flex-stack">
-                                <label htmlFor="approver" className={formLabel}>Next Approvers</label>
-                                {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
+                                {(props.invDetails.StatusId === 3 || props.invDetails.StatusId === 2) ? <label htmlFor="approver" className={formLabel}>Next Approvers</label> : null}
+                                {(props.invDetails.StatusId === 3 || props.invDetails.StatusId === 2) ? <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                         viewBox="0 0 24 24" fill="none">
@@ -401,25 +407,16 @@ export const Form = (props: {
                                             fill="black" />
                                     </svg>
                                 </span></button> : null}
-                                {/* <button className="align-self-start btn btn-icon btn-sm btn-hover-rise" data-bs-toggle="modal" data-bs-target="#level" ><span className="svg-icon svg-icon-2 svg-icon-primary">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none">
-                                        <path opacity="0.3"
-                                            d="M3 13V11C3 10.4 3.4 10 4 10H20C20.6 10 21 10.4 21 11V13C21 13.6 20.6 14 20 14H4C3.4 14 3 13.6 3 13Z"
-                                            fill="black" />
-                                        <path
-                                            d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
-                                            fill="black" />
-                                    </svg>
-                                </span></button> */}
                             </div>
                         </div>
                         <ul className="list-group list-group-flush hover-scroll h-100px">
-                            {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
-                                <li key={user.ApproverId} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
-                            )) : null}
+                            {(props.invDetails.StatusId === 3 || props.invDetails.StatusId === 2) ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map((user, index) => (
+                                <li key={index} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
+                            )) : null : null}
                             {/* {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
+                                <li key={user.ApproverId} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
+                            ))} */}
+                            {/* {props.nextApprovers.map(user => (
                                 <li key={user.ApproverId} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
                             ))} */}
                         </ul>

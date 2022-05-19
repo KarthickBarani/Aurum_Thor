@@ -9,6 +9,7 @@ import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
 import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, WorkFlowLevel, NextApprovers, WorkFlowApproval, dummy } from '../components/Interface'
 import { SweetAlert } from "../Function/alert"
+import { AxiosGet } from "../helpers/Axios"
 
 
 
@@ -58,31 +59,31 @@ export const InvoiceDetail = (props: {
 
     useEffect(() => {
         setIsLoading(true)
-        axios.get<invDetailsType>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`)
+        AxiosGet(`/api/v1/invoice/details/${props.invNumber}`)
             .then(res => {
-                setOrigin(res.data)
-                setModifyInvDetails(res.data)
-                setInvDetails(res.data)
-                setListItems(res.data.LineItems)
-                setExpenses(res.data.Expenses)
+                setOrigin(res)
+                setModifyInvDetails(res)
+                setInvDetails(res)
+                setListItems(res.LineItems)
+                setExpenses(res.Expenses)
                 setIsLoading(false)
                 setIsError(false)
-                axios.get<dummy>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
+                AxiosGet(`/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
                     .then(res => {
-                        setApprover(res.data.Approval[0])
-                        axios.get<NextApprovers[]>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/NextApprovers/${props.invNumber}`)
+                        setApprover(res.Approval)
+                        AxiosGet(`/api/v1/Invoice/NextApprovers/${props.invNumber}`)
                             .then(ress => {
-                                setNextApprover(ress.data)
-                                setFilterApprover(res.data.Approval[0]?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
+                                setNextApprover(ress)
+                                setFilterApprover(res.Approval?.Level?.filter(arr => ress[(ress.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
                                 // console.log('filterssss', res.data.Approval[0]?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
                             })
                             .catch(err => console.error(err))
                     })
                     .catch(err => console.error(err))
-                axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
+                AxiosGet(`/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
                     .then(res => {
-                        setApprovalHistory(res.data)
-                        console.log(res.data)
+                        setApprovalHistory(res)
+                        console.log(res)
                     })
                     .catch(err => console.error(err))
             })
@@ -91,9 +92,43 @@ export const InvoiceDetail = (props: {
                 setIsError(true)
                 console.error(err)
             })
+        // axios.get<invDetailsType>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/invoice/details/${props.invNumber}`)
+        //     .then(res => {
+        //         setOrigin(res.data)
+        //         setModifyInvDetails(res.data)
+        //         setInvDetails(res.data)
+        //         setListItems(res.data.LineItems)
+        //         setExpenses(res.data.Expenses)
+        //         setIsLoading(false)
+        //         setIsError(false)
+        //         console.log(res.data)
+        //         axios.get<dummy>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
+        //             .then(res => {
+        //                 setApprover(res.data.Approval)
+        //                 axios.get<NextApprovers[]>(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/NextApprovers/${props.invNumber}`)
+        //                     .then(ress => {
+        //                         setNextApprover(ress.data)
+        //                         setFilterApprover(res.data.Approval?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
+        //                         // console.log('filterssss', res.data.Approval[0]?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
+        //                     })
+        //                     .catch(err => console.error(err))
+        //             })
+        //             .catch(err => console.error(err))
+        //         axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
+        //             .then(res => {
+        //                 setApprovalHistory(res.data)
+        //                 console.log(res.data)
+        //             })
+        //             .catch(err => console.error(err))
+        //     })
+        //     .catch(err => {
+        //         setIsLoading(false)
+        //         setIsError(true)
+        //         console.error(err)
+        //     })
     }, [props.invNumber, trigger])
 
-    const validation = () => {
+    const approvalValidation = () => {
         let darr: number[] = []
         for (let j = 0; approvers.Level.length - 1 > j; j++) {
             let secondTime = false
@@ -108,6 +143,8 @@ export const InvoiceDetail = (props: {
         }
         return darr
     }
+
+
 
 
     const addLevel = () => {
@@ -150,12 +187,20 @@ export const InvoiceDetail = (props: {
             .then(res => {
                 console.log('Response:', res)
                 setProcess(false)
-                SweetAlert('<h1>Saved</h1>', 'success', 4000)
+                SweetAlert({
+                    title: '<h1>Saved</h1>',
+                    icon: 'success',
+                    timer: 4000
+                })
             })
             .catch(err => {
                 console.log('Error:', err)
                 setProcess(false)
-                SweetAlert('<h1>Somthing wrong from the server</h1>', 'error', 4000)
+                SweetAlert({
+                    title: '<h1>Somthing wrong from the server</h1>',
+                    icon: 'error',
+                    timer: 4000
+                })
             })
     }
 
@@ -333,7 +378,7 @@ export const InvoiceDetail = (props: {
                                                                 let arr: WorkFlowLevel = [...filterApprover]
                                                                 arr[index].Approver = e.target.value
                                                                 setFilterApprover(arr)
-                                                                setError(validation)
+                                                                setError(approvalValidation)
                                                                 console.log(e.target.value)
                                                             }
                                                         } className="form-select form-select-sm">
@@ -360,6 +405,7 @@ export const InvoiceDetail = (props: {
                                                                     console.log(e.target.value)
                                                                 }} />
                                                             </div>
+                                                            {filterApprover[index === 0 ? 0 : index - 1]?.Amount > filterApprover[index]?.Amount ? <small key={index} className="text-danger">Amount must be greater than previous approver amount</small> : null}
                                                         </div>
                                                     </div>
                                                     <div className="col-3">
@@ -374,6 +420,7 @@ export const InvoiceDetail = (props: {
                                                                 }} />
                                                                 <span className="input-group-text">%</span>
                                                             </div>
+                                                            {/* {error?.map(err => err === index ? <small key={index} className="text-danger">User already in approver list</small> : null)} */}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -436,7 +483,6 @@ export const InvoiceDetail = (props: {
                                                                                     <path d="M12.5657 15.6343L16.75 11.45C17.1642 11.0357 17.8358 11.0357 18.25 11.45C18.6642 11.8642 18.6642 12.5357 18.25 12.95L12.7071 18.4928C12.3166 18.8834 11.6834 18.8834 11.2929 18.4928L5.75 12.95C5.33579 12.5357 5.33579 11.8642 5.75 11.45C6.16421 11.0357 6.83579 11.0357 7.25 11.45L11.4343 15.6343C11.7467 15.9467 12.2533 15.9467 12.5657 15.6343Z" fill="black" />
                                                                                 </svg></span>
                                                                             </>
-
                                                                     }
                                                                 </>
                                                         }
@@ -459,9 +505,9 @@ export const InvoiceDetail = (props: {
                                     console.log('final', final)
                                     obj.Level = final
                                     setProcess(true)
-                                    axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, [obj])
+                                    axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, obj)
                                         .then(res => {
-                                            console.log(res.data)
+                                            console.log('data', res.data)
                                             setProcess(false)
                                             setTrigger(!trigger)
                                         })
