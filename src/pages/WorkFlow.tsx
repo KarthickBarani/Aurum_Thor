@@ -1,14 +1,13 @@
-import { vendors, departments, locations, WorkFlowTableType, userProfileType, WorkFlowType, Fields, FieldValue, account, WorkFlowApproval, WorkFlowFields } from "../components/Interface"
+import { vendors, departments, locations, WorkFlowTableType, userProfileType, WorkFlowType, Fields, account } from "../components/Interface"
 import { useEffect, useState } from "react"
 import { NewWorkFlow } from "../components/NewWorkFlow"
 import { WorkFlowTable } from "../components/WorkFlowTable"
 import axios from "axios"
-import { useFormik } from "formik"
 import { v4 as uuidv4 } from 'uuid'
-import Swal from "sweetalert2"
 import { useQuery } from "react-query"
 import { Error } from "../components/Error"
 import { Loading } from "../components/Loading"
+import { SweetAlert } from "../Function/alert"
 
 
 
@@ -30,22 +29,13 @@ export const WorkFlow = (
     const [workFlows, setWorkFlows] = useState<WorkFlowTableType[]>([] as WorkFlowTableType[])
     const [workFlow, setWorkFlow] = useState<WorkFlowTableType>({} as WorkFlowTableType)
     const [fields, setFields] = useState<Fields>([] as Fields)
-    const [DyFields, setDyFields] = useState<FieldValue[]>([] as FieldValue[])
-    const [levelElements, setLevelElements] = useState<number[]>([uuidv4()])
+
+
     const [type, setType] = useState<number>(0)
     const [IsLoading, setIsLoading] = useState<boolean>(false)
     const [isNew, setIsNew] = useState<boolean>(true)
-    const [workFlowFields, setWorkFlowFields] = useState<WorkFlowFields>([] as WorkFlowFields)
-    const [initialValues, setInitialValues] = useState({
-        WorkFlowId: '',
-        workflowName: '',
-        account: 0,
-        department: 0,
-        location: 0,
-        approver: [],
-        amount: [],
-        percentage: []
-    })
+
+
 
 
     const fetchWorkflows = () => {
@@ -73,138 +63,66 @@ export const WorkFlow = (
 
     }, [data?.data])
 
-    const onSubmit = values => {
-        console.log(values)
-    }
-
-    const formik = useFormik({
-        enableReinitialize: true,
-        initialValues,
-        onSubmit
-    })
-
-
     const save = () => {
         setIsLoading(true)
-        const saveData: WorkFlowTableType =
-        {
-            WorkFlowId: isNew ? uuidv4() : formik.values.WorkFlowId,
-            EnterpriseId: '',
-            CompanyId: '',
-            Name: formik.values.workflowName,
-            WorkFlowTypeId: workFLowType[type].WorkflowTypeId,
-            Approval: {
-                Fields: workFlowFields,
-                Level: levelElements?.map((element, index) => (
-                    {
-                        Level: index + 1,
-                        Amount: formik.values.amount[index],
-                        Approver: formik.values.approver[index],
-                        Percentage: formik.values.percentage[index]
-                    }
-                ))
-            },
-            CreatedBy: '',
-            CreatedTimestamp: new Date(),
-            LastModifiedTimestamp: new Date(),
-        }
-
-        console.log('save:', saveData)
-
-        if (isNew) {
-            axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow`, saveData)
-                .then(res => {
-                    console.log('Response:', res)
-                    setIsLoading(false)
-                    Swal.fire(
-                        {
-                            title: '<h1>Saved</h1>',
-                            icon: 'success',
-                            timer: 4000,
-                        }
-                    )
-                    back()
+        console.log('save:', workFlow)
+        setIsLoading(false)
+        axios[isNew ? 'post' : 'patch'](`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow`, workFlow)
+            .then(res => {
+                console.log('Response:', res)
+                setIsLoading(false)
+                SweetAlert({
+                    title: isNew ? '<h1>Saved</h1>' : '<h1>Updated</h1>',
+                    icon: 'success',
+                    timer: 4000
                 })
-                .catch(err => {
-                    console.log('Error:', err)
-                    Swal.fire(
-                        {
-                            title: 'Error',
-                            icon: 'error',
-                            timer: 1000,
-                        }
-                    )
-                    setIsLoading(false)
-                    back()
+                back()
+            })
+            .catch(err => {
+                console.log('Error:', err)
+                SweetAlert({
+                    title: 'Error',
+                    icon: 'error',
+                    timer: 1000,
                 })
-
-        } else {
-            axios.patch(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow`, saveData)
-                .then(res => {
-                    console.log('Response:', res)
-                    setIsLoading(false)
-                    Swal.fire(
-                        {
-                            title: '<h1>Updated</h1>',
-                            icon: 'success',
-                            timer: 4000,
-                        }
-                    )
-                    back()
-                })
-                .catch(err => {
-                    console.log('Error:', err)
-                    Swal.fire(
-                        {
-                            title: 'Error',
-                            icon: 'error',
-                            timer: 1000,
-                        }
-                    )
-                    setIsLoading(false)
-                    back()
-                })
-        }
+                setIsLoading(false)
+                back()
+            })
     }
 
     const back = () => {
         setToggleWorkflow(false)
         setIsNew(true)
-        // setWorkflow(
-        //     {
-        //         WorkFlowId: 0,
-        //         EnterpriseId: '',
-        //         CompanyId: '',
-        //         Name: '',
-        //         WorkFlowTypeId: 0,
-        //         Approval: {},
-        //         CreatedBy: '',
-        //         CreatedTimestamp: new Date(),
-        //         LastModifiedTimestamp: new Date()
-        //     })
-        setInitialValues({
-            WorkFlowId: '',
-            workflowName: '',
-            account: 0,
-            department: 0,
-            location: 0,
-
-            approver: [],
-            amount: [],
-            percentage: []
-        })
-        setDyFields([])
         refetch()
     }
 
     const addWorkFlow = () => {
+        setIsNew(true)
         setToggleWorkflow(true)
+        setWorkFlow({
+            WorkFlowId: uuidv4(),
+            EnterpriseId: '',
+            CompanyId: '',
+            Name: '',
+            WorkFlowTypeId: workFLowType[type].WorkflowTypeId,
+            Approval: {
+                Fields: [],
+                Level: [
+                    {
+                        Level: 1,
+                        Approver: 0,
+                        Amount: 0,
+                        Percentage: 0
+                    }
+                ]
+            },
+            CreatedBy: '',
+            CreatedTimestamp: new Date(),
+            LastModifiedTimestamp: new Date()
+        })
     }
 
     const addFields = arr => {
-        let arrs = [...DyFields]
-        arrs.push(arr)
-        setDyFields(arrs)
     }
 
 
@@ -234,9 +152,10 @@ export const WorkFlow = (
                                                         Add Field &nbsp;
                                                     </button>
                                                     <ul className="dropdown-menu">
-                                                        {
-                                                            fields.filter(arr => arr.Type === workFLowType[type].Name).map(arr => <li key={arr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(arr)} > {arr.Type}</li>)
-                                                        }
+
+                                                        {fields.filter(arr => arr.Type === workFLowType[type].Name).map(arr => arr.Value.map(inarr => (<li key={inarr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(inarr)} > {inarr.Field}</li>)))}
+                                                        {/* // fields.filter(arr => arr.Type === workFLowType[type].Name).map(arr => <li key={arr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(arr)} > {arr.Type}</li>) */}
+
                                                     </ul>
                                                 </div>
 
@@ -302,7 +221,7 @@ export const WorkFlow = (
                                 {toggleWorkflow ?
                                     <>
 
-                                        <NewWorkFlow workFlow={workFlow} setWorkFlowFields={setWorkFlowFields} vendors={props.vendors} Department={props.departments} locations={props.locations} account={props.account} users={users} formik={formik} levelElements={levelElements} setLevelElements={setLevelElements} setInitialValues={setInitialValues} type={workFLowType[type].WorkflowTypeId} DyFields={DyFields} setDyFields={setDyFields} />
+                                        <NewWorkFlow workFlow={workFlow} setWorkFlow={setWorkFlow} vendors={props.vendors} Department={props.departments} locations={props.locations} Account={props.account} users={users} type={workFLowType[type].WorkflowTypeId} />
                                     </>
                                     :
                                     isLoading
@@ -323,7 +242,7 @@ export const WorkFlow = (
                                                 <div className="tab-content" id="myTabContent">
                                                     {workFLowType.map((types, index) => (
                                                         <div key={index} className="tab-pane fade show active" id={`tab-${index}`} role="tabpanel">
-                                                            {workFLowType[type].WorkflowTypeId === workFLowType[index].WorkflowTypeId ? <WorkFlowTable isNew={isNew} setIsNew={setIsNew} setInitialValues={setInitialValues} setLevelElements={setLevelElements} workFlows={workFlows} setWorkFlow={setWorkFlow} setToggleWorkflow={setToggleWorkflow} type={types.WorkflowTypeId} /> : null}
+                                                            {workFLowType[type].WorkflowTypeId === workFLowType[index].WorkflowTypeId ? <WorkFlowTable isNew={isNew} setIsNew={setIsNew} workFlows={workFlows} setWorkFlow={setWorkFlow} setToggleWorkflow={setToggleWorkflow} type={types.WorkflowTypeId} /> : null}
                                                         </div>)
                                                     )}
                                                 </div>

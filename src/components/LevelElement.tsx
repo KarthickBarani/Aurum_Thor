@@ -1,75 +1,76 @@
-import { v4 as uuidv4 } from 'uuid';
-import { userProfileType } from "./Interface"
+import { useState } from "react"
+import { userProfileType, WorkFlowLevel, WorkFlowTableType } from "./Interface"
 
 export const LevelElement = (props: {
 
-    levelElements: number[]
+    workFlow: WorkFlowTableType
+    setWorkFlow: Function
+    filterApproval: WorkFlowLevel
     index: number
-    type: number
-    setLevelElements: Function
-    formik: any
+    type?: number
     users?: userProfileType[]
-    setInitialValues: Function
 }) => {
 
-
+    const [error, setError] = useState<number[]>([])
 
     const addLevel = () => {
-        let arr = [...props.levelElements]
-        arr.push(uuidv4())
-        console.log('Add', arr)
-        props.setLevelElements(arr)
+        let obj = { ...props.workFlow }
+        obj.Approval.Level.push({
+            Level: props.workFlow.Approval.Level.length,
+            Approver: 0,
+            Amount: 0,
+            Percentage: 0,
+        })
+        console.log('Add', obj)
+        props.setWorkFlow(obj)
     }
 
     const removeLevel = () => {
-        let delarr = props.levelElements.filter(arr => props.levelElements.indexOf(arr) !== props.index)
-        props.formik.values.amount.splice(props.index, 1)
-        props.setLevelElements(delarr)
-        console.log(delarr)
+        let obj = { ...props.workFlow }
+        obj.Approval.Level = props.workFlow.Approval.Level.filter(arr => props.workFlow.Approval.Level.indexOf(arr) !== props.index)
+        props.setWorkFlow(obj)
     }
     const moveUp = () => {
-        let arr = [...props.levelElements]
-        console.table(arr)
-        let temp = arr[props.index]
-        arr[props.index] = arr[props.index - 1]
-        arr[props.index - 1] = temp
-        let tempAppVal = props.formik.values?.approver[props.index]
-        props.formik.values.approver[props.index] = props.formik.values?.approver[props.index - 1]
-        props.formik.values.approver[props.index - 1] = tempAppVal
-        console.table(props.formik.values.approver)
-        let tempAmtVal = props.formik.values?.amount[props.index]
-        props.formik.values.amount[props.index] = props.formik.values?.amount[props.index - 1]
-        props.formik.values.amount[props.index - 1] = tempAmtVal
-        console.table(props.formik.values.amount)
-        let tempPerVal = props.formik.values?.percentage[props.index]
-        props.formik.values.percentage[props.index] = props.formik.values?.percentage[props.index - 1]
-        props.formik.values.percentage[props.index - 1] = tempPerVal
-        console.table(props.formik.values.percentage)
-        props.setLevelElements(arr)
+        let obj = { ...props.workFlow }
+        let temp = obj.Approval.Level[props.index]
+        obj.Approval.Level[props.index] = obj.Approval.Level[props.index - 1]
+        obj.Approval.Level[props.index - 1] = temp
+        props.setWorkFlow(obj)
     }
 
     const moveDown = () => {
-        if (props.levelElements.length > 1) {
-            let arr = [...props.levelElements]
-            console.table(arr)
-            let temp = arr[props.index]
-            arr[props.index] = arr[props.index + 1]
-            arr[props.index + 1] = temp
-            let tempAppVal = props.formik.values?.approver[props.index]
-            props.formik.values.approver[props.index] = props.formik.values?.approver[props.index + 1]
-            props.formik.values.approver[props.index + 1] = tempAppVal
-            console.table(props.formik.values.approver)
-            let tempAmtVal = props.formik.values?.amount[props.index]
-            props.formik.values.amount[props.index] = props.formik.values?.amount[props.index + 1]
-            props.formik.values.amount[props.index + 1] = tempAmtVal
-            console.table(props.formik.values.amount)
-            let tempPerVal = props.formik.values?.percentage[props.index]
-            props.formik.values.percentage[props.index] = props.formik.values?.percentage[props.index + 1]
-            props.formik.values.percentage[props.index + 1] = tempPerVal
-            console.table(props.formik.values.percentage)
-            props.setLevelElements(arr)
-        }
+        let obj = { ...props.workFlow }
+        let temp = obj.Approval.Level[props.index]
+        obj.Approval.Level[props.index] = obj.Approval.Level[props.index + 1]
+        obj.Approval.Level[props.index + 1] = temp
+        props.setWorkFlow(obj)
     }
+
+    const changeHandler = (e) => {
+        const target = e.target
+        const name = target.name
+        let obj = { ...props.workFlow }
+        obj.Approval.Level[props.index][name] = target.value
+        props.setWorkFlow(obj)
+        target.focus()
+    }
+
+    const approvalValidation = () => {
+        let darr: number[] = []
+        for (let j = 0; props.workFlow.Approval.Level.length - 1 > j; j++) {
+            let secondTime = false
+            for (let i = 0; props.filterApproval?.length > i; i++) {
+                if (props.filterApproval[i]?.Approver === props.workFlow.Approval.Level[j]?.Approver) {
+                    if (secondTime) {
+                        darr.push(i)
+                    }
+                    secondTime = true
+                }
+            }
+        }
+        return darr
+    }
+
 
     return (
         <>
@@ -80,8 +81,11 @@ export const LevelElement = (props: {
                             <label htmlFor="level" className="form-label fw-bolder">Level-{props.index + 1}</label>
                         </div>
                         <div className="col-10">
-                            <label htmlFor={'approver[' + props.index + ']'} className="form-label">Approver</label>
-                            <select name={'approver[' + props.index + ']'} id={'approver[' + props.index + ']'} value={props.formik.values.approver[props.index]} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} className="form-select form-select-sm">
+                            <label htmlFor={'Approver'} className="form-label">Approver</label>
+                            <select name={'Approver'} id={'approver[' + props.index + ']'} value={props.workFlow.Approval.Level[props.index].Approver} onChange={(e) => {
+                                changeHandler(e)
+                                setError(approvalValidation)
+                            }} className="form-select form-select-sm">
                                 <option key={0} value={0}></option>
                                 {
                                     props.users?.map(user => (
@@ -89,6 +93,7 @@ export const LevelElement = (props: {
                                     ))
                                 }
                             </select>
+                            {error?.map(err => err === props.index ? <small key={props.index} className="text-danger">User already in approver list</small> : null)}
                         </div>
                     </div>
                 </div>
@@ -96,10 +101,11 @@ export const LevelElement = (props: {
                     <div className="row">
                         <div className="col-4">
                             <div className="form-group">
-                                <label htmlFor={'amount[' + props.index + ']'} className="form-label">Amount</label>
+                                <label htmlFor={'Amount'} className="form-label">Amount</label>
                                 <div className="input-group input-group-sm">
                                     <span className="input-group-text">$</span>
-                                    <input name={'amount[' + props.index + ']'} id={'amount[' + props.index + ']'} type="number" className="form-control from-control-sm" value={props.formik.values.amount[props.index]} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} />
+                                    <input name={'Amount'} id={'amount[' + props.index + ']'} type="number" className="form-control from-control-sm" value={props.workFlow.Approval.Level[props.index].Amount} onChange={changeHandler} />
+                                    {props.workFlow?.Approval?.Level[props.index === 0 ? 0 : props.index - 1]?.Amount > props.workFlow.Approval.Level[props.index]?.Amount ? <small key={props.index} className="text-danger">Amount must be greater than {props.workFlow.Approval.Level[props.index - 1]?.Amount}</small> : null}
                                 </div>
                             </div>
                         </div>
@@ -107,9 +113,9 @@ export const LevelElement = (props: {
                             props.type === 1 ?
                                 <div className="col-4">
                                     <div className="form-group">
-                                        <label htmlFor={'percentage[' + props.index + ']'} className="form-label">Percentage</label>
+                                        <label htmlFor={'Percentage'} className="form-label">Percentage</label>
                                         <div className="input-group input-group-sm">
-                                            <input name={'percentage[' + props.index + ']'} id={'percentage[' + props.index + ']'} type="number" maxLength={3} max={100} className="form-control from-control-sm" value={props.formik.values.percentage[props.index]} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} />
+                                            <input name={'Percentage'} id={'percentage[' + props.index + ']'} type="number" maxLength={3} max={100} className="form-control from-control-sm" value={props.workFlow.Approval.Level[props.index].Percentage} onChange={changeHandler} />
                                             <span className="input-group-text">%</span>
                                         </div>
                                     </div>
@@ -133,7 +139,7 @@ export const LevelElement = (props: {
                                             fill="black" />
                                     </svg></span>
                                 </button> : null}
-                                    {props.index === props.levelElements.length - 1 ? <button onClick={addLevel} title="Add Level" className="btn btn-active-light-Primary btn-icon btn-sm  btn-hover-rise">
+                                    {props.index === props.workFlow.Approval.Level.length - 1 ? <button onClick={addLevel} title="Add Level" className="btn btn-active-light-Primary btn-icon btn-sm  btn-hover-rise">
                                         <span className="svg-icon svg-icon-2 svg-icon-primary">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -158,7 +164,7 @@ export const LevelElement = (props: {
                                             :
                                             <>
                                                 {
-                                                    props.index === props.levelElements.length - 1 ?
+                                                    props.index === props.workFlow.Approval.Level.length - 1 ?
                                                         <span onClick={moveUp} role='button' className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                                             <path opacity="0.5" d="M11.4343 14.3657L7.25 18.55C6.83579 18.9643 6.16421 18.9643 5.75 18.55C5.33579 18.1358 5.33579 17.4643 5.75 17.05L11.2929 11.5072C11.6834 11.1166 12.3166 11.1166 12.7071 11.5072L18.25 17.05C18.6642 17.4643 18.6642 18.1358 18.25 18.55C17.8358 18.9643 17.1642 18.9643 16.75 18.55L12.5657 14.3657C12.2533 14.0533 11.7467 14.0533 11.4343 14.3657Z" fill="black" />
                                                             <path d="M11.4343 8.36573L7.25 12.55C6.83579 12.9643 6.16421 12.9643 5.75 12.55C5.33579 12.1358 5.33579 11.4643 5.75 11.05L11.2929 5.50716C11.6834 5.11663 12.3166 5.11663 12.7071 5.50715L18.25 11.05C18.6642 11.4643 18.6642 12.1358 18.25 12.55C17.8358 12.9643 17.1642 12.9643 16.75 12.55L12.5657 8.36573C12.2533 8.05331 11.7467 8.05332 11.4343 8.36573Z" fill="black" />

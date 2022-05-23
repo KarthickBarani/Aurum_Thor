@@ -1,122 +1,80 @@
 
-import { vendors, departments, locations, userProfileType, FieldValue, account, WorkFlowTableType } from "./Interface"
-import { DynamicField } from "./DynamicField"
+import { vendors, departments, locations, userProfileType, account, WorkFlowTableType, WorkFlowLevel } from "./Interface"
 import { LevelElement } from "./LevelElement"
+
 
 export const NewWorkFlow = (props: {
     workFlow: WorkFlowTableType
-    setWorkFlowFields: Function
+    setWorkFlow: Function
     vendors: vendors
     Department: departments
     locations: locations
-    account: account
+    Account: account
     users: userProfileType[]
-    formik: any
-    levelElements: number[]
     type: number
-    DyFields: FieldValue[]
-    setDyFields: Function
-    setLevelElements: Function
-    setInitialValues: Function
 }) => {
 
 
-
+    const changeHandler = (e) => {
+        let obj = { ...props.workFlow }
+        obj.Name = e.target.value
+        props.setWorkFlow(obj)
+    }
+    const filterApproval: WorkFlowLevel = props.workFlow.Approval.Level
     return (
         <div className="container-fluid">
-            {
-                true ?
-                    <>
-                        <div className="row">
-                            <div className="col-3 mt-2">
-                                <label htmlFor="workflowName" className="form-label">Name</label>
-                                <input name="workflowName" id="workflowName" type="text" value={props.formik.values.workflowName} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} className="form-control form-control-sm" />
-                            </div>
-                            {/* {console.log('check', props.workFlow.Approval.Fields)} */}
-                            {props.workFlow.Approval.Fields?.map((filed, index) => {
-                                return (
-                                    <div key={index} className="col-3 mt-2">
-                                        <label htmlFor={filed.Type} className="form-label">{filed.Type}</label>
-                                        <select name={filed.Type} id={filed.Type} value={filed.Id} onChange={e => {
-                                            let arr = [...props.workFlow.Approval.Fields]
-                                            let type = props[filed.Type].find(arr => arr.DepartmentId === Number(e.target.value))
-                                            arr[index].Id = type?.DepartmentId as number
-                                            arr[index].FieldName = type?.DepartmentName as string
-                                            props.setWorkFlowFields(arr)
-                                        }} className="form-select form-select-sm">
-                                            <option key={0} value={0} ></option>
-                                            {console.log('dept', props.Department)}
-                                            {
-                                                props[filed.Type]?.map(dept => (
-                                                    <option key={dept.DepartmentId} value={dept.DepartmentId} onClick={e => {
 
-                                                    }} >{dept.DepartmentName}</option>
-                                                ))
-                                            }
-                                        </select>
-                                    </div>
-                                )
-                            })}
-                            {/* {
-                                props.type === 2 ?
-                                    <>
-                                        <div className="col-3 mt-2">
-                                            <label htmlFor="account" className="form-label">Account</label>
-                                            <select name="account" id="account" value={props.formik.values.account} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} className="form-select form-select-sm">
-                                                <option key={0} value={0} ></option>
-                                                {
-                                                    props.account?.map(acc => (
-                                                        <option key={acc.AccountId} value={acc.AccountId} >{acc.AccountName}</option>
-                                                    ))
-                                                }
-                                            </select>
-                                        </div>
-                                        <div className="col-3 mt-2">
-                                            <label htmlFor="department" className="form-label">Department</label>
-                                            <select name="department" value={props.formik.values.department} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} id="department" className="form-select form-select-sm">
-                                                <option key={0} value={0} ></option>
-                                                {
-                                                    props.departments?.map(dept => (
-                                                        <option key={dept.DepartmentId} value={dept.DepartmentId} >{dept.DepartmentName}</option>
-                                                    ))
-                                                }
-                                            </select>
-                                        </div>
-                                        <div className="col-3 mt-2">
-                                            <label htmlFor="location" className="form-label">Location</label>
-                                            <select name="location" value={props.formik.values.location} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} id="location" className="form-select form-select-sm">
-                                                <option key={0} value={0} ></option>
-                                                {
-                                                    props.locations?.map(location => (
-                                                        <option key={location.LocationId} value={location.LocationId} >{location.Location}</option>
-                                                    ))
-                                                }
-                                            </select>
-                                        </div>
-                                    </>
-                                    :
-                                    null
-                            } */}
-                            {props.DyFields.map((field, index) => (<DynamicField key={field.Id} index={index} field={field} DyFields={props.DyFields} setDyFields={props.setDyFields} />))}
+            <div className="row">
+                <div className="col-3 mt-2">
+                    <label htmlFor="workflowName" className="form-label">Name</label>
+                    <input name="workflowName" id="workflowName" type="text" value={props.workFlow.Name} onChange={changeHandler} className="form-control form-control-sm" />
+                </div>
+                {props.workFlow.Approval?.Fields?.map((filed, index) => {
+                    let currentFiled
+                    if (filed.Type === 'Department') {
+                        currentFiled = {
+                            id: Object.keys(props[filed.Type][0]).find(arr => arr === 'DepartmentId'),
+                            name: Object.keys(props[filed.Type][0]).find(arr => arr === 'DepartmentName')
+                        }
+                    }
+                    if (filed.Type === 'Account') {
+                        currentFiled = {
+                            id: Object.keys(props[filed.Type][0]).find(arr => arr === 'AccountId'),
+                            name: Object.keys(props[filed.Type][0]).find(arr => arr === 'AccountName'),
+                        }
+                    }
+
+                    return (
+                        <div key={index} className="col-3 mt-2">
+                            <label htmlFor={filed.Type} className="form-label">{filed.Type}</label>
+                            <select name={filed.Type} id={filed.Type} value={filed.Id} onChange={e => {
+                                let obj = { ...props.workFlow }
+                                let type = props[filed.Type].find(arr => arr[currentFiled.id] === Number(e.target.value))
+                                obj.Approval.Fields[index].Id = type[currentFiled.id] as number
+                                obj.Approval.Fields[index].FieldName = type[currentFiled.name] as string
+                                console.log('now', obj.Approval.Fields)
+                                props.setWorkFlow(obj)
+                            }} className="form-select form-select-sm">
+                                <option key={0} value={0} ></option>
+                                {
+                                    props[filed.Type]?.map(dept => {
+                                        return (
+                                            <option key={dept[currentFiled.id]} value={dept[currentFiled.id]}>{dept[currentFiled.name]}</option>)
+                                    }
+                                    )
+                                }
+                            </select>
                         </div>
-                        <div className="separator border-1 border-gray my-5"></div>
-                    </>
-                    :
-                    <>
-                        <div className="row">
-                            <div className="col-3">
-                                <label htmlFor="workflowName" className="form-label">Name</label>
-                                <input name="workflowName" id="workflowName" type="text" value={props.formik.values.workflowName} onChange={props.formik.handleChange} onBlur={props.formik.handleBlur} className="form-control form-control-sm" />
-                            </div>
-                            <div className="separator border-1 border-gray my-5"></div>
-                        </div>
-                    </>
-            }
+                    )
+                })}
+                {/* {props.DyFields.map((field, index) => (<DynamicField key={field.Id} index={index} field={field} DyFields={props.DyFields} setDyFields={props.setDyFields} />))} */}
+            </div>
+            <div className="separator border-1 border-gray my-5"></div>
             <div className="row justify-content-end my-2">
 
                 {
-                    props.levelElements.map((elements, index) => (
-                        <LevelElement type={props.type} key={elements} index={index} levelElements={props.levelElements} setLevelElements={props.setLevelElements} setInitialValues={props.setInitialValues} formik={props.formik} users={props?.users} />
+                    props.workFlow.Approval?.Level.map((level, index) => (
+                        <LevelElement key={`${level.Level}${index}`} workFlow={props.workFlow} setWorkFlow={props.setWorkFlow} filterApproval={filterApproval} type={props.type} index={index} users={props?.users} />
                     )
                     )
                 }
