@@ -41,7 +41,7 @@ export const LoginComp = (props: {
     <>
       <div className='container-fluid' style={{ height: '90vh' }}>
         <div className='row justify-content-center h-100 align-items-center'>
-          <div className='col-4 align-items-center'>
+          <div className='col col-sm-8 col-lg-5 align-items-center'>
             <div className='card card-flush shadow-sm'>
               <div className='card-body'>
                 <div>
@@ -82,12 +82,12 @@ export const LoginComp = (props: {
                       ></input>
                     </div>
                     <div className='form-group d-flex flex-stack'>
-                      <a href='' className='text-dark-50 text-hover-primary my-3 mr-2'>
+                      <a href='/' className='text-dark-50 text-hover-primary my-3 mr-2'>
                         Forgot Password ?
                       </a>
                       <button
                         type={'submit'}
-                        className='btn btn-primary btn-sm font-weight-bold px-9 py-4 my-3'
+                        className='btn btn-primary btn-sm font-weight-bold my-3'
                       >
                         Sign In
                       </button>

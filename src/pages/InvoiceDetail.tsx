@@ -72,13 +72,13 @@ export const InvoiceDetail = (props: {
                 AxiosGet(`/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
                     .then(res => {
                         setWorkFlow(res)
-                        AxiosGet(`/api/v1/Invoice/NextApprovers/${props.invNumber}`)
-                            .then(ress => {
-                                setNextApprover(ress)
-                                setFilterApprover(res.Approval?.Level?.filter(arr => ress[(ress.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
-                                // console.log('filterssss', res.data.Approval[0]?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
-                            })
-                            .catch(err => console.error(err))
+                    })
+                    .catch(err => console.error(err))
+                AxiosGet(`/api/v1/Invoice/NextApprovers/${props.invNumber}`)
+                    .then(ress => {
+                        setNextApprover(ress)
+                        // setFilterApprover(res.Approval?.Level?.filter(arr => ress[(ress.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
+                        // console.log('filterssss', res.data.Approval[0]?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
                     })
                     .catch(err => console.error(err))
                 AxiosGet(`/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
@@ -95,56 +95,6 @@ export const InvoiceDetail = (props: {
             })
     }, [props.invNumber, trigger])
 
-    const approvalValidation = () => {
-        let darr: number[] = []
-        for (let j = 0; workFlow.Approval.Level.length - 1 > j; j++) {
-            let secondTime = false
-            for (let i = 0; filterApprover.length > i; i++) {
-                if (filterApprover[i]?.Approver === workFlow.Approval.Level[j]?.Approver) {
-                    if (secondTime) {
-                        darr.push(i)
-                    }
-                    secondTime = true
-                }
-            }
-        }
-        return darr
-    }
-
-
-
-
-    // const addLevel = () => {
-    //     let arr = [...filterApprover]
-    //     arr.push({
-    //         Level: filterApprover[filterApprover.length - 1].Level + 1,
-    //         Approver: 0,
-    //         Amount: 0,
-    //         Percentage: 0,
-    //     })
-    //     setFilterApprover(arr)
-    // }
-    // const removeLevel = (index) => {
-    //     let delarr: WorkFlowLevel = [...filterApprover]
-    //     delarr.splice(index, 1)
-    //     setFilterApprover(delarr)
-    //     console.log('app', delarr)
-    // }
-
-    // const moveUp = (index) => {
-    //     let arr: WorkFlowLevel = [...filterApprover]
-    //     let temp = arr[index]
-    //     arr[index] = arr[index - 1]
-    //     arr[index - 1] = temp
-    //     setFilterApprover(arr)
-    // }
-    // const moveDown = (index) => {
-    //     let arr: WorkFlowLevel = [...filterApprover]
-    //     let temp = arr[index]
-    //     arr[index] = arr[index + 1]
-    //     arr[index + 1] = temp
-    //     setFilterApprover(arr)
-    // }
 
 
     const save = () => {
@@ -331,7 +281,6 @@ export const InvoiceDetail = (props: {
                     <div className="modal-content">
 
                         <div className="modal-body">
-                            {console.log('filter', filterApprover)}
                             {
                                 workFlow.Approval?.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4)?.map((approver, index) => (
                                     < LevelElement key={`${approver.Level}${index}`} workFlow={workFlow} setWorkFlow={setWorkFlow} filterApproval={workFlow.Approval?.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4)} index={index} users={props?.users} />
@@ -345,7 +294,7 @@ export const InvoiceDetail = (props: {
                                     let obj = { ...workFlow.Approval }
                                     let temp = obj.Level.filter(arr => nextApprovers[nextApprovers.findIndex(farr => farr.ApproverId === arr.Approver)]?.Status === 4)
                                     console.log('temp', temp)
-                                    let final = temp.concat(filterApprover)
+                                    let final = temp.concat(workFlow.Approval.Level)
                                     console.log('final', final)
                                     obj.Level = final
                                     setProcess(true)

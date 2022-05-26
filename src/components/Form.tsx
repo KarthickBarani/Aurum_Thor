@@ -37,7 +37,7 @@ export const Form = (props: {
 
     const initialValues = {
         vendorName: props.invDetails?.VendorId?.toString(),
-        vendorId: props.invDetails?.VendorCode,
+        vendorCode: props.invDetails?.VendorCode,
         remitTo: props.invDetails?.VendorId,
         vendorAddress1: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[0] : props.invDetails?.VendorAddress?.split(',')[0],
         vendorAddress2: props.invDetails?.VendorAddress === "undefined,undefined,undefined,undefined,undefined" ? props.origin.VendorAddress?.split(',')[1] : props.invDetails?.VendorAddress?.split(',')[1] + '-' + props.invDetails?.VendorAddress?.split(',')[2],
@@ -69,7 +69,7 @@ export const Form = (props: {
 
     const validationSchema = Yup.object({
         vendorName: Yup.number().required('Required !'),
-        vendorId: Yup.number().required('Required !').positive('Must be a positive number').typeError('Must be a number'),
+        vendorCode: Yup.number().required('Required !').positive('Must be a positive number').typeError('Must be a number'),
         remitTo: Yup.number().notRequired(),
         vendorAddress1: Yup.string().required('Required !'),
         vendorAddress2: Yup.string().required('Required !'),
@@ -173,7 +173,6 @@ export const Form = (props: {
         })
         props.setValid(formik.isValid)
     }, [formik.values, formik.isValid])
-
     const formInput = 'form-control form-control-solid'
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2 '
@@ -189,7 +188,7 @@ export const Form = (props: {
                                 Name</label>
                             <div className="input-group input-group-solid">
                                 <select id="vendorName" name="vendorName" value={formik.values.vendorName} className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
-
+                                    <option key={0} value={0} ></option>
                                     {props.vendors?.map(vendor => (
                                         <option key={vendor.VendorId} value={vendor.VendorId} >{vendor.VendorName}</option>
                                     ))}
@@ -203,10 +202,10 @@ export const Form = (props: {
                         </div>
                     </div>
                     <div className="col-2">
-                        <label htmlFor="vendorId" className={formLabel}>
+                        <label htmlFor="vendorCode" className={formLabel}>
                             Vendor Code</label>
-                        <input readOnly className={formik.errors.vendorId && formik.touched.vendorId && formik.dirty ? formInput + ' is-invalid' : formInput} id="vendorId" name="vendorId" type="text" onChange={formik.handleChange} value={formik.values.vendorId} onBlur={formik.handleBlur} />
-                        {formik.errors.vendorId && formik.touched.vendorId && formik.dirty ? <small className="text-danger ">{formik.errors.vendorId}</small> : null}
+                        <input readOnly className={formik.errors.vendorCode && formik.touched.vendorCode && formik.dirty ? formInput + ' is-invalid' : formInput} id="vendorCode" name="vendorCode" type="text" onChange={formik.handleChange} value={formik.values.vendorCode} onBlur={formik.handleBlur} />
+                        {formik.errors.vendorCode && formik.touched.vendorCode && formik.dirty ? <small className="text-danger ">{formik.errors.vendorCode}</small> : null}
                     </div>
                     <div className="col-6">
                         <div className="form-group text-start">
@@ -272,7 +271,7 @@ export const Form = (props: {
                                 PO #</label>
                             <div className='input-group input-group-solid'>
                                 <select id="poNo" name="poNo" className={formSelect} onChange={formik.handleChange} onBlur={formik.handleBlur} >
-                                    <option value={0} ></option>
+                                    <option value={'0'} >{''}</option>
                                 </select>
                                 <button className='btn btn-secondary btn-sm'><span className="svg-icon svg-icon-light svg-icon-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                     <path d="M14.5 20.7259C14.6 21.2259 14.2 21.826 13.7 21.926C13.2 22.026 12.6 22.0259 12.1 22.0259C9.5 22.0259 6.9 21.0259 5 19.1259C1.4 15.5259 1.09998 9.72592 4.29998 5.82592L5.70001 7.22595C3.30001 10.3259 3.59999 14.8259 6.39999 17.7259C8.19999 19.5259 10.8 20.426 13.4 19.926C13.9 19.826 14.4 20.2259 14.5 20.7259ZM18.4 16.8259L19.8 18.2259C22.9 14.3259 22.7 8.52593 19 4.92593C16.7 2.62593 13.5 1.62594 10.3 2.12594C9.79998 2.22594 9.4 2.72595 9.5 3.22595C9.6 3.72595 10.1 4.12594 10.6 4.02594C13.1 3.62594 15.7 4.42595 17.6 6.22595C20.5 9.22595 20.7 13.7259 18.4 16.8259Z" fill="black" />

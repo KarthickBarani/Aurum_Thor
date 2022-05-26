@@ -115,7 +115,33 @@ export const Table = (props:
 
         }, {
             Header: 'Status',
-            accessor: 'StatusText'
+            accessor: row => {
+                let style = ''
+                switch (row.StatusId) {
+                    case 1:
+                        style = 'info'
+                        break
+                    case 2:
+                        style = 'primary'
+                        break
+                    case 3:
+                        style = 'warning'
+                        break
+                    case 4:
+                        style = 'success'
+                        break
+                    case 5:
+                        style = 'danger'
+                        break
+                    case 6:
+                        style = 'success'
+                        break
+                    default:
+                        style = 'primary'
+                        break
+                }
+                return <span className={`badge badge-light-${style}`} >{`${row.StatusText}`}</span>
+            }
         }, {
             Header: 'Pending With',
             accessor: row => row.StatusId === 3 ? row.PendingWith : null

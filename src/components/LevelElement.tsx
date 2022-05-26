@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { userProfileType, WorkFlowLevel, WorkFlowTableType } from "./Interface"
+import { LevelElementError, userProfileType, WorkFlowLevel, WorkFlowTableType } from "./Interface"
 
 export const LevelElement = (props: {
 
@@ -11,7 +11,13 @@ export const LevelElement = (props: {
     users?: userProfileType[]
 }) => {
 
-    const [error, setError] = useState<number[]>([])
+
+    const [error, setError] = useState<LevelElementError>({
+        approverError: [],
+        amountError: [],
+        percentageError: [],
+        message: []
+    })
 
     const addLevel = () => {
         let obj = { ...props.workFlow }
@@ -19,9 +25,8 @@ export const LevelElement = (props: {
             Level: props.workFlow.Approval.Level.length,
             Approver: 0,
             Amount: 0,
-            Percentage: 0,
+            Percentage: 0
         })
-        console.log('Add', obj)
         props.setWorkFlow(obj)
     }
 
@@ -30,6 +35,7 @@ export const LevelElement = (props: {
         obj.Approval.Level = props.workFlow.Approval.Level.filter(arr => props.workFlow.Approval.Level.indexOf(arr) !== props.index)
         props.setWorkFlow(obj)
     }
+
     const moveUp = () => {
         let obj = { ...props.workFlow }
         let temp = obj.Approval.Level[props.index]
@@ -46,31 +52,44 @@ export const LevelElement = (props: {
         props.setWorkFlow(obj)
     }
 
+
     const changeHandler = (e) => {
         const target = e.target
         const name = target.name
         let obj = { ...props.workFlow }
         obj.Approval.Level[props.index][name] = target.value
         props.setWorkFlow(obj)
-        target.focus()
-    }
-
-    const approvalValidation = () => {
-        let darr: number[] = []
-        for (let j = 0; props.workFlow.Approval.Level.length - 1 > j; j++) {
+        if (name === 'Approver') {
+            let err = { ...error }
             let secondTime = false
-            for (let i = 0; props.filterApproval?.length > i; i++) {
-                if (props.filterApproval[i]?.Approver === props.workFlow.Approval.Level[j]?.Approver) {
-                    if (secondTime) {
-                        darr.push(i)
-                    }
+            for (let ind in props.workFlow.Approval.Level) {
+                let result = props.workFlow.Approval?.Level[ind][name] === target.value
+                err.approverError[ind] = (result && secondTime)
+                if (result && secondTime) {
+                    err.message[ind] = 'User already in approver list'
+                }
+                if (props.workFlow.Approval?.Level[ind][name] === target.value) {
                     secondTime = true
                 }
             }
+            setError(err)
         }
-        return darr
+        if (name === 'Amount') {
+            let err = { ...error }
+            for (let index in props.workFlow.Approval.Level) {
+                err.amountError[index] = props.workFlow.Approval?.Level[Number(index) === 0 ? 0 : Number(index) - 1][name] > target.valueAsNumber
+            }
+            setError(err)
+        }
+        if (name === 'Percentage') {
+            let err = { ...error }
+            for (let index in props.workFlow.Approval.Level) {
+                err.percentageError[index] = props.workFlow.Approval?.Level[Number(index) === 0 ? 0 : Number(index) - 1][name] > target.valueAsNumber
+            }
+            setError(err)
+        }
+        console.log(error.amountError, error.approverError, error.percentageError)
     }
-
 
     return (
         <>
@@ -82,10 +101,7 @@ export const LevelElement = (props: {
                         </div>
                         <div className="col-10">
                             <label htmlFor={'Approver'} className="form-label">Approver</label>
-                            <select name={'Approver'} id={'approver[' + props.index + ']'} value={props.workFlow.Approval.Level[props.index].Approver} onChange={(e) => {
-                                changeHandler(e)
-                                setError(approvalValidation)
-                            }} className="form-select form-select-sm">
+                            <select name={'Approver'} id={'approver[' + props.index + ']'} value={props.workFlow.Approval.Level[props.index].Approver} onChange={changeHandler} className="form-select form-select-sm">
                                 <option key={0} value={0}></option>
                                 {
                                     props.users?.map(user => (
@@ -93,7 +109,7 @@ export const LevelElement = (props: {
                                     ))
                                 }
                             </select>
-                            {error?.map(err => err === props.index ? <small key={props.index} className="text-danger">User already in approver list</small> : null)}
+                            {error.approverError[props.index] ? <small key={props.index} className="text-danger">{error.message[props.index]}</small> : null}
                         </div>
                     </div>
                 </div>
@@ -105,8 +121,9 @@ export const LevelElement = (props: {
                                 <div className="input-group input-group-sm">
                                     <span className="input-group-text">$</span>
                                     <input name={'Amount'} id={'amount[' + props.index + ']'} type="number" className="form-control from-control-sm" value={props.workFlow.Approval.Level[props.index].Amount} onChange={changeHandler} />
-                                    {props.workFlow?.Approval?.Level[props.index === 0 ? 0 : props.index - 1]?.Amount > props.workFlow.Approval.Level[props.index]?.Amount ? <small key={props.index} className="text-danger">Amount must be greater than {props.workFlow.Approval.Level[props.index - 1]?.Amount}</small> : null}
+                                    {/* {props.workFlow?.Approval?.Level[props.index === 0 ? 0 : props.index - 1]?.Amount > props.workFlow.Approval.Level[props.index]?.Amount ? <small key={props.index} className="text-danger">Amount must be greater than {props.workFlow.Approval.Level[props.index - 1]?.Amount}</small> : null} */}
                                 </div>
+                                {error.amountError[props.index] ? <small key={props.index} className="text-danger">Amount must be greater than {props.workFlow.Approval.Level[props.index - 1].Amount}</small> : null}
                             </div>
                         </div>
                         {
@@ -118,6 +135,7 @@ export const LevelElement = (props: {
                                             <input name={'Percentage'} id={'percentage[' + props.index + ']'} type="number" maxLength={3} max={100} className="form-control from-control-sm" value={props.workFlow.Approval.Level[props.index].Percentage} onChange={changeHandler} />
                                             <span className="input-group-text">%</span>
                                         </div>
+                                        {error.percentageError[props.index] ? <small key={props.index} className="text-danger">Percentage must be greater than {props.workFlow.Approval.Level[props.index - 1].Percentage}</small> : null}
                                     </div>
                                 </div>
                                 : null
@@ -195,5 +213,3 @@ export const LevelElement = (props: {
         </>
     )
 }
-
-

@@ -77,7 +77,8 @@ export type invDetailsType = {
     ReceivedDate: string
     StatusId: number,
     StatusText: string,
-    SubmittedBy: string
+    SubmittedBy: string,
+    IsPurchaseOrder: boolean
 }
 
 export type vendors = {
@@ -229,4 +230,11 @@ export type NextApprovers = {
 
 export type dummy = {
     Approval: WorkFlowApproval
+}
+
+export type LevelElementError = {
+    approverError: boolean[]
+    amountError: boolean[]
+    percentageError: boolean[]
+    message: string[]
 }

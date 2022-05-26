@@ -66,7 +66,6 @@ export const WorkFlow = (
     const save = () => {
         setIsLoading(true)
         console.log('save:', workFlow)
-        setIsLoading(false)
         axios[isNew ? 'post' : 'patch'](`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow`, workFlow)
             .then(res => {
                 console.log('Response:', res)
@@ -122,8 +121,11 @@ export const WorkFlow = (
         })
     }
 
-    const addFields = arr => {
-    }
+    // const addFields = arr => {
+    //     const filedObj = {
+    //         id: arr.
+    //     }
+    // }
 
 
     return (
@@ -152,10 +154,18 @@ export const WorkFlow = (
                                                         Add Field &nbsp;
                                                     </button>
                                                     <ul className="dropdown-menu">
-
-                                                        {fields.filter(arr => arr.Type === workFLowType[type].Name).map(arr => arr.Value.map(inarr => (<li key={inarr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(inarr)} > {inarr.Field}</li>)))}
-                                                        {/* // fields.filter(arr => arr.Type === workFLowType[type].Name).map(arr => <li key={arr.Id} role={'button'} className="dropdown-item " onClick={() => addFields(arr)} > {arr.Type}</li>) */}
-
+                                                        {fields.find(arr => arr.Type === workFLowType[type].Name)?.Value.map(value => (
+                                                            <li key={value.Id} role={'button'} className="dropdown-item" onClick={() => {
+                                                                const fieldObj = {
+                                                                    Id: value.Id,
+                                                                    FieldName: value.Label[0],
+                                                                    Type: value.Type
+                                                                }
+                                                                const obj = { ...workFlow }
+                                                                obj.Approval.Fields.push(fieldObj)
+                                                                setWorkFlow(obj)
+                                                            }} > {value.Field}</li>
+                                                        ))}
                                                     </ul>
                                                 </div>
 
@@ -176,7 +186,7 @@ export const WorkFlow = (
                                                         </>
                                                         :
                                                         <>
-                                                            <span className="svg-icon svg-icon-primary svg-icon-1 px-5">
+                                                            <span className="svg-icon svg-icon-primary svg-icon-1">
                                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                                     xmlnsXlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
                                                                     viewBox="0 0 24 24" version="1.1">
