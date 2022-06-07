@@ -119,7 +119,7 @@ export const Table = (props:
                 let style = ''
                 switch (row.StatusId) {
                     case 1:
-                        style = 'info'
+                        style = 'primary'
                         break
                     case 2:
                         style = 'primary'

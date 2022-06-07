@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { useFormik } from 'formik'
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthUser } from '../Interface';
 
 export const LoginComp = (props: {
   setAuthUser: Function
 }) => {
+  const [isLoading, setLoading] = useState<boolean>(false)
   const formInput = 'form-control form-control-solid mt-1';
   const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2';
 
@@ -13,13 +15,16 @@ export const LoginComp = (props: {
   const navigation = useNavigate()
 
   const onSubmit = () => {
+    setLoading(true)
     axios.post<AuthUser>('https://invoiceprocessingapi.azurewebsites.net/api/v1/Auth', formik.values).then(res => {
       localStorage.setItem('user', JSON.stringify(res.data))
       res.data.Status === true ? navigation('/Home') : navigation('/')
       props.setAuthUser(res.data)
+      setLoading(false)
     }).catch(err => {
       console.error(err)
       navigation('/')
+      setLoading(false)
     }
     )
   }
@@ -89,7 +94,7 @@ export const LoginComp = (props: {
                         type={'submit'}
                         className='btn btn-primary btn-sm font-weight-bold my-3'
                       >
-                        Sign In
+                        {isLoading ? <>Please wait... <span className='spinner-border spinner-border-sm align-middle ms-2'></span></> : 'Sign In'}
                       </button>
                     </div>
                   </form>

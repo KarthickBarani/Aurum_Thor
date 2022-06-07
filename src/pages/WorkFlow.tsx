@@ -8,6 +8,7 @@ import { useQuery } from "react-query"
 import { Error } from "../components/Error"
 import { Loading } from "../components/Loading"
 import { SweetAlert } from "../Function/alert"
+import { AddSvg, SaveSvg } from "../Svg/Svg"
 
 
 
@@ -66,6 +67,7 @@ export const WorkFlow = (
     const save = () => {
         setIsLoading(true)
         console.log('save:', workFlow)
+        // setIsLoading(false)
         axios[isNew ? 'post' : 'patch'](`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow`, workFlow)
             .then(res => {
                 console.log('Response:', res)
@@ -186,41 +188,19 @@ export const WorkFlow = (
                                                         </>
                                                         :
                                                         <>
-                                                            <span className="svg-icon svg-icon-primary svg-icon-1">
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                    xmlnsXlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
-                                                                    viewBox="0 0 24 24" version="1.1">
-                                                                    <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                                                                        <polygon points="0 0 24 0 24 24 0 24" />
-                                                                        <path
-                                                                            d="M17,4 L6,4 C4.79111111,4 4,4.7 4,6 L4,18 C4,19.3 4.79111111,20 6,20 L18,20 C19.2,20 20,19.3 20,18 L20,7.20710678 C20,7.07449854 19.9473216,6.94732158 19.8535534,6.85355339 L17,4 Z M17,11 L7,11 L7,4 L17,4 L17,11 Z"
-                                                                            fill="#000000" fillRule="nonzero" />
-                                                                        <rect fill="#000000" opacity="0.3" x="12" y="4" width="3" height="5" rx="0.5" />
-                                                                    </g>
-                                                                </svg>
-                                                            </span>
+                                                            <SaveSvg clsName="svg-icon svg-icon-primary svg-icon-1" />
                                                             &nbsp; {isNew ? 'Save' : 'Update'}
                                                         </>
                                                     }
                                                 </button>
                                             </>
                                             :
-                                            workFLowType[type]?.WorkflowTypeId === 1 ?
+                                            workFLowType[type]?.WorkflowTypeId === 1
+                                                ?
                                                 null
                                                 :
                                                 <button onClick={addWorkFlow} title='Add Workflow' className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
-                                                    <span className="svg-icon svg-icon-3 svg-icon-primary">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                            viewBox="0 0 24 24" fill="none">
-                                                            <path opacity="0.3"
-                                                                d="M3 13V11C3 10.4 3.4 10 4 10H20C20.6 10 21 10.4 21 11V13C21 13.6 20.6 14 20 14H4C3.4 14 3 13.6 3 13Z"
-                                                                fill="black" />
-                                                            <path
-                                                                d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
-                                                                fill="black" />
-                                                        </svg>
-                                                    </span>
+                                                    <AddSvg clsName='svg-icon svg-icon-primary svg-icon-3' />
                                                 </button>
 
                                     }

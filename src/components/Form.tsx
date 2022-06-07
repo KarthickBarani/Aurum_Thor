@@ -1,7 +1,7 @@
 
 import { useFormik } from "formik"
 import { useEffect } from "react"
-import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, WorkFlowApproval } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, WorkFlowApproval, expensesType } from '../components/Interface'
 import * as Yup from 'yup'
 import moment from "moment"
 import axios from "axios"
@@ -48,7 +48,7 @@ export const Form = (props: {
         address: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitAddressLine1 : props.invDetails?.RemittanceAddress?.split(',')[0],
         address2: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitCity + ' - ' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitZipCode : props.invDetails?.RemittanceAddress?.split(',')[1] + '-' + props.invDetails?.RemittanceAddress?.split(',')[2],
         address3: props.invDetails?.RemittanceAddress === "undefined,undefined,undefined,undefined,undefined" ? props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitState + ',' + props.vendors[props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorName))]?.RemitCountry : props.invDetails?.RemittanceAddress?.split(',')[3] + ',' + props.invDetails?.VendorAddress?.split(',')[4],
-        poNo: props.invDetails?.PurchaseNumber,
+        poNo: 0,
         invoiceNumber: props.invDetails?.InvoiceNumber,
         invoiceDate: moment(props.invDetails?.InvoiceDate).format('MM-DD-yyyy'),
         postingPeriod: '',
@@ -56,7 +56,7 @@ export const Form = (props: {
         invoiceAmount: props.invDetails?.TotalAmount,
         currency: 'USD',
         tax: props.invDetails?.TaxTotal.toFixed(2),
-        exSubtotal: props.exSubtotal?.toFixed(2),
+        exSubtotal: props.exSubtotal.toFixed(2),
         poSubtotal: props.POSubtotal?.toFixed(2),
         memo: '',
         approver: 0,
@@ -80,7 +80,7 @@ export const Form = (props: {
         address: Yup.string().required('Required !'),
         address2: Yup.string().required('Required !'),
         address3: Yup.string().required('Required !'),
-        poNo: Yup.string().notRequired(),
+        poNo: Yup.number().notRequired(),
         invoiceNumber: Yup.string().required('Required !'),
         invoiceDate: Yup.date().required('Required !').typeError('invaild Date Format: "mm-dd-yyyy"').max('12-31-9999').min('01-01-1900'),
         postingPeriod: Yup.string().notRequired(),
@@ -409,9 +409,9 @@ export const Form = (props: {
                             </div>
                         </div>
                         <ul className="list-group list-group-flush hover-scroll h-100px">
-                            {(props.invDetails.StatusId === 3 || props.invDetails.StatusId === 2) ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).length !== 0 ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map((user, index) => (
+                            {(props.invDetails.StatusId === 3 || props.invDetails.StatusId === 2) ? props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map((user, index) => (
                                 <li key={index} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
-                            )) : null : null}
+                            )) : null}
                             {/* {props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0).map(user => (
                                 <li key={user.ApproverId} className="list-group-item list-group-item-action fw-bold fs-6">{user.ApproverName}</li>
                             ))} */}
@@ -437,7 +437,7 @@ export const Form = (props: {
                                         <button onClick={() => Submit(0, 'Submit', 'success')} type="submit" className="btn btn-light-primary btn-sm m-2">Submit Approval
                                         </button>
                                         :
-                                        props.invDetails?.StatusId === 2 || props.invDetails?.StatusId === 3
+                                        props.invDetails?.StatusId === 2 || props.invDetails?.StatusId === 3 || props.invDetails?.StatusId === 4
                                             ?
                                             <>
                                                 <button onClick={() => Submit(4, 'Approved', 'success')} className="btn btn-light-success btn-sm m-2">Approved

@@ -1,16 +1,17 @@
 
 import axios from "axios"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Error } from "../components/Error"
 import { Form } from "../components/Form"
 import { PdfViewer } from "../components/PdfViewer"
 import { ListItemsComp } from "../components/ListItemsComp"
 import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
-import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, WorkFlowLevel, NextApprovers, WorkFlowApproval, dummy, WorkFlowTableType } from '../components/Interface'
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, WorkFlowLevel, NextApprovers, WorkFlowTableType } from '../components/Interface'
 import { SweetAlert } from "../Function/alert"
 import { AxiosGet } from "../helpers/Axios"
 import { LevelElement } from "../components/LevelElement"
+import { LineItems } from "../components/LineItems"
 
 
 
@@ -40,8 +41,8 @@ export const InvoiceDetail = (props: {
     const [origin, setOrigin] = useState<invDetailsType>({} as invDetailsType)
     const [modifyInvDetails, setModifyInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
-    const [listItems, setListItems] = useState<lineItemsType>({} as lineItemsType)
-    const [expenses, setExpenses] = useState<expensesType>({} as expensesType)
+    const [listItems, setListItems] = useState<lineItemsType[]>([] as lineItemsType[])
+    const [expenses, setExpenses] = useState<expensesType[]>([] as expensesType[])
     const [approvalHistory, setApprovalHistory] = useState<ApprovalHistory[]>([] as ApprovalHistory[])
     const [workFlow, setWorkFlow] = useState<WorkFlowTableType>({} as WorkFlowTableType)
     const [exSubtotal, setExSubtotal] = useState<number>(0)
@@ -49,15 +50,60 @@ export const InvoiceDetail = (props: {
     const [nextApprovers, setNextApprover] = useState<NextApprovers[]>([] as NextApprovers[])
     // const [approvers, setApprover] = useState<WorkFlowApproval>({} as WorkFlowApproval)
 
-    const [filterApprover, setFilterApprover] = useState<WorkFlowLevel>([] as WorkFlowLevel)
+    // const [filterApprover, setFilterApprover] = useState<WorkFlowLevel>([] as WorkFlowLevel)
     const [error, setError] = useState<number[]>([])
 
 
 
 
-    // useEffect(() => {
-    // }, [props.invNumber, trigger])
+    const expensesHeader = [
+        {
+            headerName: 'Account',
+            accessor: 'Account',
+            className: 'min-w-150px',
+            input: {
+                inputSrc: props.account,
+                srcId: 'AccountId',
+                srcName: 'AccountName'
 
+            }
+        },
+        {
+            headerName: 'Amount',
+            accessor: 'Amount',
+            className: 'min-w-150px',
+        },
+        {
+            headerName: 'Memo',
+            accessor: 'Memo',
+            className: 'min-w-400px',
+        },
+        {
+            headerName: 'Department',
+            accessor: 'Department',
+            className: 'min-w-150px',
+            input: {
+                inputSrc: props.departments,
+                srcId: 'DepartmentId',
+                srcName: 'DepartmentName'
+
+            }
+        },
+        {
+            headerName: 'Location',
+            accessor: 'LocationId',
+            className: 'min-w-150px',
+            input: {
+                inputSrc: props.locations,
+                srcId: 'LocationId',
+                srcName: 'Location'
+            }
+        }
+
+    ]
+    useEffect(() => {
+        setExSubtotal(expenses.reduce((prev, current) => prev + current.Amount, 0))
+    }, [expenses])
     useEffect(() => {
         setIsLoading(true)
         AxiosGet(`/api/v1/invoice/details/${props.invNumber}`)
@@ -77,8 +123,6 @@ export const InvoiceDetail = (props: {
                 AxiosGet(`/api/v1/Invoice/NextApprovers/${props.invNumber}`)
                     .then(ress => {
                         setNextApprover(ress)
-                        // setFilterApprover(res.Approval?.Level?.filter(arr => ress[(ress.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
-                        // console.log('filterssss', res.data.Approval[0]?.Level?.filter(arr => ress.data[(ress.data.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
                     })
                     .catch(err => console.error(err))
                 AxiosGet(`/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
@@ -120,6 +164,8 @@ export const InvoiceDetail = (props: {
                 })
             })
     }
+
+
 
 
     const pdfToggle = init ? 'Hide Invoice' : 'Show Invoice'
@@ -200,6 +246,7 @@ export const InvoiceDetail = (props: {
                                                 {isLoading ? <Loading /> : isError ? <Error /> : <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={props.departments} locations={props.locations} />}
                                             </div>
                                             <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
+                                                {/* {isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeader} datum={expenses} setDatum={setExpenses} />} */}
                                                 {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} account={props.account} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />}
                                             </div>
                                         </div>
@@ -283,7 +330,7 @@ export const InvoiceDetail = (props: {
                         <div className="modal-body">
                             {
                                 workFlow.Approval?.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4)?.map((approver, index) => (
-                                    < LevelElement key={`${approver.Level}${index}`} workFlow={workFlow} setWorkFlow={setWorkFlow} filterApproval={workFlow.Approval?.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4)} index={index} users={props?.users} />
+                                    < LevelElement key={`${approver.Level}${index}`} workFlow={workFlow} setWorkFlow={setWorkFlow} type={workFlow.WorkFlowTypeId} filterApproval={workFlow.Approval?.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4)} index={index} users={props?.users} />
 
                                 ))
                             }
@@ -294,7 +341,7 @@ export const InvoiceDetail = (props: {
                                     let obj = { ...workFlow.Approval }
                                     let temp = obj.Level.filter(arr => nextApprovers[nextApprovers.findIndex(farr => farr.ApproverId === arr.Approver)]?.Status === 4)
                                     console.log('temp', temp)
-                                    let final = temp.concat(workFlow.Approval.Level)
+                                    let final = temp.concat(workFlow.Approval?.Level?.filter(arr => nextApprovers[(nextApprovers.findIndex(narr => narr.ApproverId === arr.Approver))]?.Status !== 4))
                                     console.log('final', final)
                                     obj.Level = final
                                     setProcess(true)

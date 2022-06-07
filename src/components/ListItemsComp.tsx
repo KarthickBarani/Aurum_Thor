@@ -6,7 +6,7 @@ import { lineItemsType, invDetailsType, departments, locations } from './Interfa
 
 export const ListItemsComp = (props: {
     modifyInvDetails: invDetailsType
-    listItems: lineItemsType
+    listItems: lineItemsType[]
     departments: departments
     locations: locations
     setPOSubtotal: Function
@@ -76,7 +76,7 @@ export const ListItemsComp = (props: {
     }
 
     const addListItems = () => {
-        let newArr: lineItemsType = [...props?.listItems]
+        let newArr: lineItemsType[] = [...props?.listItems]
         newArr.push({
             LineItemId: Date.now(),
             InvoiceId: 0,

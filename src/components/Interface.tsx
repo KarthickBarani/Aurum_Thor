@@ -6,14 +6,15 @@ import { WorkFlow } from "../pages/WorkFlow"
 export type expensesType = {
     ExpenseId: number,
     InvoiceId: number,
+    Account: number
     Amount: number,
     Memo: string,
     AddedDateTime: Date,
-    DepartmentId: number
+    Department: number
     LocationId: number
     isCheck: boolean,
     isNew?: boolean
-}[]
+}
 
 export type lineItemsType = {
     LineItemId: number,
@@ -37,7 +38,7 @@ export type lineItemsType = {
     POItem: number,
     POQuantity: number,
     POUnitPrice: number
-}[]
+}
 
 
 export type invDetailsType = {
@@ -69,8 +70,8 @@ export type invDetailsType = {
     InvoiceDate: Date,
     TotalAmount: number,
     TaxTotal: number,
-    LineItems: [] | lineItemsType,
-    Expenses: [] | expensesType,
+    LineItems: [] | lineItemsType[],
+    Expenses: [] | expensesType[],
     AmountDue: number,
     LastModifiedDateTime: string,
     TransactionDate: string,

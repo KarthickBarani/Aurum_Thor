@@ -9,7 +9,7 @@ import { expensesType, departments, locations, invDetailsType, account } from '.
 
 
 export const ExpensesComp = (props: {
-    expenses: expensesType,
+    expenses: expensesType[],
     setExpenses: Function,
     setExSubtotal: Function
     departments: departments,
@@ -33,12 +33,13 @@ export const ExpensesComp = (props: {
         let selArr = newarr.filter(arr => arr.isCheck !== false || undefined)
         for (let key in selArr)
             newarr.push({
+                Account: 0,
                 ExpenseId: Date.now() + Number(key),
                 InvoiceId: 0,
                 Amount: selArr[key].Amount,
                 Memo: selArr[key].Memo,
                 AddedDateTime: new Date(Date.now()),
-                DepartmentId: selArr[key].DepartmentId,
+                Department: selArr[key].Department,
                 LocationId: selArr[key].LocationId,
                 isCheck: false,
                 isNew: true
@@ -49,7 +50,6 @@ export const ExpensesComp = (props: {
         setAnyOne(false)
         console.log(newarr)
     }
-
 
     const exSubtotal = (props.expenses)?.reduce((prev, crt) => prev + crt.Amount, 0)
     props.setExSubtotal(exSubtotal)
@@ -102,14 +102,15 @@ export const ExpensesComp = (props: {
     }
 
     const addExpenses = () => {
-        let newArr: expensesType = [...props?.expenses]
+        let newArr: expensesType[] = [...props?.expenses]
         newArr.push({
+            Account: 0,
             ExpenseId: Date.now(),
             InvoiceId: 0,
             Amount: 0,
             Memo: '',
             AddedDateTime: new Date(Date.now()),
-            DepartmentId: 0,
+            Department: 0,
             LocationId: 0,
             isCheck: false,
             isNew: true,
@@ -232,9 +233,9 @@ export const ExpensesComp = (props: {
                                             setToggle(true)
                                             setCurrent(expense.ExpenseId)
                                         }
-                                    } ><select name="" id="" value={expense.Amount} className="form-select form-select-transparent form-select-sm" onChange={e => {
+                                    } ><select name="" id="" value={expense.Account} className="form-select form-select-transparent form-select-sm" onChange={e => {
                                         let newarry = [...props.expenses]
-                                        newarry[index].DepartmentId = Number(e.target.value)
+                                        newarry[index].Account = Number(e.target.value)
                                         props.setExpenses(newarry)
                                     }}>
                                             <option key={0} value={0} className="text-gray"></option>
@@ -276,12 +277,12 @@ export const ExpensesComp = (props: {
                                                 }} />
                                                 : `${expense.Memo}`
                                         }</td>
-                                    <td ><select name="" id="" value={expense.DepartmentId} className="form-select form-select-transparent form-select-sm" onChange={e => {
+                                    <td ><select name="" id="" value={expense.Department} className="form-select form-select-transparent form-select-sm" onChange={e => {
                                         let newarry = [...props.expenses]
-                                        newarry[index].DepartmentId = Number(e.target.value)
+                                        newarry[index].Department = Number(e.target.value)
                                         props.setExpenses(newarry)
                                     }}>
-                                        <option className="text-gray"></option>
+                                        <option key={0} value={0} ></option>
                                         {props.departments.map(depts => (
                                             <option key={depts.DepartmentId} value={depts.DepartmentId} >{depts.DepartmentName}</option>
                                         ))}
@@ -291,7 +292,7 @@ export const ExpensesComp = (props: {
                                         newarry[index].LocationId = Number(e.target.value)
                                         props.setExpenses(newarry)
                                     }} >
-                                        <option className="text-gray"></option>
+                                        <option key={0} value={0} ></option>
                                         {props.locations.map(location => (
                                             <option key={location.LocationId} value={location.LocationId} >{location.Location}</option>
                                         ))}

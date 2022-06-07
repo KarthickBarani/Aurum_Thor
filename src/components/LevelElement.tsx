@@ -22,7 +22,7 @@ export const LevelElement = (props: {
     const addLevel = () => {
         let obj = { ...props.workFlow }
         obj.Approval.Level.push({
-            Level: props.workFlow.Approval.Level.length,
+            Level: props.workFlow.Approval.Level.length + 1,
             Approver: 0,
             Amount: 0,
             Percentage: 0
@@ -127,7 +127,7 @@ export const LevelElement = (props: {
                             </div>
                         </div>
                         {
-                            props.type === 1 ?
+                            props.workFlow.WorkFlowTypeId === 1 ?
                                 <div className="col-4">
                                     <div className="form-group">
                                         <label htmlFor={'Percentage'} className="form-label">Percentage</label>

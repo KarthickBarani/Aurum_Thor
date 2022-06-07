@@ -1,8 +1,7 @@
 
 import axios from "axios"
 import { WorkFlowTableType } from "./Interface"
-import { EditSvg } from "../Svg/EditSvg"
-import { RemoveSvg } from "../Svg/RomoveSvg"
+import { EditSvg, RemoveSvg } from "../Svg/Svg"
 
 export const WorkFlowTable = (props: {
     workFlows: WorkFlowTableType[]
@@ -47,7 +46,7 @@ export const WorkFlowTable = (props: {
                                 <td>
                                     <EditSvg clsName="svg-icon svg-icon-warning svg-icon-2" function={() => updateHandler(index)} />
                                     &nbsp;&nbsp;
-                                    <RemoveSvg />
+                                    <RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-2" />
                                 </td>
                             </tr>
                         ))

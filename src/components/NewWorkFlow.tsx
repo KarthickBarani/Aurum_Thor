@@ -36,12 +36,22 @@ export const NewWorkFlow = (props: {
                             <label htmlFor={'Account'} className="form-label">Account</label>
                             <select name={'Account'} id={'Account'} value={props.workFlow.Approval.Fields.find(arr => arr.Type === 'Account')?.Id} onChange={e => {
                                 let obj = { ...props.workFlow }
-                                let currentIndex = props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'Account')
+                                let currentIndex = props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'Account') === -1 ? 0 : props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'Account')
                                 let currentList = props.Account.find(arr => arr.AccountId === Number(e.target.value))
-                                obj.Approval.Fields[currentIndex].Id = currentList?.AccountId as number
-                                obj.Approval.Fields[currentIndex].FieldName = currentList?.AccountName as string
-                                obj.Approval.Fields[currentIndex].Type = e.target.name
-                                props.setWorkFlow(obj)
+                                if (obj.Approval.Fields.length === 0) {
+                                    let temp = {
+                                        Id: currentList?.AccountId as number,
+                                        FieldName: currentList?.AccountName as string,
+                                        Type: e.target.name,
+                                    }
+                                    obj.Approval.Fields.push(temp)
+                                    props.setWorkFlow(obj)
+                                } else {
+                                    obj.Approval.Fields[currentIndex].Id = currentList?.AccountId as number
+                                    obj.Approval.Fields[currentIndex].FieldName = currentList?.AccountName as string
+                                    obj.Approval.Fields[currentIndex].Type = e.target.name
+                                    props.setWorkFlow(obj)
+                                }
                             }} className="form-select form-select-sm">
                                 <option key={0} value={0} ></option>
                                 {
@@ -57,12 +67,23 @@ export const NewWorkFlow = (props: {
                             <label htmlFor={'Department'} className="form-label">Department</label>
                             <select name={'Department'} id={'Department'} value={props.workFlow.Approval.Fields.find(arr => arr.Type === 'Department')?.Id} onChange={e => {
                                 let obj = { ...props.workFlow }
-                                let currentIndex = props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'Department')
+                                let currentIndex = props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'Department') === -1 ? 0 : props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'Department')
+                                console.log(currentIndex)
                                 let currentList = props.Department.find(arr => arr.DepartmentId === Number(e.target.value))
-                                obj.Approval.Fields[currentIndex].Id = currentList?.DepartmentId as number
-                                obj.Approval.Fields[currentIndex].FieldName = currentList?.DepartmentName as string
-                                obj.Approval.Fields[currentIndex].Type = e.target.name
-                                props.setWorkFlow(obj)
+                                if (obj.Approval.Fields.length === 0) {
+                                    let temp = {
+                                        Id: currentList?.DepartmentId as number,
+                                        FieldName: currentList?.DepartmentName as string,
+                                        Type: e.target.name,
+                                    }
+                                    obj.Approval.Fields.push(temp)
+                                    props.setWorkFlow(obj)
+                                } else {
+                                    obj.Approval.Fields[currentIndex].Id = currentList?.DepartmentId as number
+                                    obj.Approval.Fields[currentIndex].FieldName = currentList?.DepartmentName as string
+                                    obj.Approval.Fields[currentIndex].Type = e.target.name
+                                    props.setWorkFlow(obj)
+                                }
                             }} className="form-select form-select-sm">
                                 <option key={0} value={0} ></option>
                                 {
@@ -78,12 +99,22 @@ export const NewWorkFlow = (props: {
                             <label htmlFor={'locations'} className="form-label">locations</label>
                             <select name={'locations'} id={'locations'} value={props.workFlow.Approval.Fields.find(arr => arr.Type === 'locations')?.Id} onChange={e => {
                                 let obj = { ...props.workFlow }
-                                let currentIndex = props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'locations')
+                                let currentIndex = props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'locations') === -1 ? 0 : props.workFlow.Approval.Fields.findIndex(arr => arr.Type === 'locations')
                                 let currentList = props.locations.find(arr => arr.LocationId === Number(e.target.value))
-                                obj.Approval.Fields[currentIndex].Id = currentList?.LocationId as number
-                                obj.Approval.Fields[currentIndex].FieldName = currentList?.Location as string
-                                obj.Approval.Fields[currentIndex].Type = e.target.name
-                                props.setWorkFlow(obj)
+                                if (obj.Approval.Fields.length === 0) {
+                                    let temp = {
+                                        Id: currentList?.LocationId as number,
+                                        FieldName: currentList?.Location as string,
+                                        Type: e.target.name,
+                                    }
+                                    obj.Approval.Fields.push(temp)
+                                    props.setWorkFlow(obj)
+                                } else {
+                                    obj.Approval.Fields[currentIndex].Id = currentList?.LocationId as number
+                                    obj.Approval.Fields[currentIndex].FieldName = currentList?.Location as string
+                                    obj.Approval.Fields[currentIndex].Type = e.target.name
+                                    props.setWorkFlow(obj)
+                                }
                             }} className="form-select form-select-sm">
                                 <option key={0} value={0} ></option>
                                 {

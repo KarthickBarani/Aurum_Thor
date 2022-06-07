@@ -13,10 +13,18 @@ export const InputTextField = (props: { name: string, id: string, type: string, 
     )
 }
 
-export const InputSelectField = (props: { name: string, id: string, className: string, value: number | string, onChange: React.ChangeEventHandler<HTMLSelectElement>, onBlur: React.FocusEventHandler<HTMLSelectElement>, children: any }) => {
+export const InputSelectField = ({ children, props }) => {
     return (
-        <select id={props.id} name={props.name} className={props.className} value={props.value} onChange={props.onChange} onBlur={props.onBlur} >
-            {props.children}
+        <select {...props} >
+            {children}
         </select>
     )
 }
+
+// export const InputSelectField = (props: { name: string, id: string, className: string, value: number | string, onChange: React.ChangeEventHandler<HTMLSelectElement>, onBlur: React.FocusEventHandler<HTMLSelectElement>, children: any }) => {
+//     return (
+//         <select id={props.id} name={props.name} className={props.className} value={props.value} onChange={props.onChange} onBlur={props.onBlur} >
+//             {props.children}
+//         </select>
+//     )
+// }

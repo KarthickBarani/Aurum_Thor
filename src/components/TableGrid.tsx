@@ -17,7 +17,7 @@ export const TableGrid = (props: {
         <div className="card-body card-scroll" style={{ 'height': '45vh' }}>
             <div className="table-responsive">
                 <table {...props.getTableProps()} className='table table-rounded table-hover gs-3 gx-3'>
-                    <thead className='fw-bolder fs-6'>
+                    <thead className='fw-bolder fs-6 '>
                         {props.headerGroups.map(headerGroup => (
                             <tr  {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map((column) => (
