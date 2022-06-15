@@ -18,6 +18,7 @@
     "pdfjs-dist": "^2.11.338",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-input-mask": "^3.0.0-alpha.2",
     "react-query": "^3.34.7",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",

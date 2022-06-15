@@ -1,6 +1,6 @@
 
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Error } from "../components/Error"
 import { Form } from "../components/Form"
 import { PdfViewer } from "../components/PdfViewer"
@@ -12,6 +12,7 @@ import { SweetAlert } from "../Function/alert"
 import { AxiosGet } from "../helpers/Axios"
 import { LevelElement } from "../components/LevelElement"
 import { LineItems } from "../components/LineItems"
+import { InvoiceDetailsForm } from "../components/InvoiceDetailsForm"
 
 
 
@@ -38,8 +39,6 @@ export const InvoiceDetail = (props: {
     const [isValid, setValid] = useState<boolean>(true)
     const [isError, setIsError] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [origin, setOrigin] = useState<invDetailsType>({} as invDetailsType)
-    const [modifyInvDetails, setModifyInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [listItems, setListItems] = useState<lineItemsType[]>([] as lineItemsType[])
     const [expenses, setExpenses] = useState<expensesType[]>([] as expensesType[])
@@ -52,11 +51,100 @@ export const InvoiceDetail = (props: {
 
     // const [filterApprover, setFilterApprover] = useState<WorkFlowLevel>([] as WorkFlowLevel)
     const [error, setError] = useState<number[]>([])
+    const [formError, setFormError] = useState({
+        VendorId: null,
+        VendorName: null,
+        VendorCode: null,
+        VendorAddress: null,
+        VendorAddressRecipient: null,
+        InvoiceNumber: null,
+        RemittanceAddress: null,
+        PurchaseNumber: null,
+        DueDate: null,
+        InvoiceDate: null,
+        TotalAmount: null,
+        TaxTotal: null,
+    })
 
 
 
+    const listItemsHeaders = useMemo(() => [
+        {
+            headerName: 'Inv Qty',
+            accessor: 'Quantity',
+            className: 'min-w-100px',
+            isEdit: true
+        },
+        {
+            headerName: 'PO Qty',
+            accessor: 'POQuantity',
+            className: 'min-w-100px',
+            isEdit: true
+        },
+        {
+            headerName: 'Item',
+            accessor: 'POItem',
+            className: 'min-w-150px',
+        },
+        {
+            headerName: 'Vendor part#',
+            accessor: 'PartNumber',
+            className: 'min-w-150px'
+        },
+        {
+            headerName: 'Description',
+            accessor: 'Description',
+            className: 'min-w-300px',
+            isEdit: true
+        },
+        {
+            headerName: 'Department',
+            accessor: 'Department',
+            className: 'min-w-150px',
+            input: {
+                inputSrc: props.departments,
+                srcId: 'DepartmentId',
+                srcName: 'DepartmentName'
 
-    const expensesHeader = [
+            }
+        },
+        {
+            headerName: 'Location',
+            accessor: 'LocationId',
+            className: 'min-w-150px',
+            input: {
+                inputSrc: props.locations,
+                srcId: 'LocationId',
+                srcName: 'Location'
+            }
+        },
+        {
+            headerName: 'Inv Rate',
+            accessor: 'UnitPrice',
+            className: 'min-w-150px',
+            isEdit: true
+        },
+        {
+            headerName: 'PO Rate',
+            accessor: 'POUnitPrice',
+            className: 'min-w-150px',
+            isEdit: true
+        },
+        {
+            headerName: 'Inv Amount',
+            accessor: 'Amount',
+            cell: (index) => `$ ${(listItems[index].Quantity * listItems[index].UnitPrice).toFixed(2)}`,
+            className: 'min-w-150px',
+        },
+        {
+            headerName: 'PO Amount',
+            accessor: 'POAmount',
+            cell: (index) => (`$ ${(listItems[index].POQuantity * listItems[index].POUnitPrice).toFixed(2)}`),
+            className: 'min-w-150px',
+        },
+    ], [listItems, props.departments, props.locations])
+
+    const expensesHeaders = useMemo(() => [
         {
             headerName: 'Account',
             accessor: 'Account',
@@ -100,16 +188,19 @@ export const InvoiceDetail = (props: {
             }
         }
 
-    ]
+    ], [expenses, props.departments, props.locations, props.account])
+
+
     useEffect(() => {
         setExSubtotal(expenses.reduce((prev, current) => prev + current.Amount, 0))
-    }, [expenses])
+        setPOSubtotal(listItems.reduce((prev, current) => prev + (current.POQuantity * current.POUnitPrice), 0))
+    }, [expenses, listItems])
+
+
     useEffect(() => {
         setIsLoading(true)
-        AxiosGet(`/api/v1/invoice/details/${props.invNumber}`)
+        AxiosGet(`api/v1/Invoice/Details/${props.invNumber}`)
             .then(res => {
-                setOrigin(res)
-                setModifyInvDetails(res)
                 setInvDetails(res)
                 setListItems(res.LineItems)
                 setExpenses(res.Expenses)
@@ -135,16 +226,16 @@ export const InvoiceDetail = (props: {
             .catch(err => {
                 setIsLoading(false)
                 setIsError(true)
-                console.error(err)
+                console.log(err)
             })
-    }, [props.invNumber, trigger])
+    }, [props.invNumber])
 
 
 
     const save = () => {
-        console.log(modifyInvDetails)
+
         setProcess(true)
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, modifyInvDetails)
+        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, {})
             .then(res => {
                 console.log('Response:', res)
                 setProcess(false)
@@ -206,8 +297,10 @@ export const InvoiceDetail = (props: {
                                 </div>
                             </div>
                             <div className="card-body">
-                                {isLoading ? <Loading /> : isError ? <Error /> : <Form refetch={props.refetch} setValid={setValid} users={props.users} nextApprovers={nextApprovers} approvers={workFlow.Approval} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
-                                    departments={props.departments} locations={props.locations} setModifyInvDetails={setModifyInvDetails} origin={origin} subsidiaries={props.subsidiary} ></Form>}
+                                {isLoading ? <Loading /> : isError ? <Error /> : <InvoiceDetailsForm users={props.users} nextApprovers={nextApprovers} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
+                                    departments={props.departments} locations={props.locations} subsidiaries={props.subsidiary} formError={formError} setFormError={setFormError} />}
+                                {/* {isLoading ? <Loading /> : isError ? <Error /> : <Form refetch={props.refetch} setValid={setValid} users={props.users} nextApprovers={nextApprovers} approvers={workFlow.Approval} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
+                                    departments={props.departments} locations={props.locations} setModifyInvDetails={setModifyInvDetails} origin={origin} subsidiaries={props.subsidiary} />} */}
                             </div>
                         </div>
                     </div >
@@ -243,11 +336,12 @@ export const InvoiceDetail = (props: {
 
                                         <div className="tab-content h-95">
                                             <div className="tab-pane fade h-100" id="itemsTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={props.departments} locations={props.locations} />}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={listItemsHeaders} datum={listItems} isExpense={false} setDatum={setListItems} />}
+                                                {/* {isLoading ? <Loading /> : isError ? <Error /> : <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={props.departments} locations={props.locations} />} */}
                                             </div>
                                             <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                {/* {isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeader} datum={expenses} setDatum={setExpenses} />} */}
-                                                {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} account={props.account} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />}
+                                                {isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeaders} datum={expenses} setDatum={setExpenses} isExpense={true} />}
+                                                {/* {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} account={props.account} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />} */}
                                             </div>
                                         </div>
                                     </div>
@@ -323,7 +417,7 @@ export const InvoiceDetail = (props: {
                     </div>
                 </div>
             </div>
-            <div className="modal fade" tabIndex={-1} id="level">
+            <div className="modal fade" id="level">
                 <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div className="modal-content">
 

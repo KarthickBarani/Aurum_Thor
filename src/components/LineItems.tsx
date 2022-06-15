@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid'
 import moment from "moment"
 import { useState } from "react"
-import { expensesType } from "./Interface"
+import { expensesType, lineItemsType } from "./Interface"
 import { AxiosGet } from '../helpers/Axios'
 import { AddSvg, CopySvg, RecallSvg, RemoveSvg } from '../Svg/Svg'
 
-export const LineItems = (props: { headers: any, datum: expensesType[], setDatum: Function }) => {
+export const LineItems = (props: { headers: any, datum: any, setDatum: Function, isExpense: boolean }) => {
 
 
     const [checkAll, setCheckAll] = useState<boolean>(false)
@@ -16,7 +16,8 @@ export const LineItems = (props: { headers: any, datum: expensesType[], setDatum
 
 
     const addHandler = () => {
-        const newRow: expensesType = {
+
+        const newRow = props.isExpense ? {
             ExpenseId: uuidv4(),
             InvoiceId: props.datum[props.datum.length - 1].InvoiceId,
             Account: 0,
@@ -27,6 +28,28 @@ export const LineItems = (props: { headers: any, datum: expensesType[], setDatum
             LocationId: 0,
             isCheck: false,
             isNew: true
+        } : {
+            LineItemId: Date.now(),
+            InvoiceId: 0,
+            Amount: 0,
+            PartNumber: '',
+            ProductCode: '',
+            Description: '',
+            UnitPrice: Number(0?.toFixed(5)),
+            Quantity: 0,
+            ShippingQuantity: 0,
+            Unit: 0,
+            Date: new Date(Date.now()),
+            TaxAmount: 0,
+            TaxPercentage: 0,
+            isCheck: false,
+            isNew: true,
+            POAmount: 0,
+            PODepartment: 0,
+            PODescription: "",
+            POItem: 0,
+            POQuantity: 0,
+            POUnitPrice: 0
         }
         props.setDatum([...props.datum, newRow])
     }
@@ -35,6 +58,8 @@ export const LineItems = (props: { headers: any, datum: expensesType[], setDatum
         const arr = props.datum.filter(arr => arr.isCheck !== true)
         console.log(arr)
         props.setDatum(arr)
+        setCheckAll(arr.length !== 0 ? arr.length === arr.filter(arr => arr.isCheck === true).length : false)
+        setCheckAnyOne(arr.filter(arr => arr.isCheck === true).length > 0)
     }
 
     const copyHandler = () => {
@@ -55,6 +80,8 @@ export const LineItems = (props: { headers: any, datum: expensesType[], setDatum
             })
         }
         props.setDatum(arr)
+        setCheckAll(arr.length !== 0 ? arr.length === arr.filter(arr => arr.isCheck === true).length : false)
+        setCheckAnyOne(arr.filter(arr => arr.isCheck === true).length > 0)
     }
 
     const masterCheckHandler = e => {
@@ -99,18 +126,28 @@ export const LineItems = (props: { headers: any, datum: expensesType[], setDatum
                 {checkAnyOne
                     ?
                     <>
-                        <button title="Copy" onClick={copyHandler} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
-                            <CopySvg clsName='svg-icon svg-icon-3 svg-icon-primary' />
-                        </button>
+                        {props.isExpense
+                            ?
+                            <button title="Copy" onClick={copyHandler} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
+                                <CopySvg clsName='svg-icon svg-icon-3 svg-icon-primary' />
+                            </button>
+                            :
+                            null
+                        }
                         <button onClick={removeHandler} title="Delete" className="btn btn-active-light-danger btn-icon btn-sm m-1 btn-hover-rise">
                             <RemoveSvg clsName='svg-icon svg-icon-3 svg-icon-danger' />
                         </button>
                     </>
                     :
                     <>
-                        <button title="Recall" onClick={recallHandler} className="btn btn-active-light-success btn-icon btn-sm m-1 btn-hover-rise">
-                            {isLoading ? <span className="spinner-border spinner-border-sm text-primary"></span> : <RecallSvg clsName='svg-icon svg-icon-success svg-icon-3' />}
-                        </button>
+                        {props.isExpense
+                            ?
+                            <button title="Recall" onClick={recallHandler} className="btn btn-active-light-success btn-icon btn-sm m-1 btn-hover-rise">
+                                {isLoading ? <span className="spinner-border spinner-border-sm text-primary"></span> : <RecallSvg clsName='svg-icon svg-icon-success svg-icon-3' />}
+                            </button>
+                            :
+                            null
+                        }
                         <button title="Add" onClick={addHandler} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
                             <AddSvg clsName='svg-icon svg-icon-3 svg-icon-primary mx-1' />
                         </button>
@@ -153,16 +190,16 @@ export const LineItems = (props: { headers: any, datum: expensesType[], setDatum
                                                         )}
                                                     </select>
                                                     :
-                                                    isEdit && (currentInput === header.accessor + index) ? <input type="text" className='form-control form-control-transparent form-control-sm' autoFocus name={header.accessor} value={data[header.accessor]} onChange={e => changeHandler(e, index)} />
+                                                    header.isEdit && isEdit && (currentInput === header.accessor + index) ? <input type="text" className='form-control form-control-transparent form-control-sm' autoFocus name={header.accessor} value={data[header.accessor]} onChange={e => changeHandler(e, index)} />
                                                         :
-                                                        data[header.accessor]
+                                                        header.cell ? header.cell(index) : data[header.accessor]
                                             }
                                         </td>)
                                 })}
                             </tr>
                         ))}
                     </tbody>
-                    <tfoot>
+                    {props.isExpense ? <tfoot>
                         <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
                             <th colSpan={1}></th>
                             <th> Subtotal </th>
@@ -171,7 +208,15 @@ export const LineItems = (props: { headers: any, datum: expensesType[], setDatum
                             <th></th>
                             <th></th>
                         </tr>
+                    </tfoot> : <tfoot>
+                        <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
+                            <th colSpan={9}></th>
+                            <th className="min-w-150px">Items Subtotal</th>
+                            <th>{`$ ${props.datum.reduce((prev, current) => { return prev + (current.Quantity * current.UnitPrice) }, 0).toFixed(2)}`}</th>
+                            <th>{`$ ${props.datum.reduce((prev, current) => { return prev + (current.POQuantity * current.POUnitPrice) }, 0).toFixed(2)}`}</th>
+                        </tr>
                     </tfoot>
+                    }
                 </table>
             </div>
         </>
