@@ -37,84 +37,55 @@ export const Router = () => {
 
 
   const fetchTableData = () => {
-    return axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`)
+    return axios.get(process.env.REACT_APP_BACKEND_BASEURL + 'Invoice')
   }
 
 
 
   useEffect(() => {
-    AxiosGet('/api/v1/vendor')
+    AxiosGet('vendor')
       .then(res => setVendor(res))
       .catch(err => console.log(err))
-    AxiosGet('/api/v1/vendor/Departments')
+    AxiosGet('vendor/Departments')
       .then(res => setDepartments(res))
       .catch(err => console.log(err))
-    AxiosGet('/api/v1/vendor/Locations')
+    AxiosGet('vendor/Locations')
       .then(res => setLocation(res))
       .catch(err => console.log(err))
-    AxiosGet('/api/v1/vendor/Subsidiaries')
+    AxiosGet('vendor/Subsidiaries')
       .then(res => setSubsidiaries(res))
       .catch(err => console.log(err))
-    AxiosGet('/api/v1/vendor/Accounts')
+    AxiosGet('vendor/Accounts')
       .then(res => setAccount(res))
       .catch(err => console.log(err))
-    AxiosGet('/api/v1/UserProfile')
+    AxiosGet('UserProfile')
       .then(res => setUsers(res))
       .catch(err => console.log(err))
-    AxiosGet(`/api/v1/Invoice/Approvals/${authUser?.User?.Id}`)
+    AxiosGet(`Invoice/Approvals/${authUser?.User?.Id}`)
       .then(res => {
         setApproval(res)
         setData(res)
       })
       .catch(err => console.log(err))
-    AxiosGet(`/api/v1/Invoice/Pendings/${authUser?.User?.Id}`)
+    AxiosGet(`Invoice/Pendings/${authUser?.User?.Id}`)
       .then(res => setPending(res))
       .catch(err => console.log(err))
-    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor').then(res => {
-    //   setVendor(res.data)
-    // }).catch(err => console.log(err))
-    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Departments').then(res => {
-    //   setDepartments(res.data)
-    // }).catch(err => console.log(err))
-    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Locations').then(res => {
-    //   setLocation(res.data)
-    // }).catch(err => console.log(err))
-    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Subsidiaries').then(res => {
-    //   setSubsidiaries(res.data)
-    // }).catch(err => console.log(err))
-    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Vendor/Accounts').then(res => {
-    //   setAccount(res.data)
-    // }).catch(err => console.log(err))
-    // axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/UserProfile').then(res => {
-    //   setUsers(res.data)
-    // }).catch(err => console.log(err))
-    // axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Approvals/${authUser?.User?.Id}`)
-    //   .then(res => {
-    //     setData(res.data)
-    //     setApproval(res.data)
-
-    //   })
-    //   .catch(err => console.log(err))
-    // axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Pendings/${authUser?.User?.Id}`)
-    //   .then(res => {
-
-    //     setPending(res.data)
-    //   })
-    //   .catch(err => console.log(err))
   }, [authUser])
 
 
-  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData)
+
+  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true })
+
+
 
 
 
   return (
-
     <BrowserRouter>
       <Navbar user={authUser} setAuthUser={setAuthUser} />
       <Routes>
         <Route path='/' element={<Login setAuthUser={setAuthUser} />} />
-        <Route path='/Home' element={<Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} isError={isError} />} />
+        <Route path='/Home' element={<Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} userId={authUser?.User?.Id} isError={isError} />} />
         <Route path='InvoiceDetailTable' element={<InvoiceDetailsTable data={datum} approval={approval} pending={pending} setData={setData} setInvNumber={setInvNumber} />} />
         <Route path='InvoiceDetail' element={<InvoiceDetail refetch={refetch} users={users} userid={authUser?.User?.Id} invNumber={invNumber} vendors={vendors}
           departments={departments} locations={locations} subsidiary={subsidiaries} account={account} />} />
@@ -124,6 +95,5 @@ export const Router = () => {
         <Route path='WorkFlow' element={<WorkFlow vendors={vendors} departments={departments} locations={locations} account={account} />} />
       </Routes>
     </BrowserRouter>
-
   );
 };

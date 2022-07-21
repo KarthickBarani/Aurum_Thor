@@ -2,7 +2,6 @@ import { useState } from "react"
 import { LevelElementError, userProfileType, WorkFlowLevel, WorkFlowTableType } from "./Interface"
 
 export const LevelElement = (props: {
-
     workFlow: WorkFlowTableType
     setWorkFlow: Function
     filterApproval: WorkFlowLevel

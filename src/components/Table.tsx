@@ -3,7 +3,9 @@ import { invDetailsType } from './Interface'
 import { TableGrid } from './TableGrid'
 import { TableFilter } from './TableFilter'
 import { useNavigate } from 'react-router-dom'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { SaveSvg, ViewSvg } from '../Svg/Svg'
+import axios from 'axios'
 
 
 
@@ -13,26 +15,30 @@ export const Table = (props:
         data: any
         isTemp: boolean
         children: string
+        userId: number
     }) => {
 
+    type afterDragElementProps = {
+        index: number
+        header: string
+    }
 
-    const navigation = useNavigate()
-
-    const data: invDetailsType = props.data
-
-
-    const columns = React.useMemo(() => [
+    const [afterDragElement, setAfterDragElement] = useState<afterDragElementProps[]>([] as afterDragElementProps[])
+    const defaultColumns = [
         {
+            id: 'InvoiceId',
             Header: '#',
             accessor: 'InvoiceId',
 
-        }, {
+        },
+        {
+            id: 'select',
             Header: '',
             accessor: 'select',
-            Cell: (row) => {
+            Cell: ({ row }) => {
                 return (
-                    row.row.original.StatusId === 6 ?
-                        <input type="checkbox"
+                    row.original.StatusId === 6 ?
+                        <input type="checkbox" className='form-check'
                             onChange={(e) => {
                                 row.row.values.select = e.target.checked
                                 console.log(`${row.row.index}`, row.row.values.select)
@@ -43,21 +49,20 @@ export const Table = (props:
 
         },
         {
+            id: 'Action',
             Header: 'Action',
-            accessor: (row) => {
+            accessor: 'Action',
+            Cell: ({ row }) => {
                 return (
                     <>
-                        <span role='button' title="View" onClick={() => {
-                            props.setInvNumber(row.InvoiceId)
-                            navigation('/InvoiceDetail')
-                        }} className="svg-icon svg-icon-primary svg-icon-1"><svg
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path opacity="0.3"
-                                    d="M19 22H5C4.4 22 4 21.6 4 21V3C4 2.4 4.4 2 5 2H14L20 8V21C20 21.6 19.6 22 19 22Z"
-                                    fill="black" />
-                                <path d="M15 8H20L14 2V7C14 7.6 14.4 8 15 8Z" fill="black" />
-                            </svg></span>&nbsp;&nbsp;
-
+                        <ViewSvg
+                            role='button'
+                            clsName='svg-icon svg-icon-primary svg-icon-1'
+                            function={() => {
+                                props.setInvNumber(row.values.InvoiceId)
+                                navigation('/InvoiceDetail')
+                            }} />
+                        &nbsp;&nbsp;
                         <span role="button" data-bs-toggle="popover" data-bs-dismiss="true" data-bs-placement="top" title="Error Code: No Error" className="svg-icon svg-icon-danger svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="black" />
                             <rect x="11" y="14" width="7" height="2" rx="1" transform="rotate(-90 11 14)" fill="black" />
@@ -68,62 +73,79 @@ export const Table = (props:
             }
         },
         {
+            id: 'ReceivedDate',
             Header: 'Recevied Date',
-            accessor: row => new Date(row.ReceivedDate).toLocaleString(),
+            accessor: 'ReceivedDate',
+            Cell: ({ row }) => new Date(row.values.ReceivedDate).toLocaleString(),
+            width: '300px'
 
         },
         {
+            id: 'VendorId',
             Header: 'Vendor Id',
             accessor: 'VendorId',
         },
         {
+            id: 'VendorName',
             Header: 'Vendor',
             accessor: 'VendorName',
         },
         {
+            id: 'InvoiceDate',
             Header: 'Invoice Date',
-            accessor: (row) => new Date(row.InvoiceDate).toLocaleDateString(),
+            accessor: 'InvoiceDate',
+            Cell: ({ row }) => new Date(row.values.InvoiceDate).toLocaleDateString(),
         },
         {
+            id: 'InvoiceNumber',
             Header: 'Inv #',
             accessor: 'InvoiceNumber',
-        }, {
-            Header: 'Due Amount',
-            accessor: (row) => `$ ${row.AmountDue.toFixed(2)}`,
-        }, {
+        },
+        // {
+        //     id: 'AmountDue',
+        //     Header: 'Due Amount',
+        //     accessor: (row) => `$ ${row.AmountDue.toFixed(2)}`,
+        // },
+        {
+            id: 'PurchaseNumber',
             Header: 'PO',
             accessor: 'PurchaseNumber',
         }, {
+            id: 'poStatus',
             Header: 'PO Status',
             accessor: 'poStatus',
         }, {
+            id: 'terms',
             Header: 'Terms',
             accessor: 'terms',
 
         }, {
+            id: 'assignment',
             Header: 'Assignment',
             accessor: 'assignment',
         }, {
+            id: 'updated',
             Header: 'Updated',
             accessor: 'updated',
         }, {
+            id: 'currency',
             Header: 'Currency',
             accessor: 'currency',
-        }, {
+        },
+        {
+            id: 'TotalAmount',
             Header: 'Total',
-            accessor: (row: { TotalAmount: number }) => `$ ${row.TotalAmount.toFixed(2)}`,
+            accessor: 'TotalAmount',
+            Cell: ({ row }) => `$ ${row.values.TotalAmount.toFixed(2)}`,
 
-        }, {
+        }
+        , {
+            id: 'StatusId',
             Header: 'Status',
-            accessor: row => {
-                let style = ''
-                switch (row.StatusId) {
-                    case 1:
-                        style = 'primary'
-                        break
-                    case 2:
-                        style = 'primary'
-                        break
+            accessor: 'StatusId',
+            Cell: ({ row }) => {
+                let style = 'primary'
+                switch (row.original.StatusId) {
                     case 3:
                         style = 'warning'
                         break
@@ -140,18 +162,88 @@ export const Table = (props:
                         style = 'primary'
                         break
                 }
-                return <span className={`badge badge-light-${style}`} >{`${row.StatusText}`}</span>
+                return <span className={`badge badge-light-${style}`} >{`${row.original.StatusText}`}</span>
             }
-        }, {
-            Header: 'Pending With',
-            accessor: row => row.StatusId === 3 ? row.PendingWith : null
         }
-    ], [navigation, props]
-    )
+        , {
+            id: 'PendingWith',
+            Header: 'Pending With',
+            accessor: 'PendingWith',
+            Cell: ({ row }) => row.original.StatusId === 3 ? row.original.PendingWith : null
+        }
+    ]
+    const [columns, setColumns] = useState(defaultColumns)
+    const [process, setProcess] = useState<boolean>(false)
 
-    const hiddenColumns = ['terms', 'updated', 'assignment', 'currency']
+    const replacer = (key, val) => {
+        if (typeof val === 'function') {
+            return val.toString()
+        }
+        return val
+    }
+
+    const reviver = (key, val) => {
+        if (key === 'Cell') {
+            return new Function('row', 'return ' + val)()
+        }
+        return val
+    }
+
+    useEffect(() => {
+        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference/${props.userId}`)
+            .then(res => {
+                const col = res.data.find(data => data.ListTypeId === 1)?.Value
+                const parse = JSON.parse(col, reviver)
+                const array: any[] = []
+                parse.forEach(element => {
+                    array.push(defaultColumns.find(arr => arr.id === element.id))
+                });
+                // console.log(JSON.parse(col, reviver))
+                // setColumns(defaultColumns)
+                setColumns(parse ? array : defaultColumns)
+            })
+            .catch(err => console.log(err))
+    }, [props.userId])
+
+    const navigation = useNavigate()
+
+    const data: invDetailsType = props.data
+
+    useEffect(() => {
+        if (afterDragElement.length > 0) {
+            const array: any = []
+            afterDragElement.forEach((el) => {
+                array.push(defaultColumns.find(arr => arr.Header === el.header))
+            }
+            )
+            if (array.length > 0) {
+                setColumns(array)
+                saveColumnOrder(array)
+            }
+        }
+    }, [afterDragElement])
+
+
+
+    const hiddenColumns = ['Due Amount', 'terms', 'updated', 'assignment', 'currency']
     const initialState = { ...columns, hiddenColumns }
 
+    const saveColumnOrder = (array) => {
+
+        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference`, {
+            UserId: props.userId,
+            ListId: 0,
+            ListType: 'Invoice',
+            Value: JSON.stringify(array, replacer),
+            ModifiedDateTime: null
+        })
+            .then((res) => {
+                console.log(res)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
 
 
     const {
@@ -175,7 +267,7 @@ export const Table = (props:
         <>
             <div className="card card-flush card-stretch shadow-sm">
                 <TableFilter globalFilter={globalFilter} rows={rows} setGlobalFilter={setGlobalFilter} getToggleHideAllColumnsProps={getToggleHideAllColumnsProps} allColumns={allColumns}>{props.children}</TableFilter>
-                <TableGrid getTableProps={getTableProps} getTableBodyProps={getTableBodyProps} headerGroups={headerGroups} rows={rows} prepareRow={prepareRow} isTemp={false} />
+                <TableGrid getTableProps={getTableProps} getTableBodyProps={getTableBodyProps} headerGroups={headerGroups} rows={rows} prepareRow={prepareRow} isTemp={false} setAfterDragElement={setAfterDragElement} />
             </div>
         </>
     )

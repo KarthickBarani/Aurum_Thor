@@ -1,18 +1,16 @@
 
 import axios from "axios"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { Error } from "../components/Error"
-import { Form } from "../components/Form"
 import { PdfViewer } from "../components/PdfViewer"
-import { ListItemsComp } from "../components/ListItemsComp"
-import { ExpensesComp } from "../components/ExpensesComp"
 import { Loading } from "../components/Loading"
-import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, WorkFlowLevel, NextApprovers, WorkFlowTableType } from '../components/Interface'
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, NextApprovers, WorkFlowTableType } from '../components/Interface'
 import { SweetAlert } from "../Function/alert"
 import { AxiosGet } from "../helpers/Axios"
 import { LevelElement } from "../components/LevelElement"
 import { LineItems } from "../components/LineItems"
 import { InvoiceDetailsForm } from "../components/InvoiceDetailsForm"
+import { SaveSvg } from "../Svg/Svg"
 
 
 
@@ -36,7 +34,7 @@ export const InvoiceDetail = (props: {
     const [process, setProcess] = useState(false)
 
     const [trigger, setTrigger] = useState(false)
-    const [isValid, setValid] = useState<boolean>(true)
+    const [isValid, setValid] = useState<boolean>(false)
     const [isError, setIsError] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
@@ -67,156 +65,264 @@ export const InvoiceDetail = (props: {
     })
 
 
-
-    const listItemsHeaders = useMemo(() => [
-        {
-            headerName: 'Inv Qty',
-            accessor: 'Quantity',
-            className: 'min-w-100px',
-            isEdit: true
-        },
-        {
-            headerName: 'PO Qty',
-            accessor: 'POQuantity',
-            className: 'min-w-100px',
-            isEdit: true
-        },
-        {
-            headerName: 'Item',
-            accessor: 'POItem',
-            className: 'min-w-150px',
-        },
-        {
-            headerName: 'Vendor part#',
-            accessor: 'PartNumber',
-            className: 'min-w-150px'
-        },
-        {
-            headerName: 'Description',
-            accessor: 'Description',
-            className: 'min-w-300px',
-            isEdit: true
-        },
-        {
-            headerName: 'Department',
-            accessor: 'Department',
-            className: 'min-w-150px',
-            input: {
-                inputSrc: props.departments,
-                srcId: 'DepartmentId',
-                srcName: 'DepartmentName'
-
+    const validation = () => {
+        for (let val of Object.values(formError)) {
+            if (val !== null) {
+                return true
             }
-        },
-        {
-            headerName: 'Location',
-            accessor: 'LocationId',
-            className: 'min-w-150px',
-            input: {
-                inputSrc: props.locations,
-                srcId: 'LocationId',
-                srcName: 'Location'
-            }
-        },
-        {
-            headerName: 'Inv Rate',
-            accessor: 'UnitPrice',
-            className: 'min-w-150px',
-            isEdit: true
-        },
-        {
-            headerName: 'PO Rate',
-            accessor: 'POUnitPrice',
-            className: 'min-w-150px',
-            isEdit: true
-        },
-        {
-            headerName: 'Inv Amount',
-            accessor: 'Amount',
-            cell: (index) => `$ ${(listItems[index].Quantity * listItems[index].UnitPrice).toFixed(2)}`,
-            className: 'min-w-150px',
-        },
-        {
-            headerName: 'PO Amount',
-            accessor: 'POAmount',
-            cell: (index) => (`$ ${(listItems[index].POQuantity * listItems[index].POUnitPrice).toFixed(2)}`),
-            className: 'min-w-150px',
-        },
-    ], [listItems, props.departments, props.locations])
+        }
+        return false
+    }
 
-    const expensesHeaders = useMemo(() => [
+    const [lineItemsToggle, setLineItemsToggle] = useState<'Expense' | 'LineItems'>('Expense')
+    const [afterDragElement, setAfterDragElement] = useState<any>([])
+
+    const [expensesHeaders, setExpensesHeaders] = useState([
         {
+            id: 1,
             headerName: 'Account',
             accessor: 'Account',
-            className: 'min-w-150px',
+            className: 'min-w-150px dragEl',
             input: {
                 inputSrc: props.account,
                 srcId: 'AccountId',
                 srcName: 'AccountName'
 
+            },
+            draggable: true,
+            hidden: false,
+
+        },
+        {
+            id: 2,
+            headerName: 'Amount',
+            accessor: 'Amount',
+            className: 'min-w-150px dragEl',
+            isEdit: true,
+            type: 'Number',
+            draggable: true,
+            hidden: false,
+            footer: (data: expensesType[]) => {
+                return `$ ${data.reduce((prev: number, current) => {
+                    return prev + Number(current?.Amount)
+                }, 0).toFixed(2)}`
             }
         },
         {
-            headerName: 'Amount',
-            accessor: 'Amount',
-            className: 'min-w-150px',
-        },
-        {
+            id: 3,
             headerName: 'Memo',
             accessor: 'Memo',
-            className: 'min-w-400px',
+            className: 'min-w-400px dragEl',
+            type: 'text',
+            draggable: true,
+            hidden: false
         },
         {
+            id: 4,
             headerName: 'Department',
             accessor: 'Department',
-            className: 'min-w-150px',
+            className: 'min-w-150px dragEl',
             input: {
                 inputSrc: props.departments,
                 srcId: 'DepartmentId',
                 srcName: 'DepartmentName'
 
-            }
+            },
+            draggable: true,
+            hidden: false
         },
         {
+            id: 5,
             headerName: 'Location',
             accessor: 'LocationId',
-            className: 'min-w-150px',
+            className: 'min-w-150px dragEl',
             input: {
                 inputSrc: props.locations,
                 srcId: 'LocationId',
                 srcName: 'Location'
+            },
+            draggable: true,
+            hidden: false
+        }
+    ])
+
+    const [listItemsHeaders, setListItemsHeaders] = useState([
+        {
+            id: 1,
+            headerName: 'Inv Qty',
+            accessor: 'Quantity',
+            className: 'min-w-100px dragEl',
+            isEdit: true,
+            type: 'Number',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 2,
+            headerName: 'PO Qty',
+            accessor: 'POQuantity',
+            className: 'min-w-100px dragEl',
+            isEdit: true,
+            type: 'Number',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 3,
+            headerName: 'Item',
+            accessor: 'POItem',
+            className: 'min-w-150px dragEl',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 4,
+            headerName: 'Vendor part#',
+            accessor: 'PartNumber',
+            className: 'min-w-150px dragEl',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 5,
+            headerName: 'Description',
+            accessor: 'Description',
+            className: 'min-w-300px dragEl',
+            isEdit: true,
+            type: 'text',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 6,
+            headerName: 'Department',
+            accessor: 'Department',
+            className: 'min-w-150px dragEl',
+            input: {
+                inputSrc: props.departments,
+                srcId: 'DepartmentId',
+                srcName: 'DepartmentName'
+            },
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 7,
+            headerName: 'Location',
+            accessor: 'LocationId',
+            className: 'min-w-150px dragEl',
+            input: {
+                inputSrc: props.locations,
+                srcId: 'LocationId',
+                srcName: 'Location'
+            },
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 8,
+            headerName: 'Inv Rate',
+            accessor: 'UnitPrice',
+            className: 'min-w-150px dragEl',
+            isEdit: true,
+            type: 'Number',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 9,
+            headerName: 'PO Rate',
+            accessor: 'POUnitPrice',
+            className: 'min-w-150px dragEl',
+            isEdit: true,
+            type: 'Number',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 10,
+            headerName: 'Inv Amount',
+            accessor: 'Amount',
+            cell: (data) => '$ ' + data?.Amount,
+            className: 'min-w-150px dragEl',
+            draggable: true,
+            hidden: false,
+            footer: (data: any[]) => {
+                return `$ ${data.reduce((prev: number, current) => {
+                    return prev + Number(current?.Amount)
+                }, 0).toFixed(2)}`
+            }
+        },
+        {
+            id: 11,
+            headerName: 'PO Amount',
+            accessor: 'POAmount',
+            cell: (data) => '$ ' + data?.POAmount,
+            className: 'min-w-150px dragEl',
+            draggable: true,
+            hidden: false,
+            footer: (data: any[]) => {
+                return `$ ${data.reduce((prev: number, current) => {
+                    return prev + Number(current?.POAmount)
+                }, 0).toFixed(2)}`
             }
         }
-
-    ], [expenses, props.departments, props.locations, props.account])
-
+    ])
 
     useEffect(() => {
-        setExSubtotal(expenses.reduce((prev, current) => prev + current.Amount, 0))
-        setPOSubtotal(listItems.reduce((prev, current) => prev + (current.POQuantity * current.POUnitPrice), 0))
-    }, [expenses, listItems])
+        if (afterDragElement.length > 0) {
+            const array: any[] = []
+            afterDragElement.forEach((el) => {
+                array.push(afterDragElement.length > 6 ? listItemsHeaders.find(arr => arr.headerName === el.header) : expensesHeaders.find(arr => arr.headerName === el.header))
+            })
+            if (array.length > 0) {
+                array.shift()
+                afterDragElement.length > 6 ? setListItemsHeaders(array) : setExpensesHeaders(array)
+            }
+        }
+    }, [afterDragElement])
 
+    useEffect(() => {
+        setValid(validation)
+    }, [formError])
+
+    useEffect(() => {
+        const obj = { ...invDetails }
+        obj.Expenses = expenses
+        setInvDetails(obj)
+    }, [expenses])
+
+    useEffect(() => {
+        const obj = { ...invDetails }
+        obj.LineItems = listItems
+        setInvDetails(obj)
+    }, [listItems])
+
+    useEffect(() => {
+        setExSubtotal(invDetails.Expenses?.reduce((prev, current) => prev + current.Amount, 0))
+        setPOSubtotal(invDetails.LineItems?.reduce((prev, current) => prev + (current.POQuantity * current.POUnitPrice), 0))
+    }, [expenses, listItems])
 
     useEffect(() => {
         setIsLoading(true)
-        AxiosGet(`api/v1/Invoice/Details/${props.invNumber}`)
+        AxiosGet(`Invoice/Details/${props.invNumber}`)
             .then(res => {
                 setInvDetails(res)
                 setListItems(res.LineItems)
                 setExpenses(res.Expenses)
                 setIsLoading(false)
                 setIsError(false)
-                AxiosGet(`/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
+                AxiosGet(`Invoice/InvoiceWorkflow/${props.invNumber}`)
                     .then(res => {
                         setWorkFlow(res)
                     })
                     .catch(err => console.error(err))
-                AxiosGet(`/api/v1/Invoice/NextApprovers/${props.invNumber}`)
+                AxiosGet(`Invoice/NextApprovers/${props.invNumber}`)
                     .then(ress => {
                         setNextApprover(ress)
                     })
                     .catch(err => console.error(err))
-                AxiosGet(`/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
+                AxiosGet(`Invoice/ApprovalFlow/${props.invNumber}`)
                     .then(res => {
                         setApprovalHistory(res)
                         console.log(res)
@@ -230,12 +336,16 @@ export const InvoiceDetail = (props: {
             })
     }, [props.invNumber])
 
-
-
     const save = () => {
-
+        if (invDetails.TotalAmount !== (invDetails.TaxTotal + exSubtotal + POSubtotal)) {
+            return SweetAlert({
+                title: 'Invoice Error',
+                icon: 'info',
+                text: 'Invoice Amount must be equal to the sum of Expenses Amount, PO Amount, Tax Amount'
+            })
+        }
         setProcess(true)
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, {})
+        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, invDetails)
             .then(res => {
                 console.log('Response:', res)
                 setProcess(false)
@@ -256,17 +366,10 @@ export const InvoiceDetail = (props: {
             })
     }
 
-
-
-
     const pdfToggle = init ? 'Hide Invoice' : 'Show Invoice'
     const collapseClass = init ? 'col-6' : 'col-12'
 
-
-
-
     return (
-
         <>
             <div className="container-fluid">
                 <div className="row my-10">
@@ -280,27 +383,14 @@ export const InvoiceDetail = (props: {
                             <div className="card-header bg-white">
                                 <h3 className="card-title fw-bolders">Invoice Details</h3>
                                 <div className="card-toolbar">
-                                    <button onClick={save} disabled={!isValid} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-scale" >
-                                        {process ? <span className="spinner-border spinner-border-sm text-primary"></span> : <span className="svg-icon svg-icon-primary svg-icon-1 px-5">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                xmlnsXlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
-                                                viewBox="0 0 24 24" version="1.1">
-                                                <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                                                    <polygon points="0 0 24 0 24 24 0 24" />
-                                                    <path
-                                                        d="M17,4 L6,4 C4.79111111,4 4,4.7 4,6 L4,18 C4,19.3 4.79111111,20 6,20 L18,20 C19.2,20 20,19.3 20,18 L20,7.20710678 C20,7.07449854 19.9473216,6.94732158 19.8535534,6.85355339 L17,4 Z M17,11 L7,11 L7,4 L17,4 L17,11 Z"
-                                                        fill="#000000" fillRule="nonzero" />
-                                                    <rect fill="#000000" opacity="0.3" x="12" y="4" width="3" height="5" rx="0.5" />
-                                                </g>
-                                            </svg></span>}
+                                    <button onClick={save} disabled={isValid} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-scale" >
+                                        {process ? <span className="spinner-border spinner-border-sm text-primary"></span> : <SaveSvg clsName="svg-icon svg-icon-primary svg-icon-1 px-5" />}
                                     </button>
                                 </div>
                             </div>
                             <div className="card-body">
                                 {isLoading ? <Loading /> : isError ? <Error /> : <InvoiceDetailsForm users={props.users} nextApprovers={nextApprovers} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
-                                    departments={props.departments} locations={props.locations} subsidiaries={props.subsidiary} formError={formError} setFormError={setFormError} />}
-                                {/* {isLoading ? <Loading /> : isError ? <Error /> : <Form refetch={props.refetch} setValid={setValid} users={props.users} nextApprovers={nextApprovers} approvers={workFlow.Approval} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
-                                    departments={props.departments} locations={props.locations} setModifyInvDetails={setModifyInvDetails} origin={origin} subsidiaries={props.subsidiary} />} */}
+                                    departments={props.departments} locations={props.locations} subsidiaries={props.subsidiary} formError={formError} setFormError={setFormError} setValid={setValid} refetch={props.refetch} approvalHistory={approvalHistory} />}
                             </div>
                         </div>
                     </div >
@@ -322,27 +412,23 @@ export const InvoiceDetail = (props: {
                                     <div className={collapseClass}>
                                         <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6 ">
                                             <li className="nav-item">
-                                                <a className="nav-link active " role="button" data-bs-toggle="tab"
+                                                <a className={`nav-link ${lineItemsToggle === 'Expense' ? 'active' : ''}`} role="button" onClick={() => setLineItemsToggle('Expense')} data-bs-toggle="tab"
                                                     href="#expensesTab">
                                                     <h4>Expenses</h4>
                                                 </a>
                                             </li>
                                             <li className="nav-item">
-                                                <a className="nav-link " role="button" data-bs-toggle="tab" href="#itemsTab">
+                                                <a className={`nav-link ${lineItemsToggle === 'LineItems' ? 'active' : ''}`} role="button" onClick={() => setLineItemsToggle('LineItems')} data-bs-toggle="tab" href="#itemsTab">
                                                     <h4>Items</h4>
                                                 </a>
                                             </li>
                                         </ul>
-
                                         <div className="tab-content h-95">
-                                            <div className="tab-pane fade h-100" id="itemsTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={listItemsHeaders} datum={listItems} isExpense={false} setDatum={setListItems} />}
-                                                {/* {isLoading ? <Loading /> : isError ? <Error /> : <ListItemsComp listItems={listItems} setListItems={setListItems} setPOSubtotal={setPOSubtotal} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} departments={props.departments} locations={props.locations} />} */}
-                                            </div>
-                                            <div className="tab-pane fade show active h-100" id="expensesTab" role="tabpanel">
-                                                {isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeaders} datum={expenses} setDatum={setExpenses} isExpense={true} />}
-                                                {/* {isLoading ? <Loading /> : isError ? <Error /> : <ExpensesComp expenses={expenses} setExpenses={setExpenses} account={props.account} setExSubtotal={setExSubtotal} departments={props.departments} locations={props.locations} modifyInvDetails={modifyInvDetails} setModifyInvDetails={setModifyInvDetails} />} */}
-                                            </div>
+                                            {lineItemsToggle === 'Expense' ?
+                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeaders} setColumns={setExpensesHeaders} datum={expenses} subtotal={exSubtotal} setDatum={setExpenses} isExpense={true} userId={props.userid} />
+                                                :
+                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={listItemsHeaders} setColumns={setListItemsHeaders} datum={listItems} subtotal={POSubtotal} isExpense={false} setDatum={setListItems} userId={props.userid} />
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -462,131 +548,7 @@ export const InvoiceDetail = (props: {
         </>
     )
 }
-{/*<React.Fragment key={index}>
-    <div className="row m-4">
-        <div className="col-8">
-            <div className="row">
-                <div className="col-6">
-                    <label htmlFor={'approver[' + index + ']'} className="form-label">Approver</label>
-                    <select name={'approver[' + index + ']'} id={'approver[' + index + ']'} value={approver?.Approver} onChange={
-                        (e) => {
-                            let arr: WorkFlowLevel = [...filterApprover]
-                            arr[index].Approver = e.target.value
-                            setFilterApprover(arr)
-                            setError(approvalValidation)
-                            console.log(e.target.value)
-                        }
-                    } className="form-select form-select-sm">
-                        <option key={0} value={0}></option>
-                        {
-                            props.users?.map(user => (
-                                <option key={user.Id} value={user.Id}>{`${user.FirstName} ${user.LastName}`}</option>
-                            ))
-                        }
-                    </select>
 
-                    {error?.map(err => err === index ? <small key={index} className="text-danger">User already in approver list</small> : null)}
-
-                </div>
-                <div className="col-3">
-                    <div className="form-group">
-                        <label htmlFor={'amount[' + index + ']'} className="form-label">Amount</label>
-                        <div className="input-group input-group-sm">
-                            <span className="input-group-text">$</span>
-                            <input name={'amount[' + index + ']'} id={'amount[' + index + ']'} min={0} type="number" className="form-control from-control-sm" value={approver.Amount} onChange={(e) => {
-                                let arr: WorkFlowLevel = [...filterApprover]
-                                arr[index].Amount = e.target.valueAsNumber
-                                setFilterApprover(arr)
-                                console.log(e.target.value)
-                            }} />
-                        </div>
-                        {filterApprover[index === 0 ? 0 : index - 1]?.Amount > filterApprover[index]?.Amount ? <small key={index} className="text-danger">Amount must be greater than previous approver amount</small> : null}
-                    </div>
-                </div>
-                <div className="col-3">
-                    <div className="form-group">
-                        <label htmlFor={'percentage[' + index + ']'} className="form-label">percentage</label>
-                        <div className="input-group input-group-sm">
-                            <input name={'percentage[' + index + ']'} id={'percentage[' + index + ']'} min={0} max={100} type="number" className="form-control from-control-sm" value={approver.Percentage} onChange={(e) => {
-                                let arr: WorkFlowLevel = [...filterApprover]
-                                arr[index].Percentage = e.target.valueAsNumber > 100 ? 100 : e.target.valueAsNumber
-                                setFilterApprover(arr)
-                                console.log(e.target.value)
-                            }} />
-                            <span className="input-group-text">%</span>
-                        </div>
-                         {error?.map(err => err === index ? <small key={index} className="text-danger">User already in approver list</small> : null)} }
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div className="col-4 align-self-center">
-            <div className="row justify-content-center">
-                <div className="col-6">{index !== 0 ? <button onClick={() => removeLevel(index)} title="Delete" className="btn btn-active-light-danger btn-icon btn-sm btn-hover-rise">
-                    <span className="svg-icon svg-icon-2 svg-icon-danger mx-1"><svg
-                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        viewBox="0 0 24 24" fill="none">
-                        <path
-                            d="M5 9C5 8.44772 5.44772 8 6 8H18C18.5523 8 19 8.44772 19 9V18C19 19.6569 17.6569 21 16 21H8C6.34315 21 5 19.6569 5 18V9Z"
-                            fill="black" />
-                        <path opacity="0.5"
-                            d="M5 5C5 4.44772 5.44772 4 6 4H18C18.5523 4 19 4.44772 19 5V5C19 5.55228 18.5523 6 18 6H6C5.44772 6 5 5.55228 5 5V5Z"
-                            fill="black" />
-                        <path opacity="0.5"
-                            d="M9 4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V4H9V4Z"
-                            fill="black" />
-                    </svg></span>
-                </button> : null}
-                    {index === filterApprover?.length - 1 ? <button onClick={addLevel} title="Add Level" className="btn btn-active-light-Primary btn-icon btn-sm  btn-hover-rise">
-                        <span className="svg-icon svg-icon-2 svg-icon-primary">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none">
-                                <path opacity="0.3"
-                                    d="M3 13V11C3 10.4 3.4 10 4 10H20C20.6 10 21 10.4 21 11V13C21 13.6 20.6 14 20 14H4C3.4 14 3 13.6 3 13Z"
-                                    fill="black" />
-                                <path
-                                    d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
-                                    fill="black" />
-                            </svg>
-                        </span>
-                    </button> : null}
-                </div>
-                <div className="col-6 align-self-end">
-                    {
-                        index === 0 ?
-                            <span onClick={() => moveDown(index)} role='button' title="Down" className="svg-icon svg-icon-primary svg-icon-1 ms-auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path opacity="0.5" d="M12.5657 9.63427L16.75 5.44995C17.1642 5.03574 17.8358 5.03574 18.25 5.44995C18.6642 5.86416 18.6642 6.53574 18.25 6.94995L12.7071 12.4928C12.3166 12.8834 11.6834 12.8834 11.2929 12.4928L5.75 6.94995C5.33579 6.53574 5.33579 5.86416 5.75 5.44995C6.16421 5.03574 6.83579 5.03574 7.25 5.44995L11.4343 9.63427C11.7467 9.94669 12.2533 9.94668 12.5657 9.63427Z" fill="black" />
-                                <path d="M12.5657 15.6343L16.75 11.45C17.1642 11.0357 17.8358 11.0357 18.25 11.45C18.6642 11.8642 18.6642 12.5357 18.25 12.95L12.7071 18.4928C12.3166 18.8834 11.6834 18.8834 11.2929 18.4928L5.75 12.95C5.33579 12.5357 5.33579 11.8642 5.75 11.45C6.16421 11.0357 6.83579 11.0357 7.25 11.45L11.4343 15.6343C11.7467 15.9467 12.2533 15.9467 12.5657 15.6343Z" fill="black" />
-                            </svg></span>
-                            :
-                            <>
-                                {
-                                    index === filterApprover.length - 1 ?
-                                        <span onClick={() => moveUp(index)} role='button' title="up" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path opacity="0.5" d="M11.4343 14.3657L7.25 18.55C6.83579 18.9643 6.16421 18.9643 5.75 18.55C5.33579 18.1358 5.33579 17.4643 5.75 17.05L11.2929 11.5072C11.6834 11.1166 12.3166 11.1166 12.7071 11.5072L18.25 17.05C18.6642 17.4643 18.6642 18.1358 18.25 18.55C17.8358 18.9643 17.1642 18.9643 16.75 18.55L12.5657 14.3657C12.2533 14.0533 11.7467 14.0533 11.4343 14.3657Z" fill="black" />
-                                            <path d="M11.4343 8.36573L7.25 12.55C6.83579 12.9643 6.16421 12.9643 5.75 12.55C5.33579 12.1358 5.33579 11.4643 5.75 11.05L11.2929 5.50716C11.6834 5.11663 12.3166 5.11663 12.7071 5.50715L18.25 11.05C18.6642 11.4643 18.6642 12.1358 18.25 12.55C17.8358 12.9643 17.1642 12.9643 16.75 12.55L12.5657 8.36573C12.2533 8.05331 11.7467 8.05332 11.4343 8.36573Z" fill="black" />
-                                        </svg></span>
-                                        :
-                                        <>
-                                            <span onClick={() => moveUp(index)} role='button' title="up" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                <path opacity="0.5" d="M11.4343 14.3657L7.25 18.55C6.83579 18.9643 6.16421 18.9643 5.75 18.55C5.33579 18.1358 5.33579 17.4643 5.75 17.05L11.2929 11.5072C11.6834 11.1166 12.3166 11.1166 12.7071 11.5072L18.25 17.05C18.6642 17.4643 18.6642 18.1358 18.25 18.55C17.8358 18.9643 17.1642 18.9643 16.75 18.55L12.5657 14.3657C12.2533 14.0533 11.7467 14.0533 11.4343 14.3657Z" fill="black" />
-                                                <path d="M11.4343 8.36573L7.25 12.55C6.83579 12.9643 6.16421 12.9643 5.75 12.55C5.33579 12.1358 5.33579 11.4643 5.75 11.05L11.2929 5.50716C11.6834 5.11663 12.3166 5.11663 12.7071 5.50715L18.25 11.05C18.6642 11.4643 18.6642 12.1358 18.25 12.55C17.8358 12.9643 17.1642 12.9643 16.75 12.55L12.5657 8.36573C12.2533 8.05331 11.7467 8.05332 11.4343 8.36573Z" fill="black" />
-                                            </svg></span>
-                                            <span onClick={() => moveDown(index)} role='button' title="Down" className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                <path opacity="0.5" d="M12.5657 9.63427L16.75 5.44995C17.1642 5.03574 17.8358 5.03574 18.25 5.44995C18.6642 5.86416 18.6642 6.53574 18.25 6.94995L12.7071 12.4928C12.3166 12.8834 11.6834 12.8834 11.2929 12.4928L5.75 6.94995C5.33579 6.53574 5.33579 5.86416 5.75 5.44995C6.16421 5.03574 6.83579 5.03574 7.25 5.44995L11.4343 9.63427C11.7467 9.94669 12.2533 9.94668 12.5657 9.63427Z" fill="black" />
-                                                <path d="M12.5657 15.6343L16.75 11.45C17.1642 11.0357 17.8358 11.0357 18.25 11.45C18.6642 11.8642 18.6642 12.5357 18.25 12.95L12.7071 18.4928C12.3166 18.8834 11.6834 18.8834 11.2929 18.4928L5.75 12.95C5.33579 12.5357 5.33579 11.8642 5.75 11.45C6.16421 11.0357 6.83579 11.0357 7.25 11.45L11.4343 15.6343C11.7467 15.9467 12.2533 15.9467 12.5657 15.6343Z" fill="black" />
-                                            </svg></span>
-                                        </>
-                                }
-                            </>
-                    }
-                </div>
-            </div>
-        </div>
-        <div className="separator border-1 border-light my-2"></div>
-    </div>
-                </React.Fragment>*/}
 
 
 

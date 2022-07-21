@@ -55,3 +55,12 @@ td,
 th {
   vertical-align: middle;
 }
+
+
+.dragEl {
+  cursor: move;
+}
+
+.dragging {
+  opacity: 0.5;
+}

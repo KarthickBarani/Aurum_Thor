@@ -14,7 +14,7 @@ export const InputTextField = (props: { label: string, name: string, id: string,
         <>
             <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}   > {props.label}</label>
             <div className="position-relative">
-                <input id={props.id} name={props.name} type={props.type} min={props.type === 'number' ? 0 : undefined} className={props.className + `${props.icon ? ' px-10' : ''}`} value={props?.value} onChange={props.onChange} onBlur={props.onBlur} readOnly={props.readOnly} required={props.required} />
+                <input id={props.id} name={props.name} type={props.type} min={props.type === 'number' ? 0 : undefined} className={props.className + `${props.icon ? ' ps-10' : ''}`} value={props?.value} onChange={props.onChange} onBlur={props.onBlur} readOnly={props.readOnly} required={props.required} />
                 <div className="position-absolute translate-middle-y top-50 start-0 ms-2">
                     {props.icon ? props.icon : null}
                 </div>
@@ -29,7 +29,7 @@ export const InputTextAreaField = (props: { label: string, name: string, id: str
         <>
             <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}>{props.label}</label>
             <textarea id={props.id} name={props.name} className={props.className} value={props?.value} onChange={props.onChange} onBlur={props.onBlur} readOnly={props.readOnly} required={props.required} />
-            {props.formError ? props.formError[props.name] ? <ErrorMessage>{props.formError[props.name]}</ErrorMessage> : null : null}
+            <ErrorMessage>{props.formError}</ErrorMessage>
         </>
     )
 }

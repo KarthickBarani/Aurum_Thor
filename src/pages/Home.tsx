@@ -3,6 +3,8 @@ import { Charts } from "../components/Charts"
 import { Table } from "../components/Table"
 import { Error } from '../components/Error'
 import { Loading } from "../components/Loading"
+import { Column } from "../components/Column"
+import { TableComponent } from "../components/TableComponent"
 
 
 
@@ -13,6 +15,7 @@ export const Home = (props: {
     isLoading: boolean
     data: any
     isError: boolean
+    userId: number
 }) => {
 
 
@@ -58,7 +61,8 @@ export const Home = (props: {
             </div>
             <div className="row justify-content-between g-5 my-1">
                 <div className="col">
-                    {props.isLoading ? <Loading /> : props.isError ? <Error /> : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={false} >Invoice Details</Table>}
+                    {props.isLoading ? <Loading /> : props.isError ? <Error /> : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={false} userId={props.userId} >Invoice Details</Table>}
+
                 </div>
             </div>
         </div>

@@ -44,7 +44,7 @@ export const WorkFlowTable = (props: {
                                 <td>{workFlow.CreatedBy}</td>
                                 <td>{workFlow.CreatedTimestamp}</td>
                                 <td>
-                                    <EditSvg clsName="svg-icon svg-icon-warning svg-icon-2" function={() => updateHandler(index)} />
+                                    <EditSvg role={'button'} clsName="svg-icon svg-icon-warning svg-icon-2" function={() => updateHandler(index)} />
                                     &nbsp;&nbsp;
                                     <RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-2" />
                                 </td>
