@@ -1,7 +1,7 @@
 import { Field } from "formik"
 import { string } from "yup"
 import { number } from "yup/lib/locale"
-import { WorkFlow } from "../pages/WorkFlow"
+import { WorkFlow } from "../../pages/WorkFlow"
 
 export type expensesType = {
     ExpenseId: number,

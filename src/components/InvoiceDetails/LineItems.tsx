@@ -2,9 +2,9 @@ import axios from "axios"
 import moment from "moment"
 
 import { useEffect, useState } from "react"
-import { AxiosGet } from '../helpers/Axios'
+import { AxiosGet } from '../../helpers/Axios'
 import { AddSvg, CopySvg, RecallSvg, RemoveSvg, SaveSvg } from '../Svg/Svg'
-import { TableFilterComponent } from './TableComponent'
+import { TableFilterComponent } from '../components/TableComponent'
 
 
 export const LineItems = (props:
@@ -249,33 +249,25 @@ export const LineItems = (props:
         }
     }, [filterDatum])
 
-    useEffect(() => {
-        if (afterDragElement.length > 0) {
-            let array: any[] = []
-            const reminingColumns: any[] = []
-            // afterDragElement.forEach((el) => {
-            // })
-            console.log('check', customColumns.filter(arr => afterDragElement.includes({ index: arr.id, header: arr.headerName })))
-            // console.log(afterDragElement.includes())
-            // array.shift()
-            customColumns.forEach(Column => {
-                if (!array.includes(Column)) return reminingColumns.push(Column)
-            })
-            const Finalarray = array.concat(reminingColumns)
-            if (Finalarray.length > 0) {
-                setCustomColumns(Finalarray)
-                saveColumnOrder(Finalarray)
-            }
-        }
-    }, [afterDragElement])
     // useEffect(() => {
     //     if (afterDragElement.length > 0) {
-    //         const array: any[] = []
+    //         let array: any[] = []
     //         const reminingColumns: any[] = []
-    //         afterDragElement.forEach((el) => {
-    //             array.push(customColumns.find(arr => arr.headerName === el.header))
-    //         })
-    //         array.shift()
+    //         // afterDragElement.forEach((el) => {
+    //         // })
+    //         const isInArray = (obj): boolean => {
+    //             for (let i = 0; i < afterDragElement.length; i++) {
+    //                 if (afterDragElement[i].header === obj.headerName) {
+    //                     return true
+    //                 }
+    //             }
+    //             return false
+    //         }
+    //         const ddd = customColumns.filter(isInArray)
+    //         const ccc = customColumns.filter(!(isInArray))
+    //         // console.log(afterDragElement.includes())
+    //         // array.shift()
+    //         console.log('check', ddd)
     //         customColumns.forEach(Column => {
     //             if (!array.includes(Column)) return reminingColumns.push(Column)
     //         })
@@ -287,12 +279,32 @@ export const LineItems = (props:
     //     }
     // }, [afterDragElement])
 
+
+    useEffect(() => {
+        if (afterDragElement.length > 0) {
+            const array: any[] = []
+            const reminingColumns: any[] = []
+            afterDragElement.forEach((el) => {
+                array.push(customColumns.find(arr => arr.headerName === el.header))
+            })
+            array.shift()
+            customColumns.forEach(Column => {
+                if (!array.includes(Column)) return reminingColumns.push(Column)
+            })
+            const Finalarray = array.concat(reminingColumns)
+            if (Finalarray.length > 0) {
+                setCustomColumns(Finalarray)
+                saveColumnOrder(Finalarray)
+            }
+        }
+    }, [afterDragElement])
+
     return (
         <>
             <div className="d-flex justify-content-between">
                 <div>
                     <>
-                        <TableFilterComponent columns={customColumns} setColumns={setCustomColumns} datum={props.datum} setDatum={setFilterDatum} />
+                        <TableFilterComponent columns={customColumns} setColumns={setCustomColumns} datum={props.datum} setDatum={setFilterDatum} columnFilter={true} />
                     </>
                 </div>
                 <div>

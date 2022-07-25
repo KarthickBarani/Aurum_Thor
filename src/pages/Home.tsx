@@ -1,10 +1,8 @@
 
-import { Charts } from "../components/Charts"
-import { Table } from "../components/Table"
-import { Error } from '../components/Error'
-import { Loading } from "../components/Loading"
-import { Column } from "../components/Column"
-import { TableComponent } from "../components/TableComponent"
+import { Charts } from "../components/Home/Charts"
+import { Table } from "../components/Home/Table"
+import { Error } from '../components/components/Error'
+import { Loading } from "../components/components/Loading"
 
 
 

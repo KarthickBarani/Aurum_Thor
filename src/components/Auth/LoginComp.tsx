@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useFormik } from 'formik'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthUser } from '../Interface';
+import { AuthUser } from '../Interface/Interface';
 
 export const LoginComp = (props: {
   setAuthUser: Function

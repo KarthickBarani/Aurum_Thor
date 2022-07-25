@@ -1,6 +1,7 @@
 
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { AuthUser } from './Interface';
+import { MailSvg } from '../Svg/Svg';
+import { AuthUser } from '../Interface/Interface';
 
 export const Navbar = (props: {
   user: AuthUser
@@ -54,6 +55,9 @@ export const Navbar = (props: {
                   <path opacity="0.3" d="M7 20.5L2 17.6V11.8L7 8.90002L12 11.8V17.6L7 20.5ZM21 20.8V18.5L19 17.3L17 18.5V20.8L19 22L21 20.8Z" fill="black" />
                   <path d="M22 14.1V6L15 2L8 6V14.1L15 18.2L22 14.1Z" fill="black" />
                 </svg></span> Work Flow</NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink to={'/Inbox'} className="nav-link"><MailSvg clsName='svg-icon svg-icon-light svg-icon-1' /> Inbox</NavLink>
             </li>
             <li className="nav-item">
               <NavLink to={'/Settings'} className="nav-link"><span className="svg-icon svg-icon-light svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">

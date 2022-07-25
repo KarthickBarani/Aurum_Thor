@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { SweetAlert } from "../Function/alert"
-import { lineItemsType, invDetailsType, departments, locations } from './Interface'
+import { lineItemsType, invDetailsType, departments, locations } from './Interface/Interface'
 
 
 

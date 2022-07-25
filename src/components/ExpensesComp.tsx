@@ -2,7 +2,7 @@
 import axios from "axios"
 import { useState } from "react"
 import { SweetAlert } from "../Function/alert"
-import { expensesType, departments, locations, invDetailsType, account } from './Interface'
+import { expensesType, departments, locations, invDetailsType, account } from './Interface/Interface'
 
 
 

@@ -5,9 +5,9 @@ import { AxiosGet } from '../helpers/Axios';
 import { useHydrate, useQuery } from 'react-query';
 import { useTable, useSortBy, useGlobalFilter } from 'react-table';
 import axios from 'axios';
-import { Table } from '../components/Table';
-import { Loading } from '../components/Loading';
-import { Error } from '../components/Error';
+import { Table } from '../components/Home/Table';
+import { Loading } from '../components/components/Loading';
+import { Error } from '../components/components/Error';
 import { UserGrid } from '../components/Auth/UserGrid';
 import { UserDetail } from '../components/Auth/UserDetail';
 

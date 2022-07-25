@@ -1,4 +1,4 @@
-import { Fields, FieldValue } from "./Interface"
+import { Fields, FieldValue } from "./Interface/Interface"
 
 export const DynamicField = (props: {
     index: number

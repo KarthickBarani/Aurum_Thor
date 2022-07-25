@@ -1,7 +1,7 @@
 
 import { InvoicePendingColumn, InvoiceMyApprovalColumn } from '../components/Column'
 
-import { invDetailsType } from "../components/Interface"
+import { invDetailsType } from "../components/Interface/Interface"
 import { useTable, useSortBy, useGlobalFilter } from 'react-table'
 import { useNavigate } from "react-router-dom"
 import { useMemo, useState } from "react"

@@ -1,13 +1,13 @@
 
 import { useEffect, useState } from "react"
-import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, expensesType, ApprovalHistory } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, expensesType, ApprovalHistory } from '../Interface/Interface'
 import moment from "moment"
 import axios from "axios"
 import { SweetAlertIcon } from "sweetalert2"
 import { useNavigate } from "react-router-dom"
-import { InputSelectField, InputTextAreaField, InputTextDateField, InputTextField } from "./InputField"
+import { InputSelectField, InputTextAreaField, InputTextDateField, InputTextField } from "../components/InputField"
 import { AddSvg, DollarSvg, RecallSvg, ViewSvg } from "../Svg/Svg"
-import { SweetAlert } from "../Function/alert"
+import { SweetAlert } from "../../Function/alert"
 
 export const InvoiceDetailsForm = (props:
     {

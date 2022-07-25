@@ -1,14 +1,14 @@
-import { vendors, departments, locations, WorkFlowTableType, userProfileType, WorkFlowType, Fields, account } from "../components/Interface"
+import { vendors, departments, locations, WorkFlowTableType, userProfileType, WorkFlowType, Fields, account } from "../components/Interface/Interface"
 import { useEffect, useState } from "react"
-import { NewWorkFlow } from "../components/NewWorkFlow"
-import { WorkFlowTable } from "../components/WorkFlowTable"
+import { NewWorkFlow } from "../components/WorkFlow/NewWorkFlow"
+import { WorkFlowTable } from "../components/WorkFlow/WorkFlowTable"
 import axios from "axios"
 import { v4 as uuidv4 } from 'uuid'
 import { useQuery } from "react-query"
-import { Error } from "../components/Error"
-import { Loading } from "../components/Loading"
+import { Error } from "../components/components/Error"
+import { Loading } from "../components/components/Loading"
 import { SweetAlert } from "../Function/alert"
-import { AddSvg, SaveSvg } from "../Svg/Svg"
+import { AddSvg, SaveSvg } from "../components/Svg/Svg"
 
 
 

@@ -1,16 +1,16 @@
 
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { Error } from "../components/Error"
-import { PdfViewer } from "../components/PdfViewer"
-import { Loading } from "../components/Loading"
-import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, NextApprovers, WorkFlowTableType } from '../components/Interface'
+import { Error } from "../components/components/Error"
+import { PdfViewer } from "../components/Auth/PdfViewer"
+import { Loading } from "../components/components/Loading"
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, NextApprovers, WorkFlowTableType } from '../components/Interface/Interface'
 import { SweetAlert } from "../Function/alert"
 import { AxiosGet } from "../helpers/Axios"
-import { LevelElement } from "../components/LevelElement"
-import { LineItems } from "../components/LineItems"
-import { InvoiceDetailsForm } from "../components/InvoiceDetailsForm"
-import { SaveSvg } from "../Svg/Svg"
+import { LevelElement } from "../components/WorkFlow/LevelElement"
+import { LineItems } from "../components/InvoiceDetails/LineItems"
+import { InvoiceDetailsForm } from "../components/InvoiceDetails/InvoiceDetailsForm"
+import { SaveSvg } from "../components/Svg/Svg"
 
 
 

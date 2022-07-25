@@ -1,7 +1,7 @@
 
 import { useFormik } from "formik"
 import { useEffect } from "react"
-import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, WorkFlowApproval, expensesType } from '../components/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, WorkFlowApproval, expensesType } from './Interface/Interface'
 import * as Yup from 'yup'
 import moment from "moment"
 import axios from "axios"

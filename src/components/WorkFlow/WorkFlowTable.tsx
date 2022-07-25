@@ -1,6 +1,6 @@
 
 import axios from "axios"
-import { WorkFlowTableType } from "./Interface"
+import { WorkFlowTableType } from "../Interface/Interface"
 import { EditSvg, RemoveSvg } from "../Svg/Svg"
 
 export const WorkFlowTable = (props: {

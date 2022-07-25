@@ -1,5 +1,5 @@
 
-import { vendors, departments, locations, userProfileType, account, WorkFlowTableType, WorkFlowLevel } from "./Interface"
+import { vendors, departments, locations, userProfileType, account, WorkFlowTableType, WorkFlowLevel } from "../Interface/Interface"
 import { LevelElement } from "./LevelElement"
 
 

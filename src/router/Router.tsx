@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { Navbar } from '../components/Navbar';
+import { Navbar } from '../components/components/Navbar';
 import { Home } from '../pages/Home';
 import { InvoiceDetail } from '../pages/InvoiceDetail';
 import { Login } from '../pages/Login';
@@ -13,8 +13,9 @@ import { WorkFlow } from '../pages/WorkFlow';
 import axios from 'axios';
 import { InvoiceDetailsTable } from '../pages/InvoiceDetailsTable';
 import { useQuery } from 'react-query';
-import { vendors, departments, locations, subsidiary, account, AuthUser, invDetailsType, userProfileType } from '../components/Interface'
+import { vendors, departments, locations, subsidiary, account, AuthUser, invDetailsType, userProfileType } from '../components/Interface/Interface'
 import { AxiosGet } from '../helpers/Axios';
+import { Inbox } from '../pages/Inbox';
 
 
 
@@ -91,6 +92,7 @@ export const Router = () => {
           departments={departments} locations={locations} subsidiary={subsidiaries} account={account} />} />
         <Route path='Register' element={<RegisterComp />} />
         <Route path='UserManagement' element={<UserManagement />} />
+        <Route path='Inbox' element={<Inbox />} />
         <Route path='Settings' element={<Settings />} />
         <Route path='WorkFlow' element={<WorkFlow vendors={vendors} departments={departments} locations={locations} account={account} />} />
       </Routes>

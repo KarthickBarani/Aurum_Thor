@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { LevelElementError, userProfileType, WorkFlowLevel, WorkFlowTableType } from "./Interface"
+import { LevelElementError, userProfileType, WorkFlowLevel, WorkFlowTableType } from "../Interface/Interface"
 
 export const LevelElement = (props: {
     workFlow: WorkFlowTableType
