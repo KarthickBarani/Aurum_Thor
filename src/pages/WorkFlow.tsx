@@ -40,21 +40,21 @@ export const WorkFlow = (
 
 
     const fetchWorkflows = () => {
-        return axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow')
+        return axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Workflow`)
     }
 
     const { isLoading, data, isError, refetch } = useQuery('invDetails', fetchWorkflows)
 
     useEffect(() => {
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/UserProfile')
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/UserProfile`)
             .then(res => setUsers(res.data))
             .catch(err => console.log(err))
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/Type')
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Workflow/Type`)
             .then(res => {
                 setWorkFlowType(res.data)
             })
             .catch(err => console.log(err))
-        axios.get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Settings')
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Settings`)
             .then(res => {
                 setFields(res.data)
             })
@@ -68,7 +68,7 @@ export const WorkFlow = (
         setIsLoading(true)
         console.log('save:', workFlow)
         // setIsLoading(false)
-        axios[isNew ? 'post' : 'patch'](`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow`, workFlow)
+        axios[isNew ? 'post' : 'patch'](`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Workflow`, workFlow)
             .then(res => {
                 console.log('Response:', res)
                 setIsLoading(false)

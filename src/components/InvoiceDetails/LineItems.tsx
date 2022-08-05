@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { AxiosGet } from '../../helpers/Axios'
 import { AddSvg, CopySvg, RecallSvg, RemoveSvg, SaveSvg } from '../Svg/Svg'
 import { TableFilterComponent } from '../components/TableComponent'
+import { SweetAlert } from "../../Function/alert"
 
 
 export const LineItems = (props:
@@ -16,6 +17,7 @@ export const LineItems = (props:
         subtotal: number
         isExpense: boolean
         userId: number
+        invoiceId: number
     }) => {
 
 
@@ -72,7 +74,7 @@ export const LineItems = (props:
 
         const newRow = props.isExpense ? {
             ExpenseId: Date.now(),
-            InvoiceId: props.datum[props.datum.length - 1].InvoiceId,
+            InvoiceId: props.invoiceId,
             Account: 0,
             Amount: 0,
             Memo: '',
@@ -83,7 +85,7 @@ export const LineItems = (props:
             isNew: true
         } : {
             LineItemId: Date.now(),
-            InvoiceId: 0,
+            InvoiceId: props.invoiceId,
             Amount: 0,
             PartNumber: '',
             ProductCode: '',
@@ -108,11 +110,29 @@ export const LineItems = (props:
     }
 
     const removeHandler = () => {
-        const arr = props.datum.filter(arr => arr.isCheck !== true)
-        console.log(arr)
-        props.setDatum(arr)
-        setCheckAll(arr.length !== 0 ? arr.length === arr.filter(arr => arr.isCheck === true).length : false)
-        setCheckAnyOne(arr.filter(arr => arr.isCheck === true).length > 0)
+        SweetAlert({
+            title: 'Are you sure?',
+            text: "Your lineitems has been delete",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        })
+            .then((result) => {
+                if (result.isConfirmed) {
+                    const arr = props.datum.filter(arr => arr.isCheck !== true)
+                    console.log(arr)
+                    props.setDatum(arr)
+                    setCheckAll(arr.length !== 0 ? arr.length === arr.filter(arr => arr.isCheck === true).length : false)
+                    setCheckAnyOne(arr.filter(arr => arr.isCheck === true).length > 0)
+                    SweetAlert({
+                        title: 'Deleted!',
+                        text: 'Your data has been deleted.',
+                        icon: 'success'
+                    })
+                }
+            })
     }
 
     const copyHandler = () => {

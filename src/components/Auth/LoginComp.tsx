@@ -16,7 +16,7 @@ export const LoginComp = (props: {
 
   const onSubmit = () => {
     setLoading(true)
-    axios.post<AuthUser>('https://invoiceprocessingapi.azurewebsites.net/api/v1/Auth', formik.values).then(res => {
+    axios.post<AuthUser>(process.env.REACT_APP_BACKEND_BASEURL + '/api/v1/Auth', formik.values).then(res => {
       localStorage.setItem('user', JSON.stringify(res.data))
       res.data.Status === true ? navigation('/Home') : navigation('/')
       props.setAuthUser(res.data)

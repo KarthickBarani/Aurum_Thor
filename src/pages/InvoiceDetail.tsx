@@ -6,7 +6,7 @@ import { PdfViewer } from "../components/Auth/PdfViewer"
 import { Loading } from "../components/components/Loading"
 import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, NextApprovers, WorkFlowTableType } from '../components/Interface/Interface'
 import { SweetAlert } from "../Function/alert"
-import { AxiosGet } from "../helpers/Axios"
+import { AxiosGet, AxiosInsert } from "../helpers/Axios"
 import { LevelElement } from "../components/WorkFlow/LevelElement"
 import { LineItems } from "../components/InvoiceDetails/LineItems"
 import { InvoiceDetailsForm } from "../components/InvoiceDetails/InvoiceDetailsForm"
@@ -301,28 +301,28 @@ export const InvoiceDetail = (props: {
     useEffect(() => {
         setExSubtotal(invDetails.Expenses?.reduce((prev, current) => prev + current.Amount, 0))
         setPOSubtotal(invDetails.LineItems?.reduce((prev, current) => prev + (current.POQuantity * current.POUnitPrice), 0))
-    }, [expenses, listItems])
+    }, [invDetails])
 
     useEffect(() => {
         setIsLoading(true)
-        AxiosGet(`Invoice/Details/${props.invNumber}`)
+        AxiosGet(`/api/v1/Invoice/Details/${props.invNumber}`)
             .then(res => {
                 setInvDetails(res)
                 setListItems(res.LineItems)
                 setExpenses(res.Expenses)
                 setIsLoading(false)
                 setIsError(false)
-                AxiosGet(`Invoice/InvoiceWorkflow/${props.invNumber}`)
+                AxiosGet(`/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
                     .then(res => {
                         setWorkFlow(res)
                     })
                     .catch(err => console.error(err))
-                AxiosGet(`Invoice/NextApprovers/${props.invNumber}`)
+                AxiosGet(`/api/v1/Invoice/NextApprovers/${props.invNumber}`)
                     .then(ress => {
                         setNextApprover(ress)
                     })
                     .catch(err => console.error(err))
-                AxiosGet(`Invoice/ApprovalFlow/${props.invNumber}`)
+                AxiosGet(`/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
                     .then(res => {
                         setApprovalHistory(res)
                         console.log(res)
@@ -345,23 +345,23 @@ export const InvoiceDetail = (props: {
             })
         }
         setProcess(true)
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice`, invDetails)
+        AxiosInsert(`/api/v1/Invoice`, invDetails)
             .then(res => {
                 console.log('Response:', res)
                 setProcess(false)
                 SweetAlert({
-                    title: '<h1>Saved</h1>',
-                    icon: 'success',
-                    timer: 4000
+                    title: 'Saved',
+                    text: 'Your file has been deleted.',
+                    icon: 'success'
                 })
             })
             .catch(err => {
                 console.log('Error:', err)
                 setProcess(false)
                 SweetAlert({
-                    title: '<h1>Somthing wrong from the server</h1>',
                     icon: 'error',
-                    timer: 4000
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
                 })
             })
     }
@@ -425,9 +425,9 @@ export const InvoiceDetail = (props: {
                                         </ul>
                                         <div className="tab-content h-95">
                                             {lineItemsToggle === 'Expense' ?
-                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeaders} setColumns={setExpensesHeaders} datum={expenses} subtotal={exSubtotal} setDatum={setExpenses} isExpense={true} userId={props.userid} />
+                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeaders} setColumns={setExpensesHeaders} datum={expenses} subtotal={exSubtotal} setDatum={setExpenses} isExpense={true} userId={props.userid} invoiceId={invDetails.InvoiceId} />
                                                 :
-                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={listItemsHeaders} setColumns={setListItemsHeaders} datum={listItems} subtotal={POSubtotal} isExpense={false} setDatum={setListItems} userId={props.userid} />
+                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={listItemsHeaders} setColumns={setListItemsHeaders} datum={listItems} subtotal={POSubtotal} isExpense={false} setDatum={setListItems} userId={props.userid} invoiceId={invDetails.InvoiceId} />
                                             }
                                         </div>
                                     </div>
@@ -525,9 +525,9 @@ export const InvoiceDetail = (props: {
                                     console.log('final', final)
                                     obj.Level = final
                                     setProcess(true)
-                                    axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, obj)
+                                    AxiosInsert(`/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, obj)
                                         .then(res => {
-                                            console.log('data', res.data)
+                                            console.log('data', res)
                                             setProcess(false)
                                             setTrigger(!trigger)
                                         })

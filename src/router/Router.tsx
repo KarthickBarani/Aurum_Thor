@@ -36,46 +36,48 @@ export const Router = () => {
   const [pending, setPending] = useState<invDetailsType[]>([] as invDetailsType[])
   const [approval, setApproval] = useState<invDetailsType[]>([] as invDetailsType[])
 
+  const BASEURL = process.env.REACT_APP_BACKEND_BASEURL
+
 
   const fetchTableData = () => {
-    return axios.get(process.env.REACT_APP_BACKEND_BASEURL + 'Invoice')
+    return axios.get(BASEURL + '/api/v1/Invoice')
   }
 
 
 
   useEffect(() => {
-    AxiosGet('vendor')
-      .then(res => setVendor(res))
+    axios.get(BASEURL + '/api/v1/vendor')
+      .then(res => setVendor(res.data))
       .catch(err => console.log(err))
-    AxiosGet('vendor/Departments')
-      .then(res => setDepartments(res))
+    axios.get(BASEURL + '/api/v1/vendor/Departments')
+      .then(res => setDepartments(res.data))
       .catch(err => console.log(err))
-    AxiosGet('vendor/Locations')
-      .then(res => setLocation(res))
+    axios.get(BASEURL + '/api/v1/vendor/Locations')
+      .then(res => setLocation(res.data))
       .catch(err => console.log(err))
-    AxiosGet('vendor/Subsidiaries')
-      .then(res => setSubsidiaries(res))
+    axios.get(BASEURL + '/api/v1/vendor/Subsidiaries')
+      .then(res => setSubsidiaries(res.data))
       .catch(err => console.log(err))
-    AxiosGet('vendor/Accounts')
-      .then(res => setAccount(res))
+    axios.get(BASEURL + '/api/v1/vendor/Accounts')
+      .then(res => setAccount(res.data))
       .catch(err => console.log(err))
-    AxiosGet('UserProfile')
-      .then(res => setUsers(res))
+    axios.get(BASEURL + '/api/v1/UserProfile')
+      .then(res => setUsers(res.data))
       .catch(err => console.log(err))
-    AxiosGet(`Invoice/Approvals/${authUser?.User?.Id}`)
+    axios.get(BASEURL + `/api/v1/Invoice/Approvals/${authUser?.User?.Id}`)
       .then(res => {
-        setApproval(res)
-        setData(res)
+        setApproval(res.data)
+        setData(res.data)
       })
       .catch(err => console.log(err))
-    AxiosGet(`Invoice/Pendings/${authUser?.User?.Id}`)
-      .then(res => setPending(res))
+    axios.get(BASEURL + `/api/v1/Invoice/Pendings/${authUser?.User?.Id}`)
+      .then(res => setPending(res.data))
       .catch(err => console.log(err))
   }, [authUser])
 
 
 
-  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true })
+  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true, refetchInterval: 10000 })
 
 
 

@@ -1,79 +1,144 @@
-import { useState } from "react"
+import axios from "axios"
+import { useEffect, useMemo, useState } from "react"
+import { useQuery } from "react-query"
 import { PdfViewer } from "../components/Auth/PdfViewer"
+import { Error } from "../components/components/Error"
+import { Loading } from "../components/components/Loading"
 import { Modal, ModalContent, ModalHeader } from "../components/components/Model"
-import { TableComponent, TableFilterComponent } from "../components/components/TableComponent"
-import { DownloadSvg, ViewSvg } from "../components/Svg/Svg"
+import { TableGridComponent } from "../components/components/TableComponent"
+import { DownloadSvg, MailSvg, RecallSvg, RemoveSvg, ViewSvg } from "../components/Svg/Svg"
 
 export const Inbox = () => {
 
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isError, setIsError] = useState<boolean>(false)
+    const [isBinLoading, setIsBinLoading] = useState<boolean>(false)
+    const [isBinError, setIsBinError] = useState<boolean>(false)
+    const [tabToggle, setTabToggle] = useState<'Inbox' | 'Bin'>('Inbox')
 
-    const columns = [
+
+
+
+    const columns = useMemo(() => [
         {
             id: 1,
-            header: 'From',
-            accessor: 'From',
-            className: 'min-w-150px dragEl',
-            cell: (data) => {
-                return (
-                    <div className="d-flex">
-                        <div className="symbol symbol-25px align-self-center ">
-                            <div className="symbol-label fs-6 fw-bold text-success">{data?.From[0]}</div>
-                        </div>
-                        <div className='mx-2'>
-                            <p className='pt-4 fs-5 text-start text-gray-800' >{data.From}</p>
-                        </div>
-                    </div>
-                )
-            }
-        },
-        {
-            id: 2,
-            header: 'Received Date',
-            accessor: 'ReceivedDate',
-            className: 'min-w-150px'
-        },
-        {
-            id: 3,
-            header: 'Subject',
-            accessor: 'Subject',
-            className: 'min-w-150px'
-        },
-        {
-            id: 4,
-            header: 'Status',
-            accessor: 'Status',
-            className: 'min-w-150px',
-            cell: (data) => {
-                return <span className={`badge badge-light-${data.Status === 'Processing' ? 'primary' : 'warning'}`} >{data.Status}</span>
-            }
-        },
-        {
-            id: 5,
             header: 'Action',
             accessor: 'Action',
             cell: (data) => {
                 return (
                     <div className="d-flex justify-content-evenly">
-                        <a role={'button'} title={'View'} data-bs-toggle="modal" data-bs-target="#reactModal">
-                            <ViewSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} />
-                        </a>
-                        <DownloadSvg role={"button"} clsName={"svg-icon svg-icon-warning svg-icon-2"} />
+                        {
+                            data.Status === 3
+                                ? <a role={'button'} title={'View'} data-bs-toggle="modal" data-bs-target="#reactModal">
+                                    <ViewSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} />
+                                </a>
+                                : <a role={'button'} title={'Reprocess'} >
+                                    <RecallSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} />
+                                </a>
+
+                        }
                     </div>
                 )
             },
-            className: 'min-w-150px'
+            className: 'min-w-50px'
         },
+        {
+            id: 2,
+            header: 'From',
+            accessor: 'FromAddress',
+            className: 'min-w-150px',
+            cell: (data) => {
+                return (
+                    <div className="d-flex">
+                        <div className="symbol symbol-25px align-self-center ">
+                            <div className="symbol-label fs-6 fw-bold text-success">{data?.FromAddress[0]?.toUpperCase()}</div>
+                        </div>
+                        <div className='mx-2'>
+                            <p className='pt-4 fs-5 fw-bold text-start text-gray-800' >{data?.FromAddress}</p>
+                        </div>
+                    </div>
+                )
+            },
+            sortable: true
+        },
+        {
+            id: 3,
+            header: 'Subject',
+            accessor: 'Subject',
+            className: 'min-w-300px',
+            sortable: true
+        },
+        {
+            id: 4,
+            header: 'Received Date',
+            accessor: 'ReceivedDateTime',
+            className: 'min-w-150px',
+            sortable: true
+        },
+        {
+            id: 5,
+            header: 'Invoice Date',
+            accessor: 'InvoiceDateTime',
+            className: 'min-w-150px',
+            sortable: true
+        },
+        {
+            id: 6,
+            header: 'Invoice Number',
+            accessor: 'InvoiceNumber',
+            className: 'min-w-150px',
+            sortable: true
+        },
+        {
+            id: 7,
+            header: 'Total',
+            accessor: 'TotalAmount',
+            className: 'min-w-150px',
+            cell: (data) => `$ ${data.TotalAmount.toFixed(2)}`,
+            sortable: true
+        },
+        {
+            id: 8,
+            header: 'Status',
+            accessor: 'Status',
+            className: 'min-w-150px',
+            cell: (data) => {
+                return <span className={`badge badge-light-${data.Status === 3 ? 'primary' : 'dark'}`} >{data.StatusText}</span>
+            },
+            sortable: true
+        }
+    ], [])
 
-    ]
+    const [binData, setBinData] = useState([])
+    const [InboxData, setInboxData] = useState([])
 
-    const data = [
-        { "From": "nblonfield0@theguardian.com", "ReceivedDate": "12/29/2021", "Subject": "Vestibulum ac est lacinia nisi venenatis tristique..", "Status": "Processing" },
-        { "From": "relan1@freewebs.com", "ReceivedDate": "10/17/2021", "Subject": "Vestibulum Aliquam erat volutpat. In congue.", "Status": "Pending" },
-        { "From": "egenese2@imgur.com", "ReceivedDate": "9/7/2021", "Subject": "Ut at dolor quis odio consequat varius. Integer ac leo.", "Status": "Processing" },
-        { "From": "harnecke3@hao123.com", "ReceivedDate": "7/31/2021", "Subject": "Suspendisse potenti. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet.", "Status": "Processing" },
-        { "From": "mhrihorovich4@un.org", "ReceivedDate": "10/17/2021", "Subject": "Mauris egestas metus. Aenean fermentum.", "Status": "Pending" }
-    ]
-    console.log(data[0].From)
+
+
+    useEffect(() => {
+        setIsLoading(true)
+        setIsBinLoading(true)
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/InvoiceProcess/Inbox`)
+            .then(res => {
+                setInboxData(res.data)
+                setIsLoading(false)
+            })
+            .catch(err => {
+                setIsLoading(false)
+                setIsError(true)
+                console.log(err)
+            })
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/InvoiceProcess/Trash`)
+            .then(res => {
+                setBinData(res.data)
+                setIsBinLoading(false)
+            })
+            .catch(err => {
+                setIsBinLoading(false)
+                setIsBinError(true)
+                console.log(err)
+            })
+    }, [])
+
     return (
         <>
             <div className="container-fluid">
@@ -84,15 +149,53 @@ export const Inbox = () => {
                 </div>
                 <div className="row ">
                     <div className="col">
+
                         <div className="card card-flush shadow-sm" style={{ height: '75vh' }}>
                             <div className="card-header bg-white">
                                 <h3 className="card-title fw-bolders">Inbox</h3>
                                 <div className="card-toolbar">
-                                    <input type="text" placeholder="Search here" className="form-control form-control-solid form-control-sm" />
+                                    <ul className="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-1 fw-bold ">
+                                        <li className="nav-item">
+                                            <a role={'button'} className={`nav-link ${tabToggle === 'Inbox' ? 'active' : null}`} onClick={() => setTabToggle('Inbox')} ><MailSvg clsName="svg-icon svg-icon-primary svg-icon-3 me-1" />Inbox</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a role={'button'} className={`nav-link ${tabToggle === 'Bin' ? 'active' : null}`} onClick={() => setTabToggle('Bin')} ><RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-3 me-1" />Bin</a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                            <div className="card-body">
-                                <TableComponent data={data} columns={columns} selectable={true} />
+
+                            <div className="card-body card-scroll">
+                                {
+                                    tabToggle === 'Inbox'
+                                        ? <>
+                                            {
+                                                isLoading
+                                                    ? <Loading />
+                                                    : isError
+                                                        ? <Error />
+                                                        : <TableGridComponent data={InboxData} columns={columns} selectable={true} setData={setInboxData} sortable={{ startIndex: 2 }} />
+                                            }
+                                        </>
+                                        : <>
+                                            {
+                                                isBinLoading
+                                                    ? <Loading />
+                                                    : isBinError
+                                                        ? <Error />
+                                                        : <TableGridComponent data={binData} columns={columns} selectable={true} setData={setInboxData} sortable={{ startIndex: 2 }} />
+                                            }
+                                        </>
+                                }
+                                {/* {
+                                    isLoading
+                                        ? <Loading />
+                                        : isError
+                                            ? <Error />
+                                            : tabToggle === 'Inbox'
+                                                ? <TableGridComponent data={InboxData} columns={columns} selectable={true} setData={setInboxData} sortable={{ startIndex: 2 }} />
+                                                : <TableGridComponent data={binData} columns={columns} selectable={true} setData={setInboxData} sortable={{ startIndex: 2 }} />
+                                } */}
                             </div>
                         </div>
                     </div >
