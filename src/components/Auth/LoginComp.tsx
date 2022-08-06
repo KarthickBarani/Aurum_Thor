@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthUser } from '../Interface/Interface';
 
+
 export const LoginComp = (props: {
   setAuthUser: Function
 }) => {
   const [isLoading, setLoading] = useState<boolean>(false)
   const formInput = 'form-control form-control-solid mt-1';
   const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2';
+
 
 
   const navigation = useNavigate()

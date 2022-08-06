@@ -89,7 +89,8 @@ export const NewWorkFlow = (props: {
                                 {
                                     props.Department?.map(dept => {
                                         return (
-                                            <option key={dept.DepartmentId} value={dept.DepartmentId}>{dept.DepartmentName}</option>)
+                                            <option key={dept.DepartmentId} value={dept.DepartmentId}>{dept.DepartmentName}</option>
+                                        )
                                     }
                                     )
                                 }
@@ -127,45 +128,6 @@ export const NewWorkFlow = (props: {
                             </select>
                         </div>
                     </> : null}
-                {/* {props.workFlow.Approval?.Fields?.map((filed, index) => {
-                    let currentFiled
-                    if (filed.Type === 'Department') {
-                        currentFiled = {
-                            id: Object.keys(props[filed.Type][0]).find(arr => arr === 'DepartmentId'),
-                            name: Object.keys(props[filed.Type][0]).find(arr => arr === 'DepartmentName')
-                        }
-                    }
-                    if (filed.Type === 'Account') {
-                        currentFiled = {
-                            id: Object.keys(props[filed.Type][0]).find(arr => arr === 'AccountId'),
-                            name: Object.keys(props[filed.Type][0]).find(arr => arr === 'AccountName'),
-                        }
-                    }
-
-                    return (
-                        <div key={index} className="col-3 mt-2">
-                            <label htmlFor={filed.Type} className="form-label">{filed.Type}</label>
-                            <select name={filed.Type} id={filed.Type} value={filed.Id} onChange={e => {
-                                let obj = { ...props.workFlow }
-                                let type = props[filed.Type].find(arr => arr[currentFiled.id] === Number(e.target.value))
-                                obj.Approval.Fields[index].Id = type[currentFiled.id] as number
-                                obj.Approval.Fields[index].FieldName = type[currentFiled.name] as string
-                                console.log('now', obj.Approval.Fields)
-                                props.setWorkFlow(obj)
-                            }} className="form-select form-select-sm">
-                                <option key={0} value={0} ></option>
-                                {
-                                    props[filed.Type]?.map(dept => {
-                                        return (
-                                            <option key={dept[currentFiled.id]} value={dept[currentFiled.id]}>{dept[currentFiled.name]}</option>)
-                                    }
-                                    )
-                                }
-                            </select>
-                        </div>
-                    )
-                })} */}
-                {/* {props.DyFields.map((field, index) => (<DynamicField key={field.Id} index={index} field={field} DyFields={props.DyFields} setDyFields={props.setDyFields} />))} */}
             </div>
             <div className="separator border-1 border-gray my-5"></div>
             <div className="row justify-content-end my-2">

@@ -3,6 +3,8 @@ import { Charts } from "../components/Home/Charts"
 import { Table } from "../components/Home/Table"
 import { Error } from '../components/components/Error'
 import { Loading } from "../components/components/Loading"
+import { useEffect } from "react"
+import { SweetAlert } from "../Function/alert"
 
 
 
@@ -15,6 +17,7 @@ export const Home = (props: {
     isError: boolean
     userId: number
 }) => {
+
 
 
     return (
@@ -59,8 +62,13 @@ export const Home = (props: {
             </div>
             <div className="row justify-content-between g-5 my-1">
                 <div className="col">
-                    {props.isLoading ? <Loading /> : props.isError ? <Error /> : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={false} userId={props.userId} >Invoice Details</Table>}
-
+                    {
+                        props.isLoading
+                            ? <Loading />
+                            : props.isError
+                                ? <Error />
+                                : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={false} userId={props.userId} >Invoice Details</Table>
+                    }
                 </div>
             </div>
         </div>

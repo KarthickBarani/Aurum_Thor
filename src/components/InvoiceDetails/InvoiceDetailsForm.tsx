@@ -6,7 +6,7 @@ import axios from "axios"
 import { SweetAlertIcon } from "sweetalert2"
 import { useNavigate } from "react-router-dom"
 import { InputSelectField, InputTextAreaField, InputTextDateField, InputTextField } from "../components/InputField"
-import { AddSvg, DollarSvg, RecallSvg, ViewSvg } from "../Svg/Svg"
+import { AddSvg, DollarSvg, RecallSvg, RemoveSvg, ViewSvg } from "../Svg/Svg"
 import { SweetAlert } from "../../Function/alert"
 
 export const InvoiceDetailsForm = (props:
@@ -631,31 +631,12 @@ export const InvoiceDetailsForm = (props:
                             <div className="d-flex flex-stack">
                                 <label className={formLabel}>Attachments</label>
                                 <div>
-                                    <button type="button" title="Add" className="btn btn-icon-primary" data-bs-toggle={"modal"} data-bs-target="#kt_modal_1"><span
-                                        className="svg-icon svg-icon-2"><svg xmlns="http://www.w3.org/2000/svg"
-                                            width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path opacity="0.3"
-                                                d="M3 13V11C3 10.4 3.4 10 4 10H20C20.6 10 21 10.4 21 11V13C21 13.6 20.6 14 20 14H4C3.4 14 3 13.6 3 13Z"
-                                                fill="black" />
-                                            <path
-                                                d="M13 21H11C10.4 21 10 20.6 10 20V4C10 3.4 10.4 3 11 3H13C13.6 3 14 3.4 14 4V20C14 20.6 13.6 21 13 21Z"
-                                                fill="black" />
-                                        </svg></span>
+                                    <button type="button" title="Add" className="btn btn-icon-primary" data-bs-toggle={"modal"} data-bs-target="#kt_modal_1">
+                                        <AddSvg clsName="svg-icon svg-icon-primary svg-icon-2" />
                                     </button>
                                     <button title="Delete" className="btn btn-icon-danger"
-                                        data-bstoggle="tooltip"><span className="svg-icon svg-icon-2"><svg
-                                            xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none">
-                                            <path
-                                                d="M5 9C5 8.44772 5.44772 8 6 8H18C18.5523 8 19 8.44772 19 9V18C19 19.6569 17.6569 21 16 21H8C6.34315 21 5 19.6569 5 18V9Z"
-                                                fill="black" />
-                                            <path opacity="0.5"
-                                                d="M5 5C5 4.44772 5.44772 4 6 4H18C18.5523 4 19 4.44772 19 5V5C19 5.55228 18.5523 6 18 6H6C5.44772 6 5 5.55228 5 5V5Z"
-                                                fill="black" />
-                                            <path opacity="0.5"
-                                                d="M9 4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V4H9V4Z"
-                                                fill="black" />
-                                        </svg></span>
+                                        data-bstoggle="tooltip">
+                                        <RemoveSvg clsName="svg-icon svg-icon-2" />
                                     </button>
                                 </div>
                             </div>

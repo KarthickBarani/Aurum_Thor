@@ -1,8 +1,13 @@
+import { useNavigate } from "react-router-dom"
+
 export const Error = () => {
+
+    const navigation = useNavigate()
+
     return (
         <div className="d-flex flex-column justify-content-center align-items-center">
-            <h1>Somthing Error From Server !!! </h1>
-            <button className="btn btn-primary btn-sm">Retry</button>
+            <h1>Something went wrong!</h1>
+            <button className="btn btn-primary btn-sm" onClick={() => navigation('/Home')}>Retry</button>
         </div>
     )
 }

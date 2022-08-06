@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 
 import { Navbar } from '../components/components/Navbar';
 import { Home } from '../pages/Home';
@@ -22,7 +22,6 @@ import { Inbox } from '../pages/Inbox';
 
 export const Router = () => {
 
-
   const [invNumber, setInvNumber] = useState<number>(0)
 
   const [authUser, setAuthUser] = useState<AuthUser>(JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user')))))
@@ -32,9 +31,6 @@ export const Router = () => {
   const [locations, setLocation] = useState<locations>([] as locations)
   const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
   const [account, setAccount] = useState<account>([] as account)
-  const [datum, setData] = useState<invDetailsType[]>([] as invDetailsType[])
-  const [pending, setPending] = useState<invDetailsType[]>([] as invDetailsType[])
-  const [approval, setApproval] = useState<invDetailsType[]>([] as invDetailsType[])
 
   const BASEURL = process.env.REACT_APP_BACKEND_BASEURL
 
@@ -64,15 +60,6 @@ export const Router = () => {
     axios.get(BASEURL + '/api/v1/UserProfile')
       .then(res => setUsers(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + `/api/v1/Invoice/Approvals/${authUser?.User?.Id}`)
-      .then(res => {
-        setApproval(res.data)
-        setData(res.data)
-      })
-      .catch(err => console.log(err))
-    axios.get(BASEURL + `/api/v1/Invoice/Pendings/${authUser?.User?.Id}`)
-      .then(res => setPending(res.data))
-      .catch(err => console.log(err))
   }, [authUser])
 
 
@@ -80,16 +67,13 @@ export const Router = () => {
   const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true, refetchInterval: 10000 })
 
 
-
-
-
-  return (
+  return (<>
     <BrowserRouter>
       <Navbar user={authUser} setAuthUser={setAuthUser} />
       <Routes>
         <Route path='/' element={<Login setAuthUser={setAuthUser} />} />
         <Route path='/Home' element={<Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} userId={authUser?.User?.Id} isError={isError} />} />
-        <Route path='InvoiceDetailTable' element={<InvoiceDetailsTable data={datum} approval={approval} pending={pending} setData={setData} setInvNumber={setInvNumber} />} />
+        <Route path='InvoiceDetailTable' element={<InvoiceDetailsTable userId={authUser?.User?.Id} setInvNumber={setInvNumber} />} />
         <Route path='InvoiceDetail' element={<InvoiceDetail refetch={refetch} users={users} userid={authUser?.User?.Id} invNumber={invNumber} vendors={vendors}
           departments={departments} locations={locations} subsidiary={subsidiaries} account={account} />} />
         <Route path='Register' element={<RegisterComp />} />
@@ -99,5 +83,18 @@ export const Router = () => {
         <Route path='WorkFlow' element={<WorkFlow vendors={vendors} departments={departments} locations={locations} account={account} />} />
       </Routes>
     </BrowserRouter>
-  );
-};
+  </>
+  )
+
+}
+
+  // else {
+  //   return (<>
+  //     <BrowserRouter>
+  //       <Navbar user={authUser} setAuthUser={setAuthUser} />
+  //       <Routes>
+  //         <Route path='/' element={<Login setAuthUser={setAuthUser} />} />
+  //       </Routes>
+  //     </BrowserRouter>
+  //   </>)
+
