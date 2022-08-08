@@ -421,9 +421,9 @@ export const LineItems = (props:
                                     <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
                                         {
                                             <>
-                                                <td></td>
+                                                <td key={0}></td>
                                                 {customColumns?.map(
-                                                    col => col.hidden ? null : <td>{col?.footer ? col?.footer(props.datum) : null}</td>
+                                                    col => col.hidden ? null : <td key={col.id}>{col?.footer ? col?.footer(props.datum) : null}</td>
                                                 )}
                                             </>
 
@@ -451,9 +451,9 @@ export const LineItems = (props:
                                 </tfoot>
                             </>
                             :
-                            <div>
-                                <h4 className='text-center'>Data not found</h4>
-                            </div>
+                            <tbody>
+                                <tr><td><h4 className='text-center'>Data not found</h4></td></tr>
+                            </tbody>
                     }
                     {/* <tfoot>
                         <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">

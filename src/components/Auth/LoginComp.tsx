@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useFormik } from 'formik'
 import { useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { AuthUser } from '../Interface/Interface';
 
@@ -9,6 +10,7 @@ export const LoginComp = (props: {
   setAuthUser: Function
 }) => {
   const [isLoading, setLoading] = useState<boolean>(false)
+  const [message, setMessage] = useState('')
   const formInput = 'form-control form-control-solid mt-1';
   const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2';
 
@@ -20,13 +22,20 @@ export const LoginComp = (props: {
     setLoading(true)
     axios.post<AuthUser>(process.env.REACT_APP_BACKEND_BASEURL + '/api/v1/Auth', formik.values).then(res => {
       localStorage.setItem('user', JSON.stringify(res.data))
-      res.data.Status === true ? navigation('/Home') : navigation('/')
+      res.data.Status === true
+        ? setTimeout(() => navigation('/Home'))
+        : navigation('/')
+      if (!res.data.Status) {
+        toast.error(res.data.Message)
+      }
       props.setAuthUser(res.data)
       setLoading(false)
     }).catch(err => {
+      toast.error('Something went wrong!',)
       console.error(err)
       navigation('/')
       setLoading(false)
+
     }
     )
   }
@@ -60,6 +69,7 @@ export const LoginComp = (props: {
                   </div>
 
                   <form onSubmit={formik.handleSubmit}>
+                    <span className="text-danger">{message}</span>
                     <div className='form-group text-start'>
                       <label htmlFor='username' className={formLabel}>
                         username

@@ -6,6 +6,7 @@ import { scrollModePlugin } from '@react-pdf-viewer/scroll-mode';
 import '@react-pdf-viewer/scroll-mode/lib/styles/index.css';
 import { zoomPlugin } from '@react-pdf-viewer/zoom';
 import '@react-pdf-viewer/zoom/lib/styles/index.css';
+import toast from 'react-hot-toast';
 
 
 export const PdfViewer = (props: {
@@ -16,8 +17,10 @@ export const PdfViewer = (props: {
     const defaultLayoutPluginInstance = defaultLayoutPlugin()
     const scrollModePluginInstance = scrollModePlugin()
     const zoomPluginInstance = zoomPlugin();
+
     return (
         <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.11.338/build/pdf.worker.min.js">
+
             <div
                 style={{
                     height: '100vh',

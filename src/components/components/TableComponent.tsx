@@ -61,7 +61,7 @@ export const TableFilterComponent = (props: {
                             <div className="d-flex flex-column h-100 w-200px p-4">
                                 {
                                     props.columns.map((column, index) => {
-                                        return <div className="d-flex justify-content-even gap-2">
+                                        return <div key={column.id} className="d-flex justify-content-even gap-2">
                                             <input type="checkbox" checked={!column.hidden} onChange={(e) => {
                                                 console.log(props.columns)
                                                 changeHandler(e, index)

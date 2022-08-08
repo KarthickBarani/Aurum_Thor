@@ -1,12 +1,12 @@
 import axios from "axios"
 import { useEffect, useMemo, useState } from "react"
-import { useQuery } from "react-query"
-import { PdfViewer } from "../components/Auth/PdfViewer"
+import { PdfViewer } from "../components/components/PdfViewer"
 import { Error } from "../components/components/Error"
 import { Loading } from "../components/components/Loading"
 import { Modal, ModalContent, ModalHeader } from "../components/components/Model"
 import { TableGridComponent } from "../components/components/TableComponent"
-import { DownloadSvg, MailSvg, RecallSvg, RemoveSvg, ViewSvg } from "../components/Svg/Svg"
+import { MailSvg, RecallSvg, RemoveSvg, ViewSvg } from "../components/Svg/Svg"
+import moment from "moment"
 
 export const Inbox = () => {
 
@@ -73,6 +73,7 @@ export const Inbox = () => {
             header: 'Received Date',
             accessor: 'ReceivedDateTime',
             className: 'min-w-150px',
+            cell: (data) => moment(data.ReceivedDateTime).format('MM-DD-YYYY'),
             sortable: true
         },
         {
@@ -80,6 +81,7 @@ export const Inbox = () => {
             header: 'Invoice Date',
             accessor: 'InvoiceDateTime',
             className: 'min-w-150px',
+            cell: (data) => moment(data.InvoiceDateTime).format('MM-DD-YYYY'),
             sortable: true
         },
         {
@@ -187,15 +189,6 @@ export const Inbox = () => {
                                             }
                                         </>
                                 }
-                                {/* {
-                                    isLoading
-                                        ? <Loading />
-                                        : isError
-                                            ? <Error />
-                                            : tabToggle === 'Inbox'
-                                                ? <TableGridComponent data={InboxData} columns={columns} selectable={true} setData={setInboxData} sortable={{ startIndex: 2 }} />
-                                                : <TableGridComponent data={binData} columns={columns} selectable={true} setData={setInboxData} sortable={{ startIndex: 2 }} />
-                                } */}
                             </div>
                         </div>
                     </div >

@@ -2,7 +2,7 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { Error } from "../components/components/Error"
-import { PdfViewer } from "../components/Auth/PdfViewer"
+import { PdfViewer } from "../components/components/PdfViewer"
 import { Loading } from "../components/components/Loading"
 import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, NextApprovers, WorkFlowTableType } from '../components/Interface/Interface'
 import { SweetAlert } from "../Function/alert"

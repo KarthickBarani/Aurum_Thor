@@ -9,6 +9,7 @@ import { Error } from "../components/components/Error"
 import { Loading } from "../components/components/Loading"
 import { SweetAlert } from "../Function/alert"
 import { AddSvg, LeftDoubleArrowSvg, SaveSvg } from "../components/Svg/Svg"
+import toast from "react-hot-toast"
 
 
 
@@ -67,25 +68,26 @@ export const WorkFlow = (
     const save = () => {
         setIsLoading(true)
         console.log('save:', workFlow)
-        // setIsLoading(false)
         axios[isNew ? 'post' : 'patch'](`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Workflow`, workFlow)
             .then(res => {
                 console.log('Response:', res)
                 setIsLoading(false)
                 SweetAlert({
-                    title: isNew ? '<h1>Saved</h1>' : '<h1>Updated</h1>',
+                    title: isNew ? 'Saved' : 'Updated',
                     icon: 'success',
                     timer: 4000
                 })
+                // toast.success(isNew ? 'Saved' : 'Updated')
                 back()
             })
             .catch(err => {
                 console.log('Error:', err)
                 SweetAlert({
-                    title: 'Error',
+                    title: 'Oopp..',
+                    text: 'Sothing went wrong!',
                     icon: 'error',
-                    timer: 1000,
                 })
+                // toast.error('Sothing went wrong!')
                 setIsLoading(false)
                 back()
             })
@@ -142,7 +144,6 @@ export const WorkFlow = (
                                     {
                                         toggleWorkflow
                                             ?
-
                                             <>
                                                 <div className="dropdown">
                                                     <button className="btn btn-active-light-primary btn-sm mx-2 btn-hover-scale dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -199,7 +200,6 @@ export const WorkFlow = (
                             <div className="card-body card-scroll" style={{ 'height': '65vh' }} >
                                 {toggleWorkflow ?
                                     <>
-
                                         <NewWorkFlow workFlow={workFlow} setWorkFlow={setWorkFlow} vendors={props.vendors} Department={props.departments} locations={props.locations} Account={props.account} users={users} type={workFLowType[type].WorkflowTypeId} />
                                     </>
                                     :
@@ -212,15 +212,15 @@ export const WorkFlow = (
                                             :
                                             <>
                                                 <ul className="nav nav-tabs nav-line-tabs mb-5 fs-6">
-                                                    {workFLowType.map((types, index) => (
-                                                        <li key={index} className="nav-item">
+                                                    {workFLowType?.map((types, index) => (
+                                                        <li key={types?.WorkflowTypeId} className="nav-item">
                                                             <a className={`nav-link ${index === type ? 'active' : ''} fw-bolder text-gray-800`} onClick={() => setType(index)} data-bs-toggle="tab" href={`#tab-${index}`}>{types.Name}</a>
                                                         </li>
                                                     ))}
                                                 </ul>
                                                 <div className="tab-content" id="myTabContent">
-                                                    {workFLowType.map((types, index) => (
-                                                        <div key={index} className="tab-pane fade show active" id={`tab-${index}`} role="tabpanel">
+                                                    {workFLowType?.map((types, index) => (
+                                                        <div key={types?.WorkflowTypeId} className="tab-pane fade show active" id={`tab-${index}`} role="tabpanel">
                                                             {workFLowType[type].WorkflowTypeId === workFLowType[index].WorkflowTypeId ? <WorkFlowTable isNew={isNew} setIsNew={setIsNew} workFlows={workFlows} setWorkFlow={setWorkFlow} setToggleWorkflow={setToggleWorkflow} type={types.WorkflowTypeId} /> : null}
                                                         </div>)
                                                     )}

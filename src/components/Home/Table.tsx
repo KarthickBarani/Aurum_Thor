@@ -3,8 +3,8 @@ import { invDetailsType } from '../Interface/Interface'
 import { TableGrid } from '../Home/TableGrid'
 import { TableFilter } from '../Home/TableFilter'
 import { useNavigate } from 'react-router-dom'
-import React, { useEffect, useState } from 'react'
-import { ErrorSvg, SaveSvg, ViewSvg } from '../Svg/Svg'
+import { useEffect, useState } from 'react'
+import { ErrorSvg, ViewSvg } from '../Svg/Svg'
 import axios from 'axios'
 
 
@@ -60,7 +60,7 @@ export const Table = (props:
                             clsName='svg-icon svg-icon-primary svg-icon-1'
                             function={() => {
                                 props.setInvNumber(row.values.InvoiceId)
-                                navigation('/InvoiceDetail')
+                                setTimeout(() => navigation('/InvoiceDetail'))
                             }} />
                         &nbsp;&nbsp;
                         <ErrorSvg clsName='svg-icon svg-icon-danger svg-icon-1' />
@@ -169,7 +169,6 @@ export const Table = (props:
         }
     ]
     const [columns, setColumns] = useState(defaultColumns)
-    const [process, setProcess] = useState<boolean>(false)
 
     const replacer = (key, val) => {
         if (typeof val === 'function') {

@@ -6,7 +6,7 @@ import axios from "axios"
 import { SweetAlertIcon } from "sweetalert2"
 import { useNavigate } from "react-router-dom"
 import { InputSelectField, InputTextAreaField, InputTextDateField, InputTextField } from "../components/InputField"
-import { AddSvg, DollarSvg, RecallSvg, RemoveSvg, ViewSvg } from "../Svg/Svg"
+import { AddSvg, CancelSvg, DollarSvg, DoubleTickSvg, RecallSvg, RemoveSvg, ViewSvg } from "../Svg/Svg"
 import { SweetAlert } from "../../Function/alert"
 
 export const InvoiceDetailsForm = (props:
@@ -48,13 +48,14 @@ export const InvoiceDetailsForm = (props:
                     icon: 'info'
                 })
             }
-        }
-        if (props.invDetails.TotalAmount !== (props.invDetails.TaxTotal + props.exSubtotal + props.POSubtotal)) {
-            return SweetAlert({
-                title: 'Invoice Error',
-                icon: 'info',
-                text: 'Invoice Amount must be equal to the sum of Expenses Amount, PO Amount, Tax Amount'
-            })
+        } else {
+            if (props.invDetails.TotalAmount !== (props.invDetails.TaxTotal + props.exSubtotal + props.POSubtotal)) {
+                return SweetAlert({
+                    title: 'Invoice Error',
+                    icon: 'info',
+                    text: 'Invoice Amount must be equal to the sum of Expenses Amount, PO Amount, Tax Amount'
+                })
+            }
         }
         axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
             StatusId: Status,
@@ -65,8 +66,8 @@ export const InvoiceDetailsForm = (props:
                 console.log(res)
                 if (res.data.Status) {
                     SweetAlert({
-                        title: `<h1>${Action}</h1>`,
                         icon: MessageType,
+                        title: Action,
                     })
                     navigation('/Home')
                 } else {
@@ -76,6 +77,13 @@ export const InvoiceDetailsForm = (props:
                         icon: 'error',
                     })
                 }
+            })
+            .catch(() => {
+                SweetAlert({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
+                })
             })
         props.refetch()
     }
@@ -238,7 +246,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails.VendorAddress?.split(',')[0]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -249,7 +257,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails.VendorAddress?.split(',')[1]} ${props.invDetails.VendorAddress?.split(',')[2]} ${props.invDetails.VendorAddress?.split(',')[3]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[1]} ${props.invDetails?.VendorAddress?.split(',')[2]} ${props.invDetails?.VendorAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -260,7 +268,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails.VendorAddress?.split(',')[4]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -286,7 +294,7 @@ export const InvoiceDetailsForm = (props:
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.RemittanceAddress?.split(',')[1]} ${props.invDetails.RemittanceAddress?.split(',')[2]} ${props.invDetails.RemittanceAddress?.split(',')[3]}`}
+                                value={`${props.invDetails?.RemittanceAddress?.split(',')[1]} ${props.invDetails?.RemittanceAddress?.split(',')[2]} ${props.invDetails?.RemittanceAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -576,48 +584,19 @@ export const InvoiceDetailsForm = (props:
                                         :
                                         props.invDetails?.StatusId === 1 || props.invDetails?.StatusId === 5
                                             ?
-                                            <button onClick={() => {
-                                                if (props.invDetails.TotalAmount !== (props.invDetails.TaxTotal + props.exSubtotal + props.POSubtotal)) {
-                                                    return SweetAlert(
-                                                        {
-                                                            title: 'Invoice Error',
-                                                            icon: 'info',
-                                                            text: 'Invoice Amount must be equal to the sum of Expenses Amount, PO Amount, Tax Amount'
-                                                        }
-                                                    )
-                                                }
-                                                Submit(0, 'Submit', 'success')
-                                            }} type="button" className="btn btn-light-primary btn-sm m-2">Submit Approval
+                                            <button onClick={() => Submit(0, 'Submit', 'success')} type="button" className="btn btn-light-primary btn-sm m-2">Submit Approval
                                             </button>
                                             :
                                             props.invDetails?.StatusId === 2 || props.invDetails?.StatusId === 3 || props.invDetails?.StatusId === 4
                                                 ?
                                                 <>
                                                     <button onClick={() => Submit(4, 'Approved', 'success')} type={'button'} className="btn btn-light-success btn-sm m-2">Approved
-                                                        <span className="svg-icon svg-icon svg-icon-1"><svg
-                                                            xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                            viewBox="0 0 24 24" fill="none">
-                                                            <path opacity="0.3"
-                                                                d="M10 18C9.7 18 9.5 17.9 9.3 17.7L2.3 10.7C1.9 10.3 1.9 9.7 2.3 9.3C2.7 8.9 3.29999 8.9 3.69999 9.3L10.7 16.3C11.1 16.7 11.1 17.3 10.7 17.7C10.5 17.9 10.3 18 10 18Z"
-                                                                fill="black" />
-                                                            <path
-                                                                d="M10 18C9.7 18 9.5 17.9 9.3 17.7C8.9 17.3 8.9 16.7 9.3 16.3L20.3 5.3C20.7 4.9 21.3 4.9 21.7 5.3C22.1 5.7 22.1 6.30002 21.7 6.70002L10.7 17.7C10.5 17.9 10.3 18 10 18Z"
-                                                                fill="black" />
-                                                        </svg></span>
+                                                        <DoubleTickSvg clsName="svg-icon svg-icon svg-icon-1" />
                                                     </button>
                                                     <button onClick={() => Submit(5, 'Not Approved', 'warning')
                                                     } type={'button'} className="btn btn-light-warning btn-sm my-2">Not
-                                                        Approved <span className="svg-icon svg-icon-1"><svg
-                                                            xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                            viewBox="0 0 24 24" fill="none">
-                                                            <path opacity="0.3"
-                                                                d="M6.7 19.4L5.3 18C4.9 17.6 4.9 17 5.3 16.6L16.6 5.3C17 4.9 17.6 4.9 18 5.3L19.4 6.7C19.8 7.1 19.8 7.7 19.4 8.1L8.1 19.4C7.8 19.8 7.1 19.8 6.7 19.4Z"
-                                                                fill="black" />
-                                                            <path
-                                                                d="M19.5 18L18.1 19.4C17.7 19.8 17.1 19.8 16.7 19.4L5.40001 8.1C5.00001 7.7 5.00001 7.1 5.40001 6.7L6.80001 5.3C7.20001 4.9 7.80001 4.9 8.20001 5.3L19.5 16.6C19.9 16.9 19.9 17.6 19.5 18Z"
-                                                                fill="black" />
-                                                        </svg>
-                                                        </span>
+                                                        Approved
+                                                        <CancelSvg clsName="svg-icon svg-icon-1" />
                                                     </button>
                                                 </>
                                                 :
