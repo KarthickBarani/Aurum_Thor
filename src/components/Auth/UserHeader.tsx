@@ -11,7 +11,7 @@ export const UserHeader = [
     Cell: () => {
       return (
         <>
-          <ViewSvg clsName="svg-icon svg-icon-primary svg-icon-1" />
+          <ViewSvg clsName="svg-icon svg-icon-primary svg-icon-2" />
         </>
       );
     },
