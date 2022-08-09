@@ -216,9 +216,6 @@ export const InvoiceDetailsTable = (props: {
         navigation('/InvoiceDetail')
     }
 
-    // if (isLoading) return <Loading />
-
-    // if (isError) return <Error />
 
     return (
         <div className="container-fluid">
