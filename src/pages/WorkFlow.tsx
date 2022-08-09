@@ -83,7 +83,7 @@ export const WorkFlow = (
             .catch(err => {
                 console.log('Error:', err)
                 SweetAlert({
-                    title: 'Oopp..',
+                    title: 'Oops..',
                     text: 'Sothing went wrong!',
                     icon: 'error',
                 })
