@@ -440,7 +440,7 @@ export const InvoiceDetail = (props: {
                                             </div>
                                         </div>
                                         <div className="table-responsive">
-                                            <table className="table table-striped gy-3 table-hover">
+                                            <table className="table table-striped gy-3 gs-5 table-hover">
                                                 <thead >
                                                     <tr className="fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200">
                                                         <th>Approver</th>

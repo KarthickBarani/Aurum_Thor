@@ -358,14 +358,11 @@ export const LineItems = (props:
                             </button>
                         </>
                     }
-                    {/* <button onClick={saveColumnOrder} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise" >
-                        {process ? <span className="spinner-border spinner-border-sm text-primary"></span> : <SaveSvg clsName="svg-icon svg-icon-primary svg-icon-3 px-5" />}
-                    </button> */}
                 </div>
 
             </div>
             <div className="table-responsive">
-                <table className="table table-striped gy-3 gs-7 p-2 table-rounded">
+                <table className="table table-striped gy-3 gs-7 p-2 table-rounded max-h-200px">
                     {
                         filterDatum.length > 0 ?
                             <>
@@ -381,7 +378,7 @@ export const LineItems = (props:
                                         })}
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody >
 
                                     {
                                         filterDatum?.map((data, index) => (
@@ -451,31 +448,10 @@ export const LineItems = (props:
                                 </tfoot>
                             </>
                             :
-                            <tbody>
+                            <tbody className="">
                                 <tr><td><h4 className='text-center'>Data not found</h4></td></tr>
                             </tbody>
                     }
-                    {/* <tfoot>
-                        <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
-                            {props.isExpense ?
-                                <>
-                                    <th colSpan={1}></th>
-                                    <th> Subtotal </th>
-                                    <th>{props.subtotal.toFixed(2)}</th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                </>
-                                :
-                                <>
-                                    <th colSpan={9}></th>
-                                    <th className="min-w-150px">Items Subtotal</th>
-                                    <th>{`$ ${props.datum.reduce((prev, current) => { return prev + (current.Quantity * current.UnitPrice) }, 0).toFixed(2)}`}</th>
-                                    <th>{props.subtotal.toFixed(2)}</th>
-                                </>
-                            }
-                        </tr>
-                    </tfoot> */}
                 </table>
             </div>
         </>

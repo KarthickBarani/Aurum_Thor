@@ -211,18 +211,20 @@ export const TableGridComponent = (props:
 
     return (
         <>
-            <div className="d-flex  justify-content-end">
+            <div className="d-flex  justify-content-between">
                 <div>
                     <input type="text" placeholder="Search here" name='globalFilter' className="form-control form-control-solid form-control-sm" onChange={(e) => changeHandler(e, 0)} />
                 </div>
                 {/* <div>
                     <TableFilterComponent datum={props.data} setDatum={setCurrentData} columns={currentColumns} setColumns={setCurrentColumns} columnFilter={false} />
                 </div> */}
-                {
-                    currentData.some(data => data.isSelect === true)
-                        ? <button className="btn btn-icon btn-sm" onClick={removeHandler}><RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-2" /></button>
-                        : null
-                }
+                <div>
+                    {
+                        currentData.some(data => data.isSelect === true)
+                            ? <button className="btn btn-icon btn-sm" onClick={removeHandler}><RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-2" /></button>
+                            : null
+                    }
+                </div>
             </div>
             <div className="table-responsive">
                 <table className="table table-hover gy-3 gs-7 table-rounded">
