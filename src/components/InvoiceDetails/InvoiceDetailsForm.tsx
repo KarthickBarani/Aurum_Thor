@@ -70,6 +70,7 @@ export const InvoiceDetailsForm = (props:
                         title: Action,
                     })
                     navigation('/Home')
+                    props.refetch()
                 } else {
                     SweetAlert({
                         title: `<h1>${res.data.Message}</h1>`,
@@ -85,7 +86,7 @@ export const InvoiceDetailsForm = (props:
                     text: 'Something went wrong!',
                 })
             })
-        props.refetch()
+
     }
 
     useEffect(() => {
@@ -202,7 +203,7 @@ export const InvoiceDetailsForm = (props:
                                 id='VendorId'
                                 name='VendorId'
                                 className={formSelect}
-                                value={props.invDetails.VendorId}
+                                value={props.invDetails?.VendorId}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.vendors.map(vendor => { return { id: vendor.VendorId, value: vendor.VendorName } })}
@@ -218,9 +219,10 @@ export const InvoiceDetailsForm = (props:
                             id="VenderCode"
                             name="VenderCode"
                             className={formInput}
-                            value={props.invDetails.VendorCode}
+                            value={props.invDetails?.VendorCode ? props.invDetails?.VendorCode : ''}
                             onChange={changeHandler}
                             onBlur={blurHandler}
+                            readOnly={true}
                         />
                     </div>
                     <div className="col col-lg-6">
@@ -229,7 +231,7 @@ export const InvoiceDetailsForm = (props:
                                 label="Remit To"
                                 id='VendorId' name='VendorId'
                                 className={formSelect}
-                                value={props.invDetails.VendorId}
+                                value={props.invDetails?.VendorId}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.vendors.map(vendor => { return { id: vendor.VendorId, value: vendor.VendorName } })}
@@ -246,7 +248,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.VendorAddress?.split(',')[0]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[0] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -257,7 +259,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.VendorAddress?.split(',')[1]} ${props.invDetails?.VendorAddress?.split(',')[2]} ${props.invDetails?.VendorAddress?.split(',')[3]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[1] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[1]} ${props.invDetails?.VendorAddress?.split(',')[2] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[2]} ${props.invDetails?.VendorAddress?.split(',')[3] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -268,7 +270,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.VendorAddress?.split(',')[4]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[4] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -283,7 +285,7 @@ export const InvoiceDetailsForm = (props:
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.RemittanceAddress?.split(',')[0]}`}
+                                value={`${props.invDetails?.RemittanceAddress?.split(',')[0] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -294,7 +296,7 @@ export const InvoiceDetailsForm = (props:
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.RemittanceAddress?.split(',')[1]} ${props.invDetails?.RemittanceAddress?.split(',')[2]} ${props.invDetails?.RemittanceAddress?.split(',')[3]}`}
+                                value={`${props.invDetails?.RemittanceAddress?.split(',')[1] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[1]} ${props.invDetails?.RemittanceAddress?.split(',')[2] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[2]} ${props.invDetails?.RemittanceAddress?.split(',')[3] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -305,7 +307,7 @@ export const InvoiceDetailsForm = (props:
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.RemittanceAddress?.split(',')[4]}`}
+                                value={`${props.invDetails?.RemittanceAddress?.split(',')[4] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -351,7 +353,7 @@ export const InvoiceDetailsForm = (props:
                                 id='PurchaseNumber'
                                 name='PurchaseNumber'
                                 className={formSelect}
-                                value={props.invDetails.PurchaseNumber}
+                                value={0}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={[]}
@@ -421,7 +423,7 @@ export const InvoiceDetailsForm = (props:
                                 id="PurchaseNumber"
                                 name="PurchaseNumber"
                                 className={formInput}
-                                value={props.invDetails.PurchaseNumber}
+                                value={props.invDetails.PurchaseNumber ? props.invDetails.PurchaseNumber : ''}
                                 onChange={changeHandler}
                                 onBlur={blurHandler} />
                         </div>
