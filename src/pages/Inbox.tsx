@@ -105,7 +105,19 @@ export const Inbox = () => {
             accessor: 'Status',
             className: 'min-w-150px',
             cell: (data) => {
-                return <span className={`badge badge-light-${data.Status === 3 ? 'primary' : 'dark'}`} >{data.StatusText}</span>
+                let statusColor = 'primary'
+                switch (data.Status) {
+                    case 3:
+                        statusColor = 'primary'
+                        break
+                    case 5:
+                        statusColor = 'warning'
+                        break
+                    default:
+                        statusColor = 'primary'
+                        break
+                }
+                return <span className={`badge badge-light-${statusColor}`} >{data.StatusText}</span>
             },
             sortable: true
         }
