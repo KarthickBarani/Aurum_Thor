@@ -55,11 +55,11 @@ export const Navbar = (props: {
                 <li className="nav-item">
                   <NavLink to={'/Inbox'} className="nav-link"><MailSvg clsName='svg-icon svg-icon-light svg-icon-1' /> Inbox</NavLink>
                 </li>
-                <li className="nav-item">
+                {/* <li className="nav-item">
                   <NavLink to={'/Settings'} className="nav-link">
                     <SettingSvg clsName='svg-icon svg-icon-light svg-icon-1' />
                     Setting </NavLink>
-                </li>
+                </li> */}
 
                 {
                   props?.user?.Status

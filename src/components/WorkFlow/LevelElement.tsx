@@ -94,12 +94,12 @@ export const LevelElement = (props: {
     return (
         <>
             <div className="row my-2">
-                <div className="col-6">
+                <div className="col-12 col-md-6">
                     <div className="row">
-                        <div className="col-2 align-self-center">
+                        <div className="col-12 col-md-2 align-self-center">
                             <label htmlFor="level" className="form-label fw-bolder">Level-{props.index + 1}</label>
                         </div>
-                        <div className="col-10">
+                        <div className="col-12 col-md-10">
                             <label htmlFor={'Approver'} className="form-label">Approver</label>
                             <select name={'Approver'} id={'approver[' + props.index + ']'} value={props.workFlow.Approval.Level[props.index].Approver} onChange={changeHandler} className="form-select form-select-sm">
                                 <option key={0} value={0}></option>
@@ -113,7 +113,7 @@ export const LevelElement = (props: {
                         </div>
                     </div>
                 </div>
-                <div className="col-6">
+                <div className="col-12 col-md-6">
                     <div className="row">
                         <div className="col-4">
                             <div className="form-group">
