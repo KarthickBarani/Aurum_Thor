@@ -2,7 +2,7 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { ApprovalSvg, DashboardSvg, MailSvg, SettingSvg, UsersSvg, WorkFlowSvg } from '../Svg/Svg';
 import { AuthUser } from '../Interface/Interface';
-import { useEffect } from 'react';
+
 
 export const Navbar = (props: {
   user: AuthUser
@@ -55,11 +55,11 @@ export const Navbar = (props: {
                 <li className="nav-item">
                   <NavLink to={'/Inbox'} className="nav-link"><MailSvg clsName='svg-icon svg-icon-light svg-icon-1' /> Inbox</NavLink>
                 </li>
-                <li className="nav-item">
+                {/* <li className="nav-item">
                   <NavLink to={'/Settings'} className="nav-link">
                     <SettingSvg clsName='svg-icon svg-icon-light svg-icon-1' />
                     Setting </NavLink>
-                </li>
+                </li> */}
 
                 {
                   props?.user?.Status
