@@ -7,6 +7,7 @@ import { Modal, ModalContent, ModalHeader } from "../components/components/Model
 import { TableGridComponent } from "../components/components/TableComponent"
 import { MailSvg, RecallSvg, RemoveSvg, ViewSvg } from "../components/Svg/Svg"
 import moment from "moment"
+import { Link } from "react-router-dom"
 
 export const Inbox = () => {
 
@@ -15,6 +16,8 @@ export const Inbox = () => {
     const [isBinLoading, setIsBinLoading] = useState<boolean>(false)
     const [isBinError, setIsBinError] = useState<boolean>(false)
     const [tabToggle, setTabToggle] = useState<'Inbox' | 'Bin'>('Inbox')
+
+    const [pdfUrl, setPdfUrl] = useState('')
 
 
 
@@ -29,12 +32,12 @@ export const Inbox = () => {
                     <div className="d-flex justify-content-evenly">
                         {
                             data.Status === 3
-                                ? <a role={'button'} title={'View'} data-bs-toggle="modal" data-bs-target="#reactModal">
-                                    <ViewSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} />
-                                </a>
-                                : <a role={'button'} title={'Reprocess'} >
+                                ? <Link to={''} role={'button'} title={'View'} data-bs-toggle="modal" data-bs-target="#reactModal">
+                                    <ViewSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} function={() => setPdfUrl(data.FileURL)} />
+                                </Link>
+                                : <Link to={''} role={'button'} title={'Reprocess'} >
                                     <RecallSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} />
-                                </a>
+                                </Link>
 
                         }
                     </div>
@@ -170,10 +173,10 @@ export const Inbox = () => {
                                 <div className="card-toolbar">
                                     <ul className="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-1 fw-bold ">
                                         <li className="nav-item">
-                                            <a role={'button'} className={`nav-link ${tabToggle === 'Inbox' ? 'active' : null}`} onClick={() => setTabToggle('Inbox')} ><MailSvg clsName="svg-icon svg-icon-primary svg-icon-3 me-1" />Inbox</a>
+                                            <Link to={''} role={'button'} className={`nav-link ${tabToggle === 'Inbox' ? 'active' : null}`} onClick={() => setTabToggle('Inbox')} ><MailSvg clsName="svg-icon svg-icon-primary svg-icon-3 me-1" />Inbox</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <a role={'button'} className={`nav-link ${tabToggle === 'Bin' ? 'active' : null}`} onClick={() => setTabToggle('Bin')} ><RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-3 me-1" />Bin</a>
+                                            <Link to={''} role={'button'} className={`nav-link ${tabToggle === 'Bin' ? 'active' : null}`} onClick={() => setTabToggle('Bin')} ><RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-3 me-1" />Trash</Link>
                                         </li>
                                     </ul>
                                 </div>
@@ -209,7 +212,7 @@ export const Inbox = () => {
             <Modal>
                 <ModalContent>
                     <ModalHeader title={'Invoice'} />
-                    <PdfViewer pdfUrl={10}></PdfViewer>
+                    <PdfViewer pdfUrl={pdfUrl}></PdfViewer>
                 </ModalContent>
             </Modal>
         </>

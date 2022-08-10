@@ -106,12 +106,12 @@ export const Router = () => {
             <Inbox />
           </ProtectRoutes>
         } />
-        <Route path='Settings' element={
+        {/* <Route path='Settings' element={
           <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
             <Settings />
           </ProtectRoutes>
         }
-        />
+        /> */}
         <Route path='WorkFlow' element={
           <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
             <WorkFlow vendors={vendors} departments={departments} locations={locations} account={account} />
