@@ -45,8 +45,6 @@ export const Router = () => {
   }
 
   useEffect(() => {
-
-    setRefetchInterval(5000)
     axios.get(BASEURL + '/vendor')
       .then(res => setVendor(res.data))
       .catch(err => console.log(err))
