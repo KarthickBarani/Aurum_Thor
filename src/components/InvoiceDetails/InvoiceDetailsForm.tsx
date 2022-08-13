@@ -57,7 +57,7 @@ export const InvoiceDetailsForm = (props:
                 })
             }
         }
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
+        axios.post(`${process.env.REACT_APP_BACKEND_BASEURL}/Invoice/Submit/${props.invNumber}/${props.userid}`, {
             StatusId: Status,
             Comments: comment,
             NextApproverId: props.nextApprovers.length === 0 ? null : props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0)[0]?.ApproverId
@@ -86,6 +86,11 @@ export const InvoiceDetailsForm = (props:
                     text: 'Something went wrong!',
                 })
             })
+        console.log('Submit', {
+            StatusId: Status,
+            Comments: comment,
+            NextApproverId: props.nextApprovers.length === 0 ? null : props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0)[0]?.ApproverId
+        })
 
     }
 

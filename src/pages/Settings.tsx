@@ -19,7 +19,7 @@ export const Settings = () => {
 
   useEffect(() => {
     axios
-      .get('https://invoiceprocessingapi.azurewebsites.net/api/v1/Settings')
+      .get(process.env.REACT_APP_BACKEND_BASEURL + '/Settings')
       .then((res?: any) => {
         // const { Id, Type, Value } = res?.data[0];
         // console.log(Value);

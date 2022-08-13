@@ -2,7 +2,7 @@ import axios from "axios"
 import moment from "moment"
 
 import { useEffect, useState } from "react"
-import { AxiosGet } from '../../helpers/Axios'
+import { AxiosGet, AxiosInsert } from '../../helpers/Axios'
 import { AddSvg, CopySvg, RecallSvg, RemoveSvg, SaveSvg } from '../Svg/Svg'
 import { TableFilterComponent } from '../components/TableComponent'
 import { SweetAlert } from "../../Function/alert"
@@ -18,6 +18,7 @@ export const LineItems = (props:
         isExpense: boolean
         userId: number
         invoiceId: number
+        invoiceNumber: string
     }) => {
 
 
@@ -67,6 +68,10 @@ export const LineItems = (props:
     useEffect(() => {
         setFilterDatum([...props.datum])
     }, [props.datum])
+
+    useEffect(() => {
+        saveColumnOrder(customColumns)
+    }, [customColumns])
 
 
 
@@ -167,7 +172,7 @@ export const LineItems = (props:
 
     const recallHandler = () => {
         SetIsLoading(true)
-        AxiosGet(`/api/v1/Invoice/Recall/${11}`)
+        AxiosGet(`/Invoice/Recall/${props.invoiceNumber}`)
             .then(res => props.setDatum(res))
             .catch(err => console.log(err))
             .finally(() => SetIsLoading(false))
@@ -199,8 +204,7 @@ export const LineItems = (props:
     }
 
     const saveColumnOrder = (array) => {
-
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference`, {
+        AxiosInsert('/UserPreference', {
             UserId: props.userId,
             ListId: 0,
             ListType: props.isExpense ? 'Expense' : 'LineItem',
@@ -213,6 +217,19 @@ export const LineItems = (props:
             .catch(err => {
                 console.log(err)
             })
+        // axios.post(`${}/UserPreference`, {
+        //     UserId: props.userId,
+        //     ListId: 0,
+        //     ListType: props.isExpense ? 'Expense' : 'LineItem',
+        //     Value: JSON.stringify(array, replacer),
+        //     ModifiedDateTime: null
+        // })
+        //     .then(() => {
+        //         console.log(props.isExpense)
+        //     })
+        //     .catch(err => {
+        //         console.log(err)
+        //     })
     }
 
     useEffect(() => {

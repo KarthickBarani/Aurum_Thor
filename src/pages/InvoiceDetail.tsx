@@ -305,24 +305,24 @@ export const InvoiceDetail = (props: {
 
     useEffect(() => {
         setIsLoading(true)
-        AxiosGet(`/api/v1/Invoice/Details/${props.invNumber}`)
+        AxiosGet(`/Invoice/Details/${props.invNumber}`)
             .then(res => {
                 setInvDetails(res)
                 setListItems(res.LineItems)
                 setExpenses(res.Expenses)
                 setIsLoading(false)
                 setIsError(false)
-                AxiosGet(`/api/v1/Invoice/InvoiceWorkflow/${props.invNumber}`)
+                AxiosGet(`/Invoice/InvoiceWorkflow/${props.invNumber}`)
                     .then(res => {
                         setWorkFlow(res)
                     })
                     .catch(err => console.error(err))
-                AxiosGet(`/api/v1/Invoice/NextApprovers/${props.invNumber}`)
+                AxiosGet(`/Invoice/NextApprovers/${props.invNumber}`)
                     .then(ress => {
                         setNextApprover(ress)
                     })
                     .catch(err => console.error(err))
-                AxiosGet(`/api/v1/Invoice/ApprovalFlow/${props.invNumber}`)
+                AxiosGet(`/Invoice/ApprovalFlow/${props.invNumber}`)
                     .then(res => {
                         setApprovalHistory(res)
                         console.log(res)
@@ -345,7 +345,7 @@ export const InvoiceDetail = (props: {
             })
         }
         setProcess(true)
-        AxiosInsert(`/api/v1/Invoice`, invDetails)
+        AxiosInsert(`/Invoice`, invDetails)
             .then(res => {
                 console.log('Response:', res)
                 setProcess(false)
@@ -406,7 +406,13 @@ export const InvoiceDetail = (props: {
                                 <div className="row d-flex h-100">
                                     <div id="pdf" className=" col-6 collapse show fade">
                                         <div className="m-3">
-                                            <PdfViewer pdfUrl={props.invNumber} />
+                                            {
+                                                isLoading
+                                                    ? <Loading />
+                                                    : isError
+                                                        ? <Error />
+                                                        : <PdfViewer pdfUrl={invDetails?.FileURL} />
+                                            }
                                         </div>
                                     </div>
                                     <div className={collapseClass}>
@@ -425,9 +431,9 @@ export const InvoiceDetail = (props: {
                                         </ul>
                                         <div className="tab-content h-95">
                                             {lineItemsToggle === 'Expense' ?
-                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeaders} setColumns={setExpensesHeaders} datum={expenses} subtotal={exSubtotal} setDatum={setExpenses} isExpense={true} userId={props.userid} invoiceId={invDetails.InvoiceId} />
+                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={expensesHeaders} setColumns={setExpensesHeaders} datum={expenses} subtotal={exSubtotal} setDatum={setExpenses} isExpense={true} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
                                                 :
-                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={listItemsHeaders} setColumns={setListItemsHeaders} datum={listItems} subtotal={POSubtotal} isExpense={false} setDatum={setListItems} userId={props.userid} invoiceId={invDetails.InvoiceId} />
+                                                isLoading ? <Loading /> : isError ? <Error /> : <LineItems headers={listItemsHeaders} setColumns={setListItemsHeaders} datum={listItems} subtotal={POSubtotal} isExpense={false} setDatum={setListItems} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
                                             }
                                         </div>
                                     </div>
@@ -525,7 +531,7 @@ export const InvoiceDetail = (props: {
                                     console.log('final', final)
                                     obj.Level = final
                                     setProcess(true)
-                                    AxiosInsert(`/api/v1/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, obj)
+                                    AxiosInsert(`/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, obj)
                                         .then(res => {
                                             console.log('data', res)
                                             setProcess(false)

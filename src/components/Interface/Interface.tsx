@@ -80,6 +80,7 @@ export type invDetailsType = {
     StatusText: string,
     SubmittedBy: string,
     IsPurchaseOrder: boolean
+    FileURL: string
 }
 
 export type vendors = {

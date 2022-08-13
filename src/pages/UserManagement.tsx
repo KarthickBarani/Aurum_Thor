@@ -60,7 +60,7 @@ export const UserManagement = () => {
 
   const fetchUsers = () => {
     return axios.get(
-      `https://invoiceprocessingapi.azurewebsites.net/api/v1/UserProfile`
+      `${process.env.REACT_APP_BACKEND_BASEURL}/UserProfile`
     );
   };
 

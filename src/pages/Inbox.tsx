@@ -32,8 +32,11 @@ export const Inbox = () => {
                     <div className="d-flex justify-content-evenly">
                         {
                             data.Status === 3
-                                ? <Link to={''} role={'button'} title={'View'} data-bs-toggle="modal" data-bs-target="#reactModal">
-                                    <ViewSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} function={() => setPdfUrl(data.FileURL)} />
+                                ? <Link to={''} role={'button'} title={'View'} data-bs-toggle="modal" onClick={() => console.log(pdfUrl)} data-bs-target="#reactModal">
+                                    <ViewSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} function={() => {
+
+                                        setPdfUrl(data.FileURL)
+                                    }} />
                                 </Link>
                                 : <Link to={''} role={'button'} title={'Reprocess'} >
                                     <RecallSvg role={"button"} clsName={"svg-icon svg-icon-primary svg-icon-2"} />
@@ -116,6 +119,9 @@ export const Inbox = () => {
                     case 5:
                         statusColor = 'warning'
                         break
+                    case 1:
+                        statusColor = 'success'
+                        break
                     default:
                         statusColor = 'primary'
                         break
@@ -124,7 +130,7 @@ export const Inbox = () => {
             },
             sortable: true
         }
-    ], [])
+    ], [pdfUrl])
 
     const [binData, setBinData] = useState([])
     const [InboxData, setInboxData] = useState([])
@@ -134,17 +140,19 @@ export const Inbox = () => {
     useEffect(() => {
         setIsLoading(true)
         setIsBinLoading(true)
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/InvoiceProcess/Inbox`)
-            .then(res => {
-                setInboxData(res.data)
-                setIsLoading(false)
-            })
-            .catch(err => {
-                setIsLoading(false)
-                setIsError(true)
-                console.log(err)
-            })
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/InvoiceProcess/Trash`)
+        const fetchData = setInterval(() => {
+            axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Inbox`)
+                .then(res => {
+                    setInboxData(res.data)
+                    setIsLoading(false)
+                })
+                .catch(err => {
+                    setIsLoading(false)
+                    setIsError(true)
+                    console.log(err)
+                })
+        }, 3000)
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Trash`)
             .then(res => {
                 setBinData(res.data)
                 setIsBinLoading(false)
@@ -154,6 +162,9 @@ export const Inbox = () => {
                 setIsBinError(true)
                 console.log(err)
             })
+        return () => {
+            clearInterval(fetchData)
+        }
     }, [])
 
     return (

@@ -187,7 +187,7 @@ export const TableGridComponent = (props:
         })
             .then((result) => {
                 if (result.isConfirmed) {
-                    axios.post(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/InvoiceProcess/Delete`, currentData.filter(data => data.isSelect === true))
+                    axios.post(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Delete`, currentData.filter(data => data.isSelect === true))
                         .then(() => {
                             setCurrentData(currentData.filter(data => data.isSelect === false))
                             props.setData(currentData.filter(data => data.isSelect === false))

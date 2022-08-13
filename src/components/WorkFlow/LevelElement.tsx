@@ -151,10 +151,9 @@ export const LevelElement = (props: {
                                 </div>
                                 <div className="col-6 align-self-center">
                                     {
-                                        props.index === 0 ?
-                                            <DownDoubleArrowSvg clsName="svg-icon svg-icon-primary svg-icon-1 ms-auto" function={moveDown} />
-                                            :
-                                            <>
+                                        props.index === 0
+                                            ? props.workFlow.Approval.Level.length > 1 ? <DownDoubleArrowSvg clsName="svg-icon svg-icon-primary svg-icon-1 ms-auto" function={moveDown} /> : null
+                                            : <>
                                                 {
                                                     props.index === props.workFlow.Approval.Level.length - 1 ?
                                                         <UpDoubleArrowSvg clsName="svg-icon svg-icon-primary svg-icon-1 ms-auto" function={moveUp} />

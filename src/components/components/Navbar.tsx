@@ -118,7 +118,7 @@ export const Navbar = (props: {
                             </svg></span> Setting </NavLink>
                           </li> */}
                           <NavLink onClick={() => {
-                            localStorage.removeItem('user')
+                            localStorage.clear()
                             props.setAuthUser(null)
 
                           }} to={'/'} className="dropdown-item text-start"> <span className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
