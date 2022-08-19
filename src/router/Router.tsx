@@ -16,6 +16,7 @@ import { useQuery, useQueryClient } from 'react-query';
 import { vendors, departments, locations, subsidiary, account, AuthUser, userProfileType } from '../components/Interface/Interface'
 import { Inbox } from '../pages/Inbox';
 import { ProtectRoutes } from '../components/Auth/ProtectRoutes';
+import { Vendor } from '../pages/Vendor';
 
 
 
@@ -25,7 +26,7 @@ export const Router = () => {
   const [invNumber, setInvNumber] = useState<number>(0)
   const [authUser, setAuthUser] = useState<AuthUser>(JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user')))))
   const [users, setUsers] = useState<userProfileType[]>([] as userProfileType[])
-  const [vendors, setVendor] = useState<vendors>([] as vendors)
+  const [vendors, setVendor] = useState<vendors[]>([] as vendors[])
   const [departments, setDepartments] = useState<departments>([] as departments)
   const [locations, setLocation] = useState<locations>([] as locations)
   const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
@@ -108,6 +109,11 @@ export const Router = () => {
         <Route path='Inbox' element={
           <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
             <Inbox />
+          </ProtectRoutes>
+        } />
+        <Route path='Vendor' element={
+          <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <Vendor />
           </ProtectRoutes>
         } />
         {/* <Route path='Settings' element={

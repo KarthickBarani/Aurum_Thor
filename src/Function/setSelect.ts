@@ -1,7 +1,7 @@
 export const setIsSelectProperty = (array) => {
     const finalArray: any[] = []
-    array?.forEach(element => {
-        finalArray.push({ ...element, isSelect: false })
-    })
+    for (let i = 0; i < array.length; i++) {
+        finalArray.push({ ...array[i], isSelect: false })
+    }
     return finalArray
 }

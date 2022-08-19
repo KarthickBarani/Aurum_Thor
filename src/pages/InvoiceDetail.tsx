@@ -19,7 +19,7 @@ import { SaveSvg } from "../components/Svg/Svg"
 export const InvoiceDetail = (props: {
     invNumber: number
     users: userProfileType[]
-    vendors: vendors
+    vendors: vendors[]
     departments: departments
     locations: locations
     subsidiary: subsidiary

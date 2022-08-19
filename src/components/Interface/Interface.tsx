@@ -106,7 +106,8 @@ export type vendors = {
     RemitPhoneNumber: string,
     RemitFax: string
     SubsidiaryId: number
-}[]
+}
+
 export type departments = { DepartmentId: number, DepartmentCode: string, DepartmentName: string }[]
 export type locations = { LocationId: number, LocationTypeId: number, Location: string, LocationType: string }[]
 export type subsidiary = {

@@ -55,6 +55,9 @@ export const Navbar = (props: {
                 <li className="nav-item">
                   <NavLink to={'/Inbox'} className="nav-link"><MailSvg clsName='svg-icon svg-icon-light svg-icon-1' /> Inbox</NavLink>
                 </li>
+                <li className="nav-item">
+                  <NavLink to={'/Vendor'} className="nav-link"><UsersSvg clsName='svg-icon svg-icon-light svg-icon-1' /> Vendor</NavLink>
+                </li>
                 {/* <li className="nav-item">
                   <NavLink to={'/Settings'} className="nav-link">
                     <SettingSvg clsName='svg-icon svg-icon-light svg-icon-1' />

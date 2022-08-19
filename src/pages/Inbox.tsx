@@ -202,7 +202,7 @@ export const Inbox = () => {
                                                     ? <Loading />
                                                     : isError
                                                         ? <Error />
-                                                        : <TableGridComponent data={InboxData} columns={columns} selectable={true} setData={setInboxData} sortable={{ startIndex: 2 }} />
+                                                        : <TableGridComponent data={InboxData} columns={columns} selectable={true} setData={setInboxData} filter={true} />
                                             }
                                         </>
                                         : <>
@@ -211,7 +211,7 @@ export const Inbox = () => {
                                                     ? <Loading />
                                                     : isBinError
                                                         ? <Error />
-                                                        : <TableGridComponent data={binData} columns={columns} selectable={true} setData={setInboxData} sortable={{ startIndex: 2 }} />
+                                                        : <TableGridComponent data={binData} columns={columns} selectable={true} setData={setInboxData} filter={true} />
                                             }
                                         </>
                                 }

@@ -17,7 +17,7 @@ export const InvoiceDetailsForm = (props:
         POSubtotal: number
         subsidiaries: subsidiary
         setInvDetails: Function
-        vendors: vendors
+        vendors: vendors[]
         departments: departments
         locations: locations
         nextApprovers: NextApprovers[]

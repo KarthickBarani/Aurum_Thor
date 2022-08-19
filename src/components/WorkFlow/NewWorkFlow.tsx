@@ -6,7 +6,7 @@ import { LevelElement } from "./LevelElement"
 export const NewWorkFlow = (props: {
     workFlow: WorkFlowTableType
     setWorkFlow: Function
-    vendors: vendors
+    vendors: vendors[]
     Department: departments
     locations: locations
     Account: account

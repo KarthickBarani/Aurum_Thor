@@ -16,7 +16,7 @@ import { AddSvg, LeftDoubleArrowSvg, SaveSvg } from "../components/Svg/Svg"
 
 export const WorkFlow = (
     props: {
-        vendors: vendors
+        vendors: vendors[]
         departments: departments
         locations: locations
         account: account

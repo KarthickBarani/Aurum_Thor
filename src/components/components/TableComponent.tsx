@@ -1,5 +1,4 @@
 import axios from "axios"
-import { isDate } from "moment"
 import React, { useEffect, useState } from "react"
 import { SweetAlert } from "../../Function/alert"
 import { setIsSelectProperty } from "../../Function/setSelect"
@@ -36,20 +35,27 @@ export const TableFilterComponent = (props: {
             array[index].hidden = !e.target.checked
             return props?.setColumns(array)
         }
-        const keys = props.datum[0] ? Object.keys(props?.datum[0]) : []
-        props.setDatum([...props.datum]?.filter(
-            arr => keys.some(key => {
-                let currentStr: string = arr[key]?.toString()
-                return currentStr?.toLowerCase()?.includes(e.target.value?.toLowerCase())
-            })
-        ))
+        if (e.target.name === 'searchBox') {
+            const keys = props.datum[0] ? Object.keys(props?.datum[0]) : []
+            if (e.target.value === '') {
+                props.setDatum([...props.datum])
+            } else {
+                const filterArray = [...props.datum]?.filter(
+                    arr => keys.some(key => {
+                        let currentStr: string = arr[key]?.toString()
+                        return currentStr?.toLowerCase()?.includes(e.target.value?.toLowerCase())
+                    })
+                )
+                props.setDatum(filterArray)
+            }
+        }
     }
 
 
 
     return (
         <div className="d-flex">
-            <input type="text" placeholder="Search here" className="form-control form-control-solid form-control-sm" onChange={(e) => changeHandler(e, 0)} />
+            <input type="text" placeholder="Search here" name={'searchBox'} className="form-control form-control-solid form-control-sm" onChange={(e) => changeHandler(e, 0)} />
             {
                 props.columnFilter
                     ?
@@ -84,11 +90,8 @@ export const TableGridComponent = (props:
         columns: any[]
         data: any[]
         setData: Function
-        selectable?: Boolean
-        sortable?: {
-            startIndex?: number | undefined
-            endIndex?: number | undefined
-        }
+        selectable?: boolean
+        filter: boolean
 
     }) => {
 
@@ -212,12 +215,13 @@ export const TableGridComponent = (props:
     return (
         <>
             <div className="d-flex  justify-content-between">
-                <div>
-                    <input type="text" placeholder="Search here" name='globalFilter' className="form-control form-control-solid form-control-sm" onChange={(e) => changeHandler(e, 0)} />
-                </div>
-                {/* <div>
-                    <TableFilterComponent datum={props.data} setDatum={setCurrentData} columns={currentColumns} setColumns={setCurrentColumns} columnFilter={false} />
-                </div> */}
+                {
+                    props.filter
+                        ? <div>
+                            <input type="text" placeholder="Search here" name='globalFilter' className="form-control form-control-solid form-control-sm" onChange={(e) => changeHandler(e, 0)} />
+                        </div>
+                        : null
+                }
                 <div>
                     {
                         currentData.some(data => data.isSelect === true)
