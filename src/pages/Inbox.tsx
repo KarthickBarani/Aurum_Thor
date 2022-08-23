@@ -16,6 +16,7 @@ export const Inbox = () => {
     const [isBinLoading, setIsBinLoading] = useState<boolean>(false)
     const [isBinError, setIsBinError] = useState<boolean>(false)
     const [tabToggle, setTabToggle] = useState<'Inbox' | 'Bin'>('Inbox')
+    const [dataFetch, setDataFetch] = useState<boolean>(true)
 
     const [pdfUrl, setPdfUrl] = useState('')
 
@@ -141,16 +142,22 @@ export const Inbox = () => {
         setIsLoading(true)
         setIsBinLoading(true)
         const fetchData = setInterval(() => {
-            axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Inbox`)
-                .then(res => {
-                    setInboxData(res.data)
-                    setIsLoading(false)
-                })
-                .catch(err => {
-                    setIsLoading(false)
-                    setIsError(true)
-                    console.log(err)
-                })
+            if (dataFetch) {
+                axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Inbox`)
+                    .then(res => {
+                        setInboxData(res.data)
+                        setIsLoading(false)
+                        console.log(dataFetch)
+                    })
+                    .catch(err => {
+                        setIsLoading(false)
+                        setIsError(true)
+                        console.log(err)
+                    })
+            } else {
+                setIsLoading(false)
+                setIsBinLoading(false)
+            }
         }, 3000)
         axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Trash`)
             .then(res => {
@@ -165,7 +172,7 @@ export const Inbox = () => {
         return () => {
             clearInterval(fetchData)
         }
-    }, [])
+    }, [dataFetch])
 
     return (
         <>
@@ -202,7 +209,7 @@ export const Inbox = () => {
                                                     ? <Loading />
                                                     : isError
                                                         ? <Error />
-                                                        : <TableGridComponent data={InboxData} columns={columns} selectable={true} setData={setInboxData} filter={true} />
+                                                        : <TableGridComponent data={InboxData} columns={columns} selectable={true} setData={setInboxData} filter={true} setDataFetch={setDataFetch} />
                                             }
                                         </>
                                         : <>
@@ -211,7 +218,7 @@ export const Inbox = () => {
                                                     ? <Loading />
                                                     : isBinError
                                                         ? <Error />
-                                                        : <TableGridComponent data={binData} columns={columns} selectable={true} setData={setInboxData} filter={true} />
+                                                        : <TableGridComponent data={binData} columns={columns} selectable={true} setData={setInboxData} filter={true} setDataFetch={setDataFetch} />
                                             }
                                         </>
                                 }

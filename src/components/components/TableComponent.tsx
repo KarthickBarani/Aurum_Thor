@@ -92,6 +92,7 @@ export const TableGridComponent = (props:
         setData: Function
         selectable?: boolean
         filter: boolean
+        setDataFetch?: Function
 
     }) => {
 
@@ -158,6 +159,10 @@ export const TableGridComponent = (props:
         if (type === 'checkbox') {
             array[index].isSelect = e.target.checked
             setCurrentData(array)
+            if (props.setDataFetch !== undefined) {
+                props.setDataFetch(!array.some(arr => arr.isSelect === true))
+                console.log('it work')
+            }
         }
         const keys = originalArray.length > 0 ? Object.keys(originalArray[0]) : []
         if (name === 'globalFilter') {

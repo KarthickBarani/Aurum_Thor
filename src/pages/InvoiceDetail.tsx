@@ -347,11 +347,12 @@ export const InvoiceDetail = (props: {
         setProcess(true)
         AxiosInsert(`/Invoice`, invDetails)
             .then(res => {
+                console.log(invDetails)
                 console.log('Response:', res)
                 setProcess(false)
                 SweetAlert({
                     title: 'Saved',
-                    text: 'Your file has been deleted.',
+                    text: 'Your changes has been saved.',
                     icon: 'success'
                 })
             })

@@ -52,9 +52,9 @@ export const LineItems = (props:
     }
 
     useEffect(() => {
-        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference/${props.userId}`)
+        AxiosGet(`/UserPreference/${props.userId}`)
             .then(res => {
-                const col = props.isExpense ? res.data.find(data => data.ListTypeId === 3)?.Value : res.data.find(data => data.ListTypeId === 2)?.Value
+                const col = props.isExpense ? res.find(data => data.ListTypeId === 3)?.Value : res.find(data => data.ListTypeId === 2)?.Value
                 setCustomColumns(col ? JSON.parse(col, reviver) : props.headers)
                 console.log(JSON.parse(col, reviver))
             })
@@ -211,8 +211,8 @@ export const LineItems = (props:
             Value: JSON.stringify(array, replacer),
             ModifiedDateTime: null
         })
-            .then(() => {
-                console.log(props.isExpense)
+            .then((res) => {
+                console.log(array, res)
             })
             .catch(err => {
                 console.log(err)
