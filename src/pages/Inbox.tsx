@@ -11,9 +11,9 @@ import { Link } from "react-router-dom"
 
 export const Inbox = () => {
 
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(true)
     const [isError, setIsError] = useState<boolean>(false)
-    const [isBinLoading, setIsBinLoading] = useState<boolean>(false)
+    const [isBinLoading, setIsBinLoading] = useState<boolean>(true)
     const [isBinError, setIsBinError] = useState<boolean>(false)
     const [tabToggle, setTabToggle] = useState<'Inbox' | 'Bin'>('Inbox')
     const [dataFetch, setDataFetch] = useState<boolean>(true)
@@ -139,26 +139,24 @@ export const Inbox = () => {
 
 
     useEffect(() => {
-        setIsLoading(true)
-        setIsBinLoading(true)
+        // setIsLoading(true)
+        // setIsBinLoading(true)
         const fetchData = setInterval(() => {
-            if (dataFetch) {
-                axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Inbox`)
-                    .then(res => {
+
+            axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Inbox`)
+                .then(res => {
+                    if (dataFetch) {
                         setInboxData(res.data)
-                        setIsLoading(false)
-                        console.log(dataFetch)
-                    })
-                    .catch(err => {
-                        setIsLoading(false)
-                        setIsError(true)
-                        console.log(err)
-                    })
-            } else {
-                setIsLoading(false)
-                setIsBinLoading(false)
-            }
-        }, 3000)
+                    }
+                    setIsLoading(false)
+                    console.table(res.data.filter(data => data.Subject === 'test'))
+                })
+                .catch(err => {
+                    setIsLoading(false)
+                    setIsError(true)
+                    console.log(err)
+                })
+        }, 5000)
         axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Trash`)
             .then(res => {
                 setBinData(res.data)

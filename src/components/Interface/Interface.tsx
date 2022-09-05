@@ -106,6 +106,37 @@ export type vendors = {
     RemitPhoneNumber: string,
     RemitFax: string
     SubsidiaryId: number
+    AccountNumber: string
+}
+
+export type propsAddressType = {
+    AddressTypeId: number,
+    AddressType: string
+}
+
+export type propsAddressList = {
+    AddressId: number,
+    AddressLine1: string,
+    AddressLine2: string,
+    AddressLine3: string,
+    Addressee: string,
+    City: string,
+    State: string,
+    ZipCode: string,
+    Country: string,
+    PhoneNumber: string,
+    Fax: string,
+    AddressType: propsAddressType
+}
+
+export type propsVendorPost = {
+    Vendor: {
+        VendorId: number,
+        VendorCode: string,
+        VendorName: string,
+        AccountNumber: string
+    }
+    AddressList: propsAddressList[]
 }
 
 export type departments = { DepartmentId: number, DepartmentCode: string, DepartmentName: string }[]

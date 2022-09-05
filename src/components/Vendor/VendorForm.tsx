@@ -1,77 +1,85 @@
-import { useState } from "react"
+import { type } from "os"
+import { useEffect, useMemo, useState } from "react"
+import { AxiosGet } from "../../helpers/Axios"
 import { InputTextField } from "../components/InputField"
-import { vendors } from "../Interface/Interface"
+import { propsAddressType, propsVendorPost, vendors } from "../Interface/Interface"
 
 export const VendorForm = (props: {
-    data: vendors[]
-    setData: Function
-    index: number | undefined
+    vendor: propsVendorPost
+    setVendor: Function
+    formError: any
+    setFormError: Function
 }) => {
 
-    const [toggle, setToggle] = useState<'vendor' | 'remit'>('vendor')
-    const [Vendor, setVendor] = useState<vendors>({
-        VendorId: 0,
-        VendorCode: '',
-        VendorName: '',
-        VendorAddressLine1: '',
-        VendorAddressLine2: '',
-        VendorAddressLine3: '',
-        VendorCity: '',
-        VendorState: '',
-        VendorZipCode: '',
-        VendorCountry: '',
-        VendorPhoneNumber: '',
-        VendorFax: '',
-        RemitAddressLine1: '',
-        RemitAddressLine2: '',
-        RemitAddressLine3: '',
-        RemitCity: '',
-        RemitState: '',
-        RemitZipCode: '',
-        RemitCountry: '',
-        RemitPhoneNumber: '',
-        RemitFax: '',
-        SubsidiaryId: 0
-    } as vendors)
-    const [formError, setFormError] = useState({
-        VendorId: null,
-        VendorCode: null,
-        VendorName: null,
-        VendorAddressLine1: null,
-        VendorAddressLine2: null,
-        VendorAddressLine3: null,
-        VendorCity: null,
-        VendorState: null,
-        VendorZipCode: null,
-        VendorCountry: null,
-        VendorPhoneNumber: null,
-        VendorFax: null,
-        RemitAddressLine1: null,
-        RemitAddressLine2: null,
-        RemitAddressLine3: null,
-        RemitCity: null,
-        RemitState: null,
-        RemitZipCode: null,
-        RemitCountry: null,
-        RemitPhoneNumber: null,
-        RemitFax: null,
-        SubsidiaryId: null
+    const [addressType, setAddressType] = useState<propsAddressType[]>([] as propsAddressType[])
+    const [toggle, setToggle] = useState<number>(1)
+
+    useState(() => {
+        AxiosGet('/Vendor/AddressType')
+            .then(res => {
+                setAddressType(res)
+            })
+            .catch(err => console.log(err))
+
     })
+    useEffect(() => {
+        return () => props.setFormError({
+            Vendor: {
+                VendorCode: null,
+                VendorName: null,
+                AccountNumber: null,
+            },
+            AddressList: [
+                {
+                    AddressLine1: null,
+                    AddressLine2: null,
+                    AddressLine3: null,
+                    Addressee: null,
+                    City: null,
+                    State: null,
+                    ZipCode: null,
+                    Country: null,
+                    PhoneNumber: null,
+                    Fax: null
+                },
+                {
+                    AddressLine1: null,
+                    AddressLine2: null,
+                    AddressLine3: null,
+                    Addressee: null,
+                    City: null,
+                    State: null,
+                    ZipCode: null,
+                    Country: null,
+                    PhoneNumber: null,
+                    Fax: null
+                }
+            ]
+
+        })
+    }, [])
+
+
 
 
     const changeHandler = (e) => {
         const name = e.target.name
+        const id = e.target.id
         const value = e.target.value
-        const array = [...props.data]
-        const error = { ...formError }
+        const addressList = [...props.vendor.AddressList]
+        const errorAddressList = [...props.formError.AddressList]
         if (value === '') {
-            setFormError({ ...error, [name]: 'Required !' })
+            errorAddressList[toggle - 1] = { ...props.formError.AddressList[toggle - 1], [id]: 'Requied!' }
+            props.setFormError({ ...props.formError, [name]: name === 'Vendor' ? { ...props.formError[name], [id]: 'Requied!' } : [...errorAddressList] })
         } else {
-            setFormError({ ...error, [name]: null })
+            errorAddressList[toggle - 1] = { ...props.formError.AddressList[toggle - 1], [id]: null }
+            props.setFormError({ ...props.formError, [name]: name === 'Vendor' ? { ...props.formError[name], [id]: null } : [...errorAddressList] })
+
         }
-        props.index ? array[props.index][name] = value : setVendor({ ...Vendor, [name]: value })
-        props.setData(array)
-        console.log(error[name])
+
+        addressList[toggle - 1] = { ...props.vendor.AddressList[toggle - 1], [id]: value }
+        props.setVendor({ ...props.vendor, [name]: name === 'Vendor' ? { ...props.vendor[name], [id]: value } : [...addressList] })
+
     }
 
     return (
@@ -82,269 +90,303 @@ export const VendorForm = (props: {
                         <InputTextField
                             label={"Vendor name"}
                             className={"form-control form-control-solid form-control-sm"}
-                            name={'VendorName'}
+                            name={'Vendor'}
                             id={'VendorName'}
                             type={'text'}
-                            value={props.index ? props.data[props.index].VendorName : Vendor.VendorName}
+                            value={props.vendor?.Vendor?.VendorName}
                             onChange={changeHandler}
-                            formError={formError}
+                            formError={props.formError}
+                            required={true}
                         />
                     </div>
                     <div className="col">
                         <InputTextField
                             label={"Vendor Code"}
                             className={"form-control form-control-solid form-control-sm"}
-                            name={'VendorCode'}
+                            name={'Vendor'}
                             id={'VendorCode'}
                             type={'text'}
-                            value={props.index ? props.data[props.index].VendorCode : Vendor.VendorCode}
+                            value={props.vendor?.Vendor?.VendorCode}
                             onChange={changeHandler}
-                            formError={formError}
+                            formError={props.formError}
+                            required={true}
                         />
                     </div>
-                    {/* <div className="col">
+                    <div className="col">
                         <InputTextField
                             label={"Vendor Account"}
                             className={"form-control form-control-solid form-control-sm"}
-                            name={'AccountNumber'}
+                            name={'Vendor'}
                             id={'AccountNumber'}
                             type={'text'}
-                            value={props.index ? props.data[props.index].AccountNumber : Vendor.AccountNumber}
+                            value={props.vendor?.Vendor?.AccountNumber}
                             onChange={changeHandler}
-                            formError={formError}
+                            formError={props.formError}
+                            required={true}
                         />
-                    </div> */}
+                    </div>
                 </div>
                 <div className="row">
                     <div className="col">
                         <div className="btn-group btn-group-sm my-4">
-                            <div className={`btn  btn-active-primary ${toggle === 'vendor' ? 'active' : null}`} onClick={() => setToggle('vendor')}>Vendor</div>
-                            <div className={`btn  btn-active-primary ${toggle === 'remit' ? 'active' : null}`} onClick={() => setToggle('remit')}>Remit</div>
+                            {
+                                addressType?.map(
+                                    (type) => {
+                                        return (
+                                            <div key={type.AddressTypeId} className={`btn  btn-active-primary ${toggle === type.AddressTypeId ? 'active' : null}`} onClick={() => setToggle(type.AddressTypeId)}>{type.AddressType}</div>
+                                        )
+                                    }
+                                )
+                            }
                         </div>
                     </div>
                 </div>
                 {
-                    toggle === 'vendor'
-                        ? <>
-                            <div className="row">
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Address Line1"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorAddressLine1'}
-                                        id={'VendorAddressLine1'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorAddressLine1 : Vendor.VendorAddressLine1}
-                                        onChange={changeHandler}
-                                        formError={formError}
-                                    />
+                    addressType.length > 0
+                        ?
+                        toggle === 1
+                            ? <>
+                                <div className="row">
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Address Line 1"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'AddressLine1'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.AddressLine1}
+                                            onChange={changeHandler}
+                                            formError={props.formError}
+                                            required={true}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Address Line 2"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'AddressLine2'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.AddressLine2}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Address Line 3"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'AddressLine3'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.AddressLine3}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Address Line 2"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorAddressLine2'}
-                                        id={'VendorAddressLine2'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorAddressLine2 : Vendor.VendorAddressLine2}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Address Line 3"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorAddressLine3'}
-                                        id={'VendorAddressLine3'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorAddressLine3 : Vendor.VendorAddressLine3}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col">
-                                    <InputTextField
-                                        label={"City"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorCity'}
-                                        id={'VendorCity'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorCity : Vendor.VendorCity}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"State"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorState'}
-                                        id={'VendorState'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorState : Vendor.VendorState}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Zipcode"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorZipCode'}
-                                        id={'VendorZipCode'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorZipCode : Vendor.VendorZipCode}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"City"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'City'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.City}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"State"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'State'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.State}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Zipcode"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'ZipCode'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.ZipCode}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
 
-                            </div>
-                            <div className="row">
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Country"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorCountry'}
-                                        id={'VendorCountry'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorCountry : Vendor.VendorCountry}
-                                        onChange={changeHandler}
-                                    />
                                 </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Phone Number"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorPhoneNumber'}
-                                        id={'VendorPhoneNumber'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorPhoneNumber : Vendor.VendorPhoneNumber}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Fax"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorFax'}
-                                        id={'VendorFax'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorFax : Vendor.VendorFax}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Country"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'Country'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.Country}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Phone Number"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'PhoneNumber'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.PhoneNumber}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Fax"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'Fax'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.Fax}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
 
-                            </div>
-                        </>
-                        : <>
-                            <div className="row">
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor Address Line1"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorAddressLine1'}
-                                        id={'VendorAddressLine1'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorAddressLine1 : Vendor.VendorAddressLine1}
-                                        onChange={changeHandler}
-                                        formError={formError}
-                                    />
                                 </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor Address Line 2"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorAddressLine2'}
-                                        id={'VendorAddressLine2'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorAddressLine2 : Vendor.VendorAddressLine2}
-                                        onChange={changeHandler}
-                                    />
+                            </>
+                            :
+                            <>
+                                <div className="row">
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Address Line 1"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'AddressLine1'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.AddressLine1}
+                                            onChange={changeHandler}
+                                            formError={props.formError}
+                                            required={true}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Address Line 2"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'AddressLine2'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.AddressLine2}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Address Line 3"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'AddressLine3'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.AddressLine3}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor Address Line 3"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorAddressLine3'}
-                                        id={'VendorAddressLine3'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorAddressLine3 : Vendor.VendorAddressLine3}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor City"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorCity'}
-                                        id={'VendorCity'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorCity : Vendor.VendorCity}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor State"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorState'}
-                                        id={'VendorState'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorState : Vendor.VendorState}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor Zipcode"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorZipCode'}
-                                        id={'VendorZipCode'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorZipCode : Vendor.VendorZipCode}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"City"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'City'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.City}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"State"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'State'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.State}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Zipcode"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'ZipCode'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.ZipCode}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
 
-                            </div>
-                            <div className="row">
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor Country"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorCountry'}
-                                        id={'VendorCountry'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorCountry : Vendor.VendorCountry}
-                                        onChange={changeHandler}
-                                    />
                                 </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor Phone Number"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorPhoneNumber'}
-                                        id={'VendorPhoneNumber'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorPhoneNumber : Vendor.VendorPhoneNumber}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
-                                <div className="col">
-                                    <InputTextField
-                                        label={"Vendor Fax"}
-                                        className={"form-control form-control-solid form-control-sm"}
-                                        name={'VendorFax'}
-                                        id={'VendorFax'}
-                                        type={'text'}
-                                        value={props.index ? props.data[props.index].VendorFax : Vendor.VendorFax}
-                                        onChange={changeHandler}
-                                    />
-                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Country"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'Country'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.Country}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Phone Number"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'PhoneNumber'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.PhoneNumber}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                        <InputTextField
+                                            label={"Fax"}
+                                            className={"form-control form-control-solid form-control-sm"}
+                                            name={'AddressList'}
+                                            id={'Fax'}
+                                            type={'text'}
+                                            value={props.vendor.AddressList.length === 0 ? "" : props.vendor.AddressList?.find(arr => arr.AddressType?.AddressTypeId === toggle)?.Fax}
+                                            onChange={changeHandler}
+                                            temp={toggle}
+                                        />
+                                    </div>
 
-                            </div>
-                        </>
+                                </div>
+                            </>
+                        : null
                 }
             </div>
         </form>

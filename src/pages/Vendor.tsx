@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react"
 import { TableFilterComponent, TableGridComponent } from "../components/components/TableComponent"
 import { AddSvg, EditSvg, RemoveSvg, SaveSvg, UsersSvg } from "../components/Svg/Svg"
-import { AxiosGet } from "../helpers/Axios"
+import { AxiosGet, AxiosInsert } from "../helpers/Axios"
 import { VendorForm } from "../components/Vendor/VendorForm"
 import { VendorTable } from "../components/Vendor/VendorTable"
 import { Link } from "react-router-dom"
+import { propsAddressList, propsVendorPost, vendors } from "../components/Interface/Interface"
+import { SweetAlert } from "../Function/alert"
+
 
 export const Vendor = () => {
 
@@ -17,7 +20,7 @@ export const Vendor = () => {
                 return (
                     <div className="d-flex justify-content-evenly">
                         <EditSvg role={'button'} clsName="svg-icon svg-icon-warning svg-icon-2" title={'Edit'} function={() => {
-                            setIndex(data.VendorId)
+                            setVendorId(data.VendorId)
                             setToggleForm(true)
                         }
                         } />
@@ -46,24 +49,129 @@ export const Vendor = () => {
         },
         {
             id: 4,
-            header: 'Vendor City',
-            accessor: 'VendorCity',
-            cell: (data) => `${data.VendorCity} - ${data.VendorZipCode}`,
-            className: 'min-w-50px',
-            sortable: true
-        },
-        {
-            id: 5,
-            header: 'Contact Number',
-            accessor: 'VendorPhoneNumber',
+            header: 'Account Number',
+            accessor: 'AccountNumber',
             className: 'min-w-50px',
             sortable: true
         },
     ]
-    const [index, setIndex] = useState<number | undefined>()
     const [data, setData] = useState([])
     const [filterData, setFilterData] = useState([])
     const [toggleForm, setToggleForm] = useState<boolean>(false)
+    const [vendorPost, setVendorPost] = useState<propsVendorPost>({} as propsVendorPost)
+    const [vendorId, setVendorId] = useState<number>(1)
+    const [formError, setFormError] = useState({
+        Vendor: {
+            VendorCode: null,
+            VendorName: null,
+            AccountNumber: null,
+        },
+        AddressList: [
+            {
+                AddressLine1: null,
+                AddressLine2: null,
+                AddressLine3: null,
+                Addressee: null,
+                City: null,
+                State: null,
+                ZipCode: null,
+                Country: null,
+                PhoneNumber: null,
+                Fax: null,
+            },
+            {
+                AddressLine1: null,
+                AddressLine2: null,
+                AddressLine3: null,
+                Addressee: null,
+                City: null,
+                State: null,
+                ZipCode: null,
+                Country: null,
+                PhoneNumber: null,
+                Fax: null,
+            }
+        ]
+
+    })
+
+    const vendorDefaultAddress = {
+        AddressId: 0,
+        AddressLine1: '',
+        AddressLine2: '',
+        AddressLine3: '',
+        Addressee: '',
+        City: '',
+        State: '',
+        ZipCode: '',
+        Country: '',
+        PhoneNumber: '',
+        Fax: '',
+        AddressType: {
+            AddressTypeId: 1,
+            AddressType: ''
+        }
+    }
+    const remitDefaultAddress = {
+        AddressId: 0,
+        AddressLine1: '',
+        AddressLine2: '',
+        AddressLine3: '',
+        Addressee: '',
+        City: '',
+        State: '',
+        ZipCode: '',
+        Country: '',
+        PhoneNumber: '',
+        Fax: '',
+        AddressType: {
+            AddressTypeId: 2,
+            AddressType: ''
+        }
+    }
+    const vendorDefaultValue = {
+        Vendor: {
+            VendorId: 0,
+            VendorCode: '',
+            VendorName: '',
+            AccountNumber: '',
+        },
+        AddressList: [vendorDefaultAddress, remitDefaultAddress]
+    }
+
+    const validation = () => {
+        const obj = { ...formError }
+        const vendorkeys = ['VendorName', 'VendorCode', 'AccountNumber']
+        const vendorAddresskeys = ['AddressLine1']
+        const remitAddresskeys = ['AddressLine1']
+        vendorkeys.forEach(
+            key => {
+                if (vendorPost.Vendor[key] === "")
+                    obj.Vendor[key] = 'Requied!'
+            }
+        )
+        vendorAddresskeys.forEach(
+            key => {
+                if (vendorPost.AddressList[0][key] === "")
+                    obj.AddressList[0][key] = 'Requied!'
+            }
+        )
+        remitAddresskeys.forEach(
+            key => {
+                if (vendorPost.AddressList[1][key] === "")
+                    obj.AddressList[1][key] = 'Requied!'
+            }
+        )
+        console.log('now', obj)
+        setFormError(obj)
+    }
+
+    const isVaild = () => {
+        const vendorValue = Object.values(formError.Vendor)
+        const vendorAddressValue = Object.values(formError.AddressList[0])
+        const remitAddressValue = Object.values(formError.AddressList[1])
+        return vendorValue.every(val => val === null) && vendorAddressValue.every(val => val === null) && remitAddressValue.every(val => val === null)
+    }
 
 
     useEffect(() => {
@@ -71,13 +179,52 @@ export const Vendor = () => {
             .then(res => {
                 setData(res)
                 setFilterData(res)
+
             })
             .catch(err => console.log(err))
     }, [])
 
+    useEffect(() => {
+        AxiosGet(`/Vendor/Address/${vendorId}`)
+            .then((res) => {
+                const vendor = res.AddressList.length === 0 ? { ...res, AddressList: [vendorDefaultAddress, remitDefaultAddress] } : { ...res }
+                setVendorPost(vendor)
+                console.log(vendor)
+            })
+            .catch(err => console.log(err))
+    }, [vendorId])
+
+    const save = () => {
+        validation()
+        if (isVaild()) {
+            AxiosInsert('/Vendor/New', vendorPost)
+                .then(res => {
+                    if (res.Status) {
+                        SweetAlert({
+                            title: 'Saved',
+                            text: res.Message,
+                            icon: 'success'
+                        })
+                    } else {
+                        SweetAlert({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: res.Message
+                        })
+                    }
+                })
+                .catch(() => {
+                    SweetAlert({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong!'
+                    })
+                })
+        }
+    }
+
 
     return (
-
         <div className="container-fluid">
             <div className="row my-10">
                 <div className="col">
@@ -94,7 +241,9 @@ export const Vendor = () => {
                             <div className="toolbar">
                                 {
                                     toggleForm
-                                        ? <SaveSvg clsName="svg-icon svg-icon-1" />
+                                        ? <button className="btn btn-icon btn-active-primary btn-sm" onClick={save} disabled={!isVaild()}>
+                                            <SaveSvg clsName="svg-icon svg-icon-3" role="button" />
+                                        </button>
                                         : <TableFilterComponent columns={columns} setColumns={() => { }} datum={data} setDatum={setFilterData} columnFilter={false} />
                                 }
                             </div>
@@ -103,7 +252,7 @@ export const Vendor = () => {
                             <div className="d-flex">
                                 <ul className="nav nav-tabs nav-pills flex-row border-0 flex-md-column me-5 mb-3 mb-md-0 fs-6 min-w-lg-200px">
                                     <li className="nav-item w-100 me-0 mb-md-2">
-                                        <Link className="nav-link w-100 btn btn-flex btn-active-light-success" to={''} onClick={() => {
+                                        <Link className={`nav-link w-100 btn btn-flex btn-active-light-success ${toggleForm ? null : 'active'}`} to={''} onClick={() => {
                                             setToggleForm(false)
                                         }} data-bs-toggle="tab" >
                                             <UsersSvg clsName="svg-icon svg-icon-1 svg-icon-primary" />
@@ -114,8 +263,8 @@ export const Vendor = () => {
                                         </Link>
                                     </li>
                                     <li className="nav-item w-100 me-0 mb-md-2">
-                                        <Link className="nav-link w-100 btn btn-flex btn-active-light-success" to={''} onClick={() => {
-                                            setIndex(undefined)
+                                        <Link className={`nav-link w-100 btn btn-flex btn-active-light-success ${toggleForm ? 'active' : null}`} to={''} onClick={() => {
+                                            setVendorPost(vendorDefaultValue)
                                             setToggleForm(true)
                                         }} data-bs-toggle="tab" >
                                             <UsersSvg clsName="svg-icon svg-icon-1 svg-icon-primary" />
@@ -126,10 +275,10 @@ export const Vendor = () => {
                                         </Link>
                                     </li>
                                 </ul>
-                                <div className="w-100">
+                                <div className="w-100 ">
                                     {
                                         toggleForm
-                                            ? <VendorForm data={data} setData={setData} index={index} />
+                                            ? <VendorForm vendor={vendorPost} setVendor={setVendorPost} formError={formError} setFormError={setFormError} />
                                             : <VendorTable
                                                 columns={columns}
                                                 data={filterData}
