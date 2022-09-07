@@ -279,7 +279,7 @@ export const InvoiceDetailsTable = (props: {
                                         isLoading
                                             ? <Loading />
                                             : isError
-                                                ? <Error />
+                                                ? <Error path={'/Home'} />
                                                 : <div className="table-responsive">
                                                     <table {...getTableProps()} className='table table-rounded table-stripted table-hover gs-3 gx-3'>
                                                         <thead className='fw-bolder fs-6'>

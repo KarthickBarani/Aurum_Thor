@@ -59,7 +59,7 @@ export const Vendor = () => {
     const [filterData, setFilterData] = useState([])
     const [toggleForm, setToggleForm] = useState<boolean>(false)
     const [vendorPost, setVendorPost] = useState<propsVendorPost>({} as propsVendorPost)
-    const [vendorId, setVendorId] = useState<number>(1)
+    const [vendorId, setVendorId] = useState<number>(0)
     const [formError, setFormError] = useState({
         Vendor: {
             VendorCode: null,
@@ -112,6 +112,7 @@ export const Vendor = () => {
             AddressType: ''
         }
     }
+
     const remitDefaultAddress = {
         AddressId: 0,
         AddressLine1: '',
@@ -129,6 +130,7 @@ export const Vendor = () => {
             AddressType: ''
         }
     }
+
     const vendorDefaultValue = {
         Vendor: {
             VendorId: 0,
@@ -173,7 +175,6 @@ export const Vendor = () => {
         return vendorValue.every(val => val === null) && vendorAddressValue.every(val => val === null) && remitAddressValue.every(val => val === null)
     }
 
-
     useEffect(() => {
         AxiosGet('/Vendor')
             .then(res => {
@@ -189,7 +190,6 @@ export const Vendor = () => {
             .then((res) => {
                 const vendor = res.AddressList.length === 0 ? { ...res, AddressList: [vendorDefaultAddress, remitDefaultAddress] } : { ...res }
                 setVendorPost(vendor)
-                console.log(vendor)
             })
             .catch(err => console.log(err))
     }, [vendorId])
@@ -264,6 +264,7 @@ export const Vendor = () => {
                                     </li>
                                     <li className="nav-item w-100 me-0 mb-md-2">
                                         <Link className={`nav-link w-100 btn btn-flex btn-active-light-success ${toggleForm ? 'active' : null}`} to={''} onClick={() => {
+                                            setVendorId(0)
                                             setVendorPost(vendorDefaultValue)
                                             setToggleForm(true)
                                         }} data-bs-toggle="tab" >

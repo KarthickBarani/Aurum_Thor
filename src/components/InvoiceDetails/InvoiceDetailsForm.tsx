@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom"
 import { InputSelectField, InputTextAreaField, InputTextDateField, InputTextField } from "../components/InputField"
 import { AddSvg, CancelSvg, DollarSvg, DoubleTickSvg, RecallSvg, RemoveSvg, ViewSvg } from "../Svg/Svg"
 import { SweetAlert } from "../../Function/alert"
+import { AxiosGet } from "../../helpers/Axios"
 
 export const InvoiceDetailsForm = (props:
     {
@@ -95,16 +96,16 @@ export const InvoiceDetailsForm = (props:
     }
 
     useEffect(() => {
-        const ind = props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorId))
-        const currentVendor = props.vendors[ind]
-        props.setInvDetails({
-            ...props.invDetails,
-            VendorName: currentVendor?.VendorName,
-            VendorCode: currentVendor?.VendorCode,
-            VendorAddress: currentVendor?.VendorAddressLine1 + ',' + currentVendor?.VendorCity + ',' + currentVendor?.VendorZipCode + ',' + currentVendor?.VendorState + ',' + currentVendor?.VendorCountry,
-            RemittanceAddress: currentVendor?.RemitAddressLine1 + ',' + currentVendor?.RemitCity + ',' + currentVendor?.RemitZipCode + ',' + currentVendor?.RemitState + ',' + currentVendor?.RemitCountry,
-        })
-        setSubsidiary(currentVendor?.SubsidiaryId)
+        AxiosGet(`/Vendor/Address/${props.invDetails.VendorId}`)
+            .then(res => {
+                props.setInvDetails({
+                    ...props.invDetails,
+                    VendorName: res.Vendor.VendorName,
+                    VendorCode: res?.Vendor.VendorCode,
+                    VendorAddress: res.AddressList[0]?.AddressLine1 + ',' + res.AddressList[0]?.City + ',' + res.AddressList[0]?.ZipCode + ',' + res.AddressList[0]?.State + ',' + res.AddressList[0]?.Country,
+                    RemittanceAddress: res.AddressList[1]?.AddressLine1 + ',' + res.AddressList[1]?.City + ',' + res.AddressList[1]?.ZipCode + ',' + res.AddressList[1]?.State + ',' + res.AddressList[1]?.Country,
+                })
+            })
         setInvoiceDate(moment(new Date(props.invDetails.InvoiceDate)).format('MM-DD-YYYY'))
         setDueDate(moment(new Date(props.invDetails.DueDate)).format('MM-DD-YYYY'))
 
