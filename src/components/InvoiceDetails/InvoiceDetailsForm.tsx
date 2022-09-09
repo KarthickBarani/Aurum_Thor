@@ -124,6 +124,8 @@ export const InvoiceDetailsForm = (props:
             setDueDate(target.value)
         if (target.name === 'InvoiceDate')
             setInvoiceDate(target.value)
+        if (target.name === 'Subsidiary')
+            setSubsidiary(target.value)
         obj[name] = target.value
         props.setInvDetails(obj)
         switch (name) {
@@ -235,7 +237,8 @@ export const InvoiceDetailsForm = (props:
                         <div className="form-group text-start">
                             <InputSelectField
                                 label="Remit To"
-                                id='VendorId' name='VendorId'
+                                id='VendorId'
+                                name='VendorId'
                                 className={formSelect}
                                 value={props.invDetails?.VendorId}
                                 onChange={changeHandler}

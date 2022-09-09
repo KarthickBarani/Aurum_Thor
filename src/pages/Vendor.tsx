@@ -189,38 +189,40 @@ export const Vendor = () => {
         AxiosGet(`/Vendor/Address/${vendorId}`)
             .then((res) => {
                 const vendor = res.AddressList.length === 0 ? { ...res, AddressList: [vendorDefaultAddress, remitDefaultAddress] } : { ...res }
+                console.log(vendor)
                 setVendorPost(vendor)
             })
             .catch(err => console.log(err))
     }, [vendorId])
 
     const save = () => {
-        validation()
-        if (isVaild()) {
-            AxiosInsert('/Vendor/New', vendorPost)
-                .then(res => {
-                    if (res.Status) {
-                        SweetAlert({
-                            title: 'Saved',
-                            text: res.Message,
-                            icon: 'success'
-                        })
-                    } else {
-                        SweetAlert({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: res.Message
-                        })
-                    }
-                })
-                .catch(() => {
-                    SweetAlert({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Something went wrong!'
-                    })
-                })
-        }
+        console.log('check', vendorPost)
+        // validation()
+        // if (isVaild()) {
+        //     AxiosInsert('/Vendor/New', vendorPost)
+        //         .then(res => {
+        //             if (res.Status) {
+        //                 SweetAlert({
+        //                     title: 'Saved',
+        //                     text: res.Message,
+        //                     icon: 'success'
+        //                 })
+        //             } else {
+        //                 SweetAlert({
+        //                     icon: 'error',
+        //                     title: 'Oops...',
+        //                     text: res.Message
+        //                 })
+        //             }
+        //         })
+        //         .catch(() => {
+        //             SweetAlert({
+        //                 icon: 'error',
+        //                 title: 'Oops...',
+        //                 text: 'Something went wrong!'
+        //             })
+        //         })
+        // }
     }
 
 

@@ -262,7 +262,6 @@ export const VendorForm = (props: {
                                             temp={toggle}
                                         />
                                     </div>
-
                                 </div>
                             </>
                             :

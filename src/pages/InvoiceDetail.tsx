@@ -337,6 +337,7 @@ export const InvoiceDetail = (props: {
     }, [props.invNumber])
 
     const save = () => {
+        console.log(invDetails)
         if (invDetails.TotalAmount !== (invDetails.TaxTotal + exSubtotal + POSubtotal)) {
             return SweetAlert({
                 title: 'Invoice Error',

@@ -110,7 +110,7 @@ export const Inbox = () => {
             id: 8,
             header: 'Status',
             accessor: 'Status',
-            className: 'min-w-150px',
+            className: 'min-w-100px',
             cell: (data) => {
                 let statusColor = 'primary'
                 switch (data.Status) {
@@ -156,17 +156,17 @@ export const Inbox = () => {
                     setIsError(true)
                     console.log(err)
                 })
+            axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Trash`)
+                .then(res => {
+                    setBinData(res.data)
+                    setIsBinLoading(false)
+                })
+                .catch(err => {
+                    setIsBinLoading(false)
+                    setIsBinError(true)
+                    console.log(err)
+                })
         }, 5000)
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Trash`)
-            .then(res => {
-                setBinData(res.data)
-                setIsBinLoading(false)
-            })
-            .catch(err => {
-                setIsBinLoading(false)
-                setIsBinError(true)
-                console.log(err)
-            })
         return () => {
             clearInterval(fetchData)
         }

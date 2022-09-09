@@ -1,9 +1,8 @@
-import axios from "axios"
 import moment from "moment"
 
 import { useEffect, useState } from "react"
 import { AxiosGet, AxiosInsert } from '../../helpers/Axios'
-import { AddSvg, CopySvg, RecallSvg, RemoveSvg, SaveSvg } from '../Svg/Svg'
+import { AddSvg, CopySvg, RecallSvg, RemoveSvg } from '../Svg/Svg'
 import { TableFilterComponent } from '../components/TableComponent'
 import { SweetAlert } from "../../Function/alert"
 
@@ -25,7 +24,6 @@ export const LineItems = (props:
     const [checkAll, setCheckAll] = useState<boolean>(false)
     const [checkAnyOne, setCheckAnyOne] = useState<boolean>(false)
     const [isLoading, SetIsLoading] = useState<boolean>(false)
-    const [process, setProcess] = useState<boolean>(false)
     const [isEdit, setIsEdit] = useState<boolean>(false)
     const [currentInput, setCurrentInput] = useState<string | null>(null)
 
@@ -217,19 +215,6 @@ export const LineItems = (props:
             .catch(err => {
                 console.log(err)
             })
-        // axios.post(`${}/UserPreference`, {
-        //     UserId: props.userId,
-        //     ListId: 0,
-        //     ListType: props.isExpense ? 'Expense' : 'LineItem',
-        //     Value: JSON.stringify(array, replacer),
-        //     ModifiedDateTime: null
-        // })
-        //     .then(() => {
-        //         console.log(props.isExpense)
-        //     })
-        //     .catch(err => {
-        //         console.log(err)
-        //     })
     }
 
     useEffect(() => {
@@ -284,7 +269,9 @@ export const LineItems = (props:
                 }
             }, { offset: Number.NEGATIVE_INFINITY }).element
         }
-    }, [filterDatum])
+        return () => {
+        }
+    }, [filterDatum, customColumns])
 
     // useEffect(() => {
     //     if (afterDragElement.length > 0) {
@@ -339,7 +326,7 @@ export const LineItems = (props:
     return (
         <>
             <div className="d-flex justify-content-between">
-                <div>
+                <div className="pb-3 px-5">
                     <>
                         <TableFilterComponent columns={customColumns} setColumns={setCustomColumns} datum={props.datum} setDatum={setFilterDatum} columnFilter={true} />
                     </>
@@ -445,23 +432,6 @@ export const LineItems = (props:
 
 
                                     </tr>
-                                    {/* {props.isExpense ?
-                                            <>
-                                                <th colSpan={1}></th>
-                                                <th> Subtotal </th>
-                                                <th>{props.subtotal.toFixed(2)}</th>
-                                                <th></th>
-                                                <th></th>
-                                                <th></th>
-                                            </>
-                                            :
-                                            <>
-                                                <th colSpan={9}></th>
-                                                <th className="min-w-150px">Items Subtotal</th>
-                                                <th>{`$ ${props.datum.reduce((prev, current) => { return prev + (current.Quantity * current.UnitPrice) }, 0).toFixed(2)}`}</th>
-                                                <th>{props.subtotal.toFixed(2)}</th>
-                                            </>
-                                        } */}
                                 </tfoot>
                             </>
                             :
