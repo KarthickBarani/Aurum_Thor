@@ -141,7 +141,7 @@ export const LevelElement = (props: {
                                 : null
                         }
                         <div className="col-4 align-self-end">
-                            <div className="row">
+                            <div className="d-flex flex-row">
                                 <div className="col-6">{props.index !== 0 ? <button onClick={removeLevel} title="Delete" className="btn btn-active-light-danger btn-icon btn-sm btn-hover-rise">
                                     <RemoveSvg clsName="svg-icon svg-icon-2 svg-icon-danger" />
                                 </button> : null}

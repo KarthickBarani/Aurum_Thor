@@ -222,7 +222,7 @@ export const TableGridComponent = (props:
             <div className="d-flex  justify-content-between pb-5 px-5">
                 {
                     props.filter
-                        ? <div className="w-25">
+                        ? <div>
                             <input type="text" placeholder="Search here" name='globalFilter' className="form-control form-control-solid form-control-sm" onChange={(e) => changeHandler(e, 0)} />
                         </div>
                         : null
