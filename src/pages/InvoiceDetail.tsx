@@ -1,5 +1,6 @@
 
 import axios from "axios"
+import React, { useMemo } from "react"
 import { useEffect, useState } from "react"
 import { Error } from "../components/components/Error"
 import { PdfViewer } from "../components/components/PdfViewer"
@@ -11,6 +12,7 @@ import { LevelElement } from "../components/WorkFlow/LevelElement"
 import { LineItems } from "../components/InvoiceDetails/LineItems"
 import { InvoiceDetailsForm } from "../components/InvoiceDetails/InvoiceDetailsForm"
 import { SaveSvg } from "../components/Svg/Svg"
+import { TableGridComponent } from "../components/components/TableComponent"
 
 
 
@@ -42,8 +44,8 @@ export const InvoiceDetail = (props: {
     const [expenses, setExpenses] = useState<expensesType[]>([] as expensesType[])
     const [approvalHistory, setApprovalHistory] = useState<ApprovalHistory[]>([] as ApprovalHistory[])
     const [workFlow, setWorkFlow] = useState<WorkFlowTableType>({} as WorkFlowTableType)
-    const [exSubtotal, setExSubtotal] = useState<number>(0)
-    const [POSubtotal, setPOSubtotal] = useState<number>(0)
+    // const [exSubtotal, setExSubtotal] = useState<number>(0)
+    // const [POSubtotal, setPOSubtotal] = useState<number>(0)
     const [nextApprovers, setNextApprover] = useState<NextApprovers[]>([] as NextApprovers[])
     // const [approvers, setApprover] = useState<WorkFlowApproval>({} as WorkFlowApproval)
 
@@ -97,6 +99,7 @@ export const InvoiceDetail = (props: {
             id: 2,
             headerName: 'Amount',
             accessor: 'Amount',
+            cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
             className: 'min-w-150px dragEl',
             isEdit: true,
             type: 'Number',
@@ -243,7 +246,7 @@ export const InvoiceDetail = (props: {
             id: 10,
             headerName: 'Inv Amount',
             accessor: 'Amount',
-            cell: (data) => '$ ' + data?.Amount,
+            cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
             className: 'min-w-150px dragEl',
             draggable: true,
             hidden: false,
@@ -257,7 +260,7 @@ export const InvoiceDetail = (props: {
             id: 11,
             headerName: 'PO Amount',
             accessor: 'POAmount',
-            cell: (data) => '$ ' + data?.POAmount,
+            cell: (data) => '$ ' + Number(data?.POAmount).toFixed(2),
             className: 'min-w-150px dragEl',
             draggable: true,
             hidden: false,
@@ -266,6 +269,41 @@ export const InvoiceDetail = (props: {
                     return prev + Number(current?.POAmount)
                 }, 0).toFixed(2)}`
             }
+        }
+    ])
+
+    const [approverHistoryColumn, setApprovalHistoryColumn] = useState([
+        {
+            id: 1,
+            header: 'Approver',
+            accessor: 'ApproverName',
+            className: 'min-w-100px dragEl',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 2,
+            header: 'Action',
+            accessor: 'ActionOn',
+            className: 'min-w-100px dragEl',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 3,
+            header: 'Comments',
+            accessor: 'Comments',
+            className: 'min-w-100px dragEl',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 4,
+            header: 'Status',
+            accessor: 'StatusText',
+            className: 'min-w-100px dragEl',
+            draggable: true,
+            hidden: false
         }
     ])
 
@@ -298,10 +336,20 @@ export const InvoiceDetail = (props: {
         setInvDetails(obj)
     }, [listItems])
 
-    useEffect(() => {
-        setExSubtotal(invDetails.Expenses?.reduce((prev, current) => prev + current.Amount, 0))
-        setPOSubtotal(invDetails.LineItems?.reduce((prev, current) => prev + (current.POQuantity * current.POUnitPrice), 0))
-    }, [invDetails])
+    const expensesSubtotal = useMemo(() => {
+        return invDetails.Expenses?.reduce((prev, current) => prev + current.Amount, 0)
+    },
+        [invDetails.Expenses])
+
+    const poSubtotal = useMemo(() => {
+        return invDetails.LineItems?.reduce((prev, current) => prev + (current.POQuantity * current.POUnitPrice), 0)
+    },
+        [invDetails.LineItems])
+
+    // useEffect(() => {
+    //     setExSubtotal(invDetails.Expenses?.reduce((prev, current) => prev + current.Amount, 0))
+    //     setPOSubtotal(invDetails.LineItems?.reduce((prev, current) => prev + (current.POQuantity * current.POUnitPrice), 0))
+    // }, [invDetails])
 
     useEffect(() => {
         setIsLoading(true)
@@ -338,7 +386,7 @@ export const InvoiceDetail = (props: {
 
     const save = () => {
         console.log(invDetails)
-        if (invDetails.TotalAmount !== (invDetails.TaxTotal + exSubtotal + POSubtotal)) {
+        if (invDetails.TotalAmount !== (invDetails.TaxTotal + expensesSubtotal + poSubtotal)) {
             return SweetAlert({
                 title: 'Invoice Error',
                 icon: 'info',
@@ -391,7 +439,7 @@ export const InvoiceDetail = (props: {
                                 </div>
                             </div>
                             <div className="card-body">
-                                {isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <InvoiceDetailsForm users={props.users} nextApprovers={nextApprovers} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={POSubtotal} exSubtotal={exSubtotal} vendors={props.vendors}
+                                {isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <InvoiceDetailsForm users={props.users} nextApprovers={nextApprovers} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={poSubtotal} exSubtotal={expensesSubtotal} vendors={props.vendors}
                                     departments={props.departments} locations={props.locations} subsidiaries={props.subsidiary} formError={formError} setFormError={setFormError} setValid={setValid} refetch={props.refetch} approvalHistory={approvalHistory} />}
                             </div>
                         </div>
@@ -406,7 +454,7 @@ export const InvoiceDetail = (props: {
                             </div>
                             <div className="card-body">
                                 <div className="row d-flex h-100">
-                                    <div id="pdf" className=" col-6 collapse show fade">
+                                    <div id="pdf" className="col-12 col-xl-6 collapse show fade">
                                         <div className="m-3">
                                             {
                                                 isLoading
@@ -417,7 +465,7 @@ export const InvoiceDetail = (props: {
                                             }
                                         </div>
                                     </div>
-                                    <div className={collapseClass}>
+                                    <div className={`col-12 col-xl-6 ${!init ? 'w-xl-100' : ''}`}>
                                         <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6 ">
                                             <li className="nav-item">
                                                 <a className={`nav-link ${lineItemsToggle === 'Expense' ? 'active' : ''}`} role="button" onClick={() => setLineItemsToggle('Expense')} data-bs-toggle="tab"
@@ -433,9 +481,9 @@ export const InvoiceDetail = (props: {
                                         </ul>
                                         <div className="tab-content h-95">
                                             {lineItemsToggle === 'Expense' ?
-                                                isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <LineItems headers={expensesHeaders} setColumns={setExpensesHeaders} datum={expenses} subtotal={exSubtotal} setDatum={setExpenses} isExpense={true} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
+                                                isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <LineItems headers={expensesHeaders} setColumns={setExpensesHeaders} datum={expenses} subtotal={expensesSubtotal} setDatum={setExpenses} isExpense={true} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
                                                 :
-                                                isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <LineItems headers={listItemsHeaders} setColumns={setListItemsHeaders} datum={listItems} subtotal={POSubtotal} isExpense={false} setDatum={setListItems} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
+                                                isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <LineItems headers={listItemsHeaders} setColumns={setListItemsHeaders} datum={listItems} subtotal={poSubtotal} isExpense={false} setDatum={setListItems} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
                                             }
                                         </div>
                                     </div>
@@ -471,6 +519,7 @@ export const InvoiceDetail = (props: {
                                                 </tbody>
                                             </table>
                                         </div>
+                                        {/* {approvalHistory.length > 0 && <TableGridComponent columns={approverHistoryColumn} data={approvalHistory} setData={setApprovalHistory} filter={false} />} */}
                                     </div>
                                 </div>
                             </div>

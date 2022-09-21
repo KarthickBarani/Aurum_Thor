@@ -1,7 +1,8 @@
 import axios from "axios"
-import React, { useEffect, useState } from "react"
+import React, { ReactElement, useEffect, useState } from "react"
 import { SweetAlert } from "../../Function/alert"
 import { setIsSelectProperty } from "../../Function/setSelect"
+import { useDragAndDrop } from "../../Hook/useDragAndDrop"
 import { DownArrowSvg, RemoveSvg, UpArrowSvg } from "../Svg/Svg"
 
 
@@ -39,7 +40,8 @@ export const TableFilterComponent = (props: {
             const keys = props.datum[0] ? Object.keys(props?.datum[0]) : []
             if (e.target.value === '') {
                 props.setDatum([...props.datum])
-            } else {
+            }
+            else {
                 const filterArray = [...props.datum]?.filter(
                     arr => keys.some(key => {
                         let currentStr: string = arr[key]?.toString()
@@ -79,9 +81,28 @@ export const TableFilterComponent = (props: {
                             </div>
                         </div>
                     </div>
-                    : null
+                    :
+                    null
             }
         </div>
+    )
+}
+
+type ActionButtonsProps = {
+    buttonText: string | ReactElement
+    buttonClass: string
+    onClick: Function
+}
+
+export const TableActionComponent = (props: {
+    data: any[]
+    setData: Function
+    buttons?: ActionButtonsProps[]
+}) => {
+    return (
+        <>
+            {props?.buttons?.map((button, index) => <button key={index} className={button.buttonClass} onClick={() => button.onClick()} >{button.buttonText}</button>)}
+        </>
     )
 }
 
@@ -91,7 +112,7 @@ export const TableGridComponent = (props:
         data: any[]
         setData: Function
         selectable?: boolean
-        filter: boolean
+        filter?: boolean
         setDataFetch?: Function
 
     }) => {
@@ -101,6 +122,30 @@ export const TableGridComponent = (props:
     const [currentData, setCurrentData] = useState(setIsSelectProperty([...props.data]))
     const [masterCheck, setMasterCheck] = useState(false)
     const [sortOption, setSortOption] = useState<'NONE' | 'ACS' | 'DES'>('NONE')
+
+
+    const [afterDrag] = useDragAndDrop()
+
+
+    useEffect(() => {
+        const afterDragEl: any[] = []
+        const remainEl: any[] = []
+        afterDrag.forEach(el => {
+            let col = [...currentColumns].find(arr => arr.header === el.header)
+            if (col) {
+                afterDragEl.push(col)
+            }
+        })
+        props.columns.forEach(el => {
+            if (![...afterDragEl].includes(el)) {
+                remainEl.push(el)
+            }
+        })
+        const finalArray = afterDragEl.concat(remainEl)
+        console.log(finalArray)
+        setCurrentColumns(finalArray)
+    }, [afterDrag])
+
 
 
     useEffect(() => {
@@ -219,26 +264,38 @@ export const TableGridComponent = (props:
 
     return (
         <>
-            <div className="d-flex  justify-content-between pb-5 px-5">
+            <div className="d-flex  justify-content-between">
                 {
-                    props.filter
+                    props?.filter
                         ? <div>
                             <input type="text" placeholder="Search here" name='globalFilter' className="form-control form-control-solid form-control-sm" onChange={(e) => changeHandler(e, 0)} />
                         </div>
                         : null
                 }
                 <div>
-                    {
+                    {/* {
                         currentData.some(data => data.isSelect === true)
                             ? <button className="btn btn-icon btn-sm" onClick={removeHandler}><RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-2" /></button>
                             : null
+                    } */}
+                    {
+                        currentData.some(data => data.isSelect === true)
+                            ?
+                            <TableActionComponent data={props.data} setData={props.setData} buttons={[
+                                {
+                                    buttonText: <RemoveSvg clsName="svg-icon svg-icon-danger svg-icon-2" />,
+                                    buttonClass: "btn btn-icon btn-sm btn-light-danger mx-2",
+                                    onClick: removeHandler
+                                }
+                            ]} /> :
+                            null
                     }
                 </div>
             </div>
-            <div className="table-responsive">
-                <table className="table table-hover gy-3 gs-7 table-rounded">
+            <div className="table-responsive hover-scroll-overlay-y">
+                <table className="table table-hover gy-3 gs-7 table-rounded hover-scroll-overlay-y">
                     <thead className="fw-bolder fs-6 text-gray-800">
-                        <tr className="border-bottom-2 border-gray-200 ">
+                        <tr className="border-bottom-2 border-gray-200 draggableContainer">
                             {
                                 props.selectable
                                     ? <th key={0}>
@@ -250,7 +307,7 @@ export const TableGridComponent = (props:
                             }
                             {
                                 props.columns.map((column) => {
-                                    return <th key={column.id} role={'button'} className={column.className} onClick={() => {
+                                    return <th key={column.id} role={'button'} className={column.className} draggable={column.draggable ? column.draggable : false} onClick={() => {
                                         if (column.sortable) {
                                             const type = sortOption === 'NONE'
                                                 ? 'ACS'
@@ -265,12 +322,15 @@ export const TableGridComponent = (props:
                                             }
                                         }
                                     }
-                                    } >{column.header}{"   "}{
+                                    } >
+                                        {column.header}
+                                        {"\t"}
+                                        {
                                             column?.sortable
                                                 ? sortOption !== 'NONE'
                                                     ? sortOption === 'ACS'
-                                                        ? <DownArrowSvg clsName="svg-icon svg-icon-2 ms-auto" />
-                                                        : <UpArrowSvg clsName="svg-icon svg-icon-2 ms-auto" />
+                                                        ? <DownArrowSvg clsName="svg-icon svg-icon-3" />
+                                                        : <UpArrowSvg clsName="svg-icon svg-icon-3" />
                                                     : null
                                                 : null
                                         }
@@ -279,7 +339,7 @@ export const TableGridComponent = (props:
                             }
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="hover-scroll-overlay-y">
                         {
                             currentData?.map((datum, index) => (
                                 <tr key={index}>
@@ -308,7 +368,7 @@ export const TableGridComponent = (props:
                                                                         )}
                                                                     </select>
                                                                     : header.isEdit
-                                                                        ? <input type={header.type} className='form-control form-control-transparent form-control-sm' autoFocus name={header.accessor} value={datum[header.accessor]} />
+                                                                        ? <input type={header?.type} className='form-control form-control-transparent form-control-sm' autoFocus name={header.accessor} value={datum[header.accessor]} />
                                                                         : header?.cell
                                                                             ? header?.cell(datum)
                                                                             : datum[header.accessor]

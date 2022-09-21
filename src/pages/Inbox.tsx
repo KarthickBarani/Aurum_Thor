@@ -47,13 +47,13 @@ export const Inbox = () => {
                     </div>
                 )
             },
-            className: 'min-w-50px'
+            className: 'min-w-50px',
         },
         {
             id: 2,
             header: 'From',
             accessor: 'FromAddress',
-            className: 'min-w-150px',
+            className: 'min-w-150px dragEl',
             cell: (data) => {
                 return (
                     <div className="d-flex">
@@ -66,51 +66,57 @@ export const Inbox = () => {
                     </div>
                 )
             },
-            sortable: true
+            sortable: true,
+            draggable: true
         },
         {
             id: 3,
             header: 'Subject',
             accessor: 'Subject',
-            className: 'min-w-300px',
-            sortable: true
+            className: 'min-w-300px  dragEl',
+            sortable: true,
+            draggable: true
         },
         {
             id: 4,
             header: 'Received Date',
             accessor: 'ReceivedDateTime',
-            className: 'min-w-150px',
+            className: 'min-w-150px  dragEl',
             cell: (data) => moment(data.ReceivedDateTime).format('MM-DD-YYYY'),
-            sortable: true
+            sortable: true,
+            draggable: true
         },
         {
             id: 5,
             header: 'Invoice Date',
             accessor: 'InvoiceDateTime',
-            className: 'min-w-150px',
+            className: 'min-w-150px  dragEl',
             cell: (data) => moment(data.InvoiceDateTime).format('MM-DD-YYYY'),
-            sortable: true
+            sortable: true,
+            draggable: true
         },
         {
             id: 6,
             header: 'Invoice Number',
             accessor: 'InvoiceNumber',
-            className: 'min-w-150px',
-            sortable: true
+            className: 'min-w-150px  dragEl',
+            sortable: true,
+            draggable: true
         },
         {
             id: 7,
             header: 'Total',
             accessor: 'TotalAmount',
-            className: 'min-w-150px',
+            className: 'min-w-150px  dragEl',
             cell: (data) => `$ ${data.TotalAmount.toFixed(2)}`,
-            sortable: true
+            sortable: true,
+            draggable: true
         },
         {
             id: 8,
             header: 'Status',
             accessor: 'Status',
-            className: 'min-w-100px',
+            className: 'min-w-100px dragEl',
             cell: (data) => {
                 let statusColor = 'primary'
                 switch (data.Status) {
@@ -129,7 +135,8 @@ export const Inbox = () => {
                 }
                 return <span className={`badge badge-light-${statusColor}`} >{data.StatusText}</span>
             },
-            sortable: true
+            sortable: true,
+            draggable: true
         }
     ], [pdfUrl])
 

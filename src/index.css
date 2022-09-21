@@ -58,7 +58,7 @@ th {
 
 
 .dragEl {
-  cursor: move;
+  cursor: pointer;
 }
 
 .dragging {

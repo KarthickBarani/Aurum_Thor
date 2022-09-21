@@ -18,13 +18,14 @@ export const Vendor = () => {
             accessor: 'Action',
             cell: (data) => {
                 return (
-                    <div className="d-flex justify-content-evenly">
+                    <div className="d-flex gap-3">
                         <EditSvg role={'button'} clsName="svg-icon svg-icon-warning svg-icon-2" title={'Edit'} function={() => {
                             setVendorId(data.VendorId)
                             setToggleForm(true)
                         }
                         } />
                         <RemoveSvg role={'button'} clsName="svg-icon svg-icon-danger svg-icon-2" title={'Delete'} function={() => {
+
                         }
                         } />
                     </div>
@@ -37,21 +38,21 @@ export const Vendor = () => {
             id: 2,
             header: 'Vendor Name',
             accessor: 'VendorName',
-            className: 'min-w-50px',
+            className: 'min-w-200px',
             sortable: true
         },
         {
             id: 3,
             header: 'Vendor Code',
             accessor: 'VendorCode',
-            className: 'min-w-50px',
+            className: 'min-w-200px',
             sortable: true
         },
         {
             id: 4,
             header: 'Account Number',
             accessor: 'AccountNumber',
-            className: 'min-w-50px',
+            className: 'min-w-200px',
             sortable: true
         },
     ]
@@ -197,32 +198,32 @@ export const Vendor = () => {
 
     const save = () => {
         console.log('check', vendorPost)
-        // validation()
-        // if (isVaild()) {
-        //     AxiosInsert('/Vendor/New', vendorPost)
-        //         .then(res => {
-        //             if (res.Status) {
-        //                 SweetAlert({
-        //                     title: 'Saved',
-        //                     text: res.Message,
-        //                     icon: 'success'
-        //                 })
-        //             } else {
-        //                 SweetAlert({
-        //                     icon: 'error',
-        //                     title: 'Oops...',
-        //                     text: res.Message
-        //                 })
-        //             }
-        //         })
-        //         .catch(() => {
-        //             SweetAlert({
-        //                 icon: 'error',
-        //                 title: 'Oops...',
-        //                 text: 'Something went wrong!'
-        //             })
-        //         })
-        // }
+        validation()
+        if (isVaild()) {
+            AxiosInsert('/Vendor/New', vendorPost)
+                .then(res => {
+                    if (res.Status) {
+                        SweetAlert({
+                            title: 'Saved',
+                            text: res.Message,
+                            icon: 'success'
+                        })
+                    } else {
+                        SweetAlert({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: res.Message
+                        })
+                    }
+                })
+                .catch(() => {
+                    SweetAlert({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong!'
+                    })
+                })
+        }
     }
 
 
@@ -250,35 +251,37 @@ export const Vendor = () => {
                                 }
                             </div>
                         </div>
-                        <div className="card-body card-scroll">
-                            <div className="d-flex">
-                                <ul className="nav nav-tabs nav-pills flex-row border-0 flex-md-column me-5 mb-3 mb-md-0 fs-6 min-w-lg-200px">
-                                    <li className="nav-item w-100 me-0 mb-md-2">
-                                        <Link className={`nav-link w-100 btn btn-flex btn-active-light-success ${toggleForm ? null : 'active'}`} to={''} onClick={() => {
-                                            setToggleForm(false)
-                                        }} data-bs-toggle="tab" >
-                                            <UsersSvg clsName="svg-icon svg-icon-1 svg-icon-primary" />
-                                            <span className="d-flex flex-column align-items-start">
-                                                <span className="fs-4 fw-bold">View</span>
-                                                <span className="fs-7">Vendor Details</span>
-                                            </span>
-                                        </Link>
-                                    </li>
-                                    <li className="nav-item w-100 me-0 mb-md-2">
-                                        <Link className={`nav-link w-100 btn btn-flex btn-active-light-success ${toggleForm ? 'active' : null}`} to={''} onClick={() => {
-                                            setVendorId(0)
-                                            setVendorPost(vendorDefaultValue)
-                                            setToggleForm(true)
-                                        }} data-bs-toggle="tab" >
-                                            <UsersSvg clsName="svg-icon svg-icon-1 svg-icon-primary" />
-                                            <span className="d-flex flex-column align-items-start">
-                                                <span className="fs-4 fw-bold">Add New</span>
-                                                <span className="fs-7">Vendor Details</span>
-                                            </span>
-                                        </Link>
-                                    </li>
-                                </ul>
-                                <div className="w-100 ">
+                        <div className="card-body hover-scroll-overlay-y">
+                            <div className="d-flex h-100 flex-column flex-lg-row">
+                                <div className="d-flex">
+                                    <ul className="nav nav-tabs nav-pills flex-row gap-2 flex-lg-column border-0 me-5 mb-3 mb-md-0 fs-6 min-w-lg-200px">
+                                        <li className="nav-item  me-0 mb-md-2">
+                                            <Link className={`nav-link w-100 btn btn-flex btn-active-light-success ${toggleForm ? null : 'active'}`} to={''} onClick={() => {
+                                                setToggleForm(false)
+                                            }} data-bs-toggle="tab" >
+                                                <UsersSvg clsName="svg-icon svg-icon-1 svg-icon-primary" />
+                                                <span className="d-flex flex-column align-items-start">
+                                                    <span className="fs-4 fw-bold">View</span>
+                                                    <span className="fs-7">Vendor Details</span>
+                                                </span>
+                                            </Link>
+                                        </li>
+                                        <li className="nav-item me-0 mb-md-2">
+                                            <Link className={`nav-link w-100 btn btn-flex btn-active-light-success ${toggleForm ? 'active' : null}`} to={''} onClick={() => {
+                                                setVendorId(0)
+                                                setVendorPost(vendorDefaultValue)
+                                                setToggleForm(true)
+                                            }} data-bs-toggle="tab" >
+                                                <UsersSvg clsName="svg-icon svg-icon-1 svg-icon-primary" />
+                                                <span className="d-flex flex-column align-items-start">
+                                                    <span className="fs-4 fw-bold">Add New</span>
+                                                    <span className="fs-7">Vendor Details</span>
+                                                </span>
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div className="w-100 hover-scroll-overlay-y">
                                     {
                                         toggleForm
                                             ? <VendorForm vendor={vendorPost} setVendor={setVendorPost} formError={formError} setFormError={setFormError} />
@@ -293,8 +296,6 @@ export const Vendor = () => {
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>

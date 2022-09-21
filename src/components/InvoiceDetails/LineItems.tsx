@@ -54,10 +54,10 @@ export const LineItems = (props:
             .then(res => {
                 const col = props.isExpense ? res.find(data => data.ListTypeId === 3)?.Value : res.find(data => data.ListTypeId === 2)?.Value
                 setCustomColumns(col ? JSON.parse(col, reviver) : props.headers)
-                console.log(JSON.parse(col, reviver))
+                console.log('test', JSON.parse(col, reviver))
             })
             .catch(err => console.log(err))
-    }, [props.headers])
+    }, [props.headers, props.userId])
 
     useEffect(() => {
         setCustomColumns([...props.headers])
@@ -269,8 +269,7 @@ export const LineItems = (props:
                 }
             }, { offset: Number.NEGATIVE_INFINITY }).element
         }
-        return () => {
-        }
+
     }, [filterDatum, customColumns])
 
     // useEffect(() => {
@@ -378,7 +377,7 @@ export const LineItems = (props:
                                             </div>
                                         </th>
                                         {customColumns.map(header => {
-                                            return header.hidden ? null : <th key={header.headerName} draggable={header.draggable} className={header.className}>{header.headerName}</th>
+                                            return header?.hidden ? null : <th key={header?.headerName} draggable={header?.draggable} className={header?.className}>{header?.headerName}</th>
                                         })}
                                     </tr>
                                 </thead>
