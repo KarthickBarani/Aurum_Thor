@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
+
 
 
 
@@ -12,15 +13,16 @@ export const useDragAndDrop = () => {
     const [finallyArray, setfinallyArray] = useState<finallyArrayprops[]>([])
 
     useEffect(() => {
-        const draggableContainer = document.querySelectorAll('.draggableContainer')
-        const dragEls = document.querySelectorAll('.dragEl')
+        const draggableContainer: NodeListOf<Element> = document.querySelectorAll('.draggableContainer')
+        console.dir(draggableContainer)
+        const dragEls: NodeListOf<Element> = document.querySelectorAll('.dragEl')
         dragEls.forEach((dragEl) => {
             dragEl.addEventListener('dragstart', () => onDragStart(dragEl))
             dragEl.addEventListener('dragend', () => onDragEnd(dragEl))
         })
 
-        draggableContainer.forEach((el) => {
-            el?.addEventListener('dragover', e => onDragOver(e, el))
+        draggableContainer.forEach((el: Element) => {
+            el?.addEventListener('dragover', (e) => onDragOver(e, el))
         })
 
 
@@ -40,8 +42,8 @@ export const useDragAndDrop = () => {
         }
     }, [])
 
-    const getDragAfterElement = (draggableContainer, x: number) => {
-        const draggableElements = [...draggableContainer?.querySelectorAll('.dragEl:not(.dragging)')]
+    const getDragAfterElement = (draggableContainer: any, x: number) => {
+        const draggableElements: any[] = [...draggableContainer?.querySelectorAll('.dragEl:not(.dragging)')]
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect()
@@ -75,7 +77,7 @@ export const useDragAndDrop = () => {
         let array: finallyArrayprops[] = []
         dragEl.classList.remove('dragging')
         console.log("end")
-        const draggableContainer = document.querySelectorAll('.draggableContainer')
+        const draggableContainer: NodeListOf<Element> = document.querySelectorAll('.draggableContainer')
 
         draggableContainer.forEach((el) => {
             el?.querySelectorAll('th').forEach(elChild => {

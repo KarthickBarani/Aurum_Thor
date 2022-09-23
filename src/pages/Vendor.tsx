@@ -284,7 +284,12 @@ export const Vendor = () => {
                                 <div className="w-100 hover-scroll-overlay-y">
                                     {
                                         toggleForm
-                                            ? <VendorForm vendor={vendorPost} setVendor={setVendorPost} formError={formError} setFormError={setFormError} />
+                                            ? <VendorForm
+                                                vendor={vendorPost}
+                                                setVendor={setVendorPost}
+                                                formError={formError}
+                                                setFormError={setFormError}
+                                            />
                                             : <VendorTable
                                                 columns={columns}
                                                 data={filterData}

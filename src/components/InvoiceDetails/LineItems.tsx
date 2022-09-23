@@ -435,7 +435,7 @@ export const LineItems = (props:
                             </>
                             :
                             <tbody className="">
-                                <tr><td><h4 className='text-center'>Data not found</h4></td></tr>
+                                <tr><td><h2 className='text-center'>Data not found</h2></td></tr>
                             </tbody>
                     }
                 </table>
