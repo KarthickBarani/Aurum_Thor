@@ -423,7 +423,7 @@ export const LineItems = (props:
                                             <>
                                                 <td key={0}></td>
                                                 {customColumns?.map(
-                                                    col => col.hidden ? null : <td key={col.id}>{col?.footer ? col?.footer(props.datum) : null}</td>
+                                                    col => col.hidden ? null : <td className="fw-bolder fs-6 text-gray-800" key={col.id}>{col?.footer ? col?.footer(props.datum) : null}</td>
                                                 )}
                                             </>
 

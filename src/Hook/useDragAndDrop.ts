@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 
 
@@ -14,7 +14,6 @@ export const useDragAndDrop = () => {
 
     useEffect(() => {
         const draggableContainer: NodeListOf<Element> = document.querySelectorAll('.draggableContainer')
-        console.dir(draggableContainer)
         const dragEls: NodeListOf<Element> = document.querySelectorAll('.dragEl')
         dragEls.forEach((dragEl) => {
             dragEl.addEventListener('dragstart', () => onDragStart(dragEl))

@@ -617,10 +617,10 @@ export const InvoiceDetailsForm = (props:
                         </div>
                     </div>
                     <div className="row mt-5">
-                        <div className="col">
-                            <div className="d-flex flex-stack">
-                                <label className={formLabel}>Attachments</label>
-                                <div>
+                        <div className="d-flex flex-column">
+                            <div className="d-flex">
+                                <label className={formLabel + "me-auto"}>Attachments</label>
+                                <div className="ms-auto">
                                     <button type="button" title="Add" className="btn btn-icon-primary" data-bs-toggle={"modal"} data-bs-target="#kt_modal_1">
                                         <AddSvg clsName="svg-icon svg-icon-primary svg-icon-2" />
                                     </button>
