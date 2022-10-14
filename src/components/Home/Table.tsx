@@ -63,7 +63,7 @@ export const Table = (props:
                                 setTimeout(() => navigation('/InvoiceDetail'))
                             }} />
                         &nbsp;&nbsp;
-                        <ErrorSvg clsName='svg-icon svg-icon-danger svg-icon-1' />
+                        <ErrorSvg role={'button'} title={'Error code not found'} clsName='svg-icon svg-icon-danger svg-icon-1' />
                     </>
                 )
             }

@@ -7,9 +7,12 @@ import { VendorTable } from "../components/Vendor/VendorTable"
 import { Link } from "react-router-dom"
 import { propsAddressList, propsVendorPost, vendors } from "../components/Interface/Interface"
 import { SweetAlert } from "../Function/alert"
+import axios from "axios"
 
 
 export const Vendor = () => {
+
+
 
     const columns = [
         {
@@ -25,7 +28,36 @@ export const Vendor = () => {
                         }
                         } />
                         <RemoveSvg role={'button'} clsName="svg-icon svg-icon-danger svg-icon-2" title={'Delete'} function={() => {
+                            SweetAlert({
+                                title: 'Are you sure?',
+                                text: "Vendor details has been delete",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, delete it!'
+                            })
+                                .then((result) => {
+                                    if (result.isConfirmed) {
+                                        AxiosGet(`Vendor/Remove/${data.VendorId}`)
+                                            .then(res => {
+                                                AxiosGet('Vendor')
+                                                    .then(ress => {
+                                                        setData(ress)
+                                                        setFilterData(ress)
+                                                        SweetAlert({
+                                                            title: 'Deleted!',
+                                                            text: 'Your data has been deleted.',
+                                                            icon: 'success'
+                                                        })
+                                                    })
+                                                    .catch(err => console.log(err))
+                                            }
+                                            )
+                                            .catch(err => console.log(err))
 
+                                    }
+                                })
                         }
                         } />
                     </div>

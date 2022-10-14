@@ -11,9 +11,9 @@ import { AxiosGet, AxiosInsert } from "../helpers/Axios"
 import { LevelElement } from "../components/WorkFlow/LevelElement"
 import { LineItems } from "../components/InvoiceDetails/LineItems"
 import { InvoiceDetailsForm } from "../components/InvoiceDetails/InvoiceDetailsForm"
-import { AddSvg, SaveSvg } from "../components/Svg/Svg"
+import { AddSvg, ErrorSvg, SaveSvg } from "../components/Svg/Svg"
 import { ActionButtonsProps, columnProps, TableActionComponent, TableGridComponent, TestGrid } from "../components/components/TableComponent"
-import { type } from "os"
+
 
 
 
@@ -113,17 +113,18 @@ export const InvoiceDetail = (props: {
     const [afterDragElement, setAfterDragElement] = useState<any>([])
 
 
-    // const changeHandler = (e, targetArray, targetfunction) => {
-    //     const index = e.target.id
-    //     const key = e.target.name
-    //     const type = e.target.type
-    //     const array = [...targetArray]
-    //     if (type === 'number')
-    //         array[index][key] = e.target.valueAsNumber
-    //     else
-    //         array[index][key] = e.target.value
-    //     targetfunction(array)
-    // }
+    const changeHandler = (e, targetArray, targetfunction) => {
+        const index = e.target.id
+        const key = e.target.name
+        const type = e.target.type
+        const array = [...targetArray]
+        if (type === 'number')
+            array[index][key] = e.target.valueAsNumber
+        else
+            array[index][key] = e.target.value
+        targetfunction(array)
+    }
+
     // const expensesOption: ActionButtonsProps[] = [
     //     {
     //         buttonText: <AddSvg clsName="svg-icon svg-icon-3 svg-icon-primary" />,
@@ -439,7 +440,8 @@ export const InvoiceDetail = (props: {
             id: 1,
             headerName: 'Inv Qty',
             accessor: 'Quantity',
-            className: 'min-w-100px dragEl',
+            cell: (data) => <span id={'Quantity'} title="Invoice quantity is must lesser than PO quantity" className={data.POQuantity < data.Quantity ? "text-danger fw-bolder border border-2 rounded-pill bg-light p-2 shadow-sm" : ""}>{data.Quantity}</span>,
+            className: `min-w-100px dragEl`,
             isEdit: true,
             type: 'Number',
             draggable: true,
@@ -450,13 +452,19 @@ export const InvoiceDetail = (props: {
             headerName: 'PO Qty',
             accessor: 'POQuantity',
             className: 'min-w-100px dragEl',
-            isEdit: true,
-            type: 'Number',
             draggable: true,
             hidden: false
         },
         {
             id: 3,
+            headerName: 'Quantity Available To Billing',
+            accessor: 'POQuantityAvailable',
+            className: 'min-w-200px dragEl',
+            draggable: true,
+            hidden: false
+        },
+        {
+            id: 4,
             headerName: 'Item',
             accessor: 'POItem',
             className: 'min-w-150px dragEl',
@@ -464,7 +472,7 @@ export const InvoiceDetail = (props: {
             hidden: false
         },
         {
-            id: 4,
+            id: 5,
             headerName: 'Vendor part#',
             accessor: 'PartNumber',
             className: 'min-w-150px dragEl',
@@ -472,7 +480,7 @@ export const InvoiceDetail = (props: {
             hidden: false
         },
         {
-            id: 5,
+            id: 6,
             headerName: 'Description',
             accessor: 'Description',
             className: 'min-w-300px dragEl',
@@ -482,7 +490,7 @@ export const InvoiceDetail = (props: {
             hidden: false
         },
         {
-            id: 6,
+            id: 7,
             headerName: 'Department',
             accessor: 'Department',
             className: 'min-w-150px dragEl',
@@ -495,7 +503,7 @@ export const InvoiceDetail = (props: {
             hidden: false
         },
         {
-            id: 7,
+            id: 8,
             headerName: 'Location',
             accessor: 'LocationId',
             className: 'min-w-150px dragEl',
@@ -508,7 +516,7 @@ export const InvoiceDetail = (props: {
             hidden: false
         },
         {
-            id: 8,
+            id: 9,
             headerName: 'Inv Rate',
             accessor: 'UnitPrice',
             className: 'min-w-150px dragEl',
@@ -518,17 +526,15 @@ export const InvoiceDetail = (props: {
             hidden: false
         },
         {
-            id: 9,
+            id: 10,
             headerName: 'PO Rate',
             accessor: 'POUnitPrice',
             className: 'min-w-150px dragEl',
-            isEdit: true,
-            type: 'Number',
             draggable: true,
             hidden: false
         },
         {
-            id: 10,
+            id: 11,
             headerName: 'Inv Amount',
             accessor: 'Amount',
             cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
@@ -542,7 +548,7 @@ export const InvoiceDetail = (props: {
             }
         },
         {
-            id: 11,
+            id: 12,
             headerName: 'PO Amount',
             accessor: 'POAmount',
             cell: (data) => '$ ' + Number(data?.POAmount).toFixed(2),
@@ -722,14 +728,17 @@ export const InvoiceDetail = (props: {
                                         </div> */}
                                         <div className="tab-content h-95">
                                             {
+                                                isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <LineItems headers={lineItemsToggle === 'Expense' ? expensesHeaders : listItemsHeaders} setColumns={lineItemsToggle === 'Expense' ? setExpensesHeaders : setListItemsHeaders} datum={lineItemsToggle === 'Expense' ? expenses : listItems} subtotal={lineItemsToggle === 'Expense' ? expensesSubtotal : poSubtotal} setDatum={lineItemsToggle === 'Expense' ? setExpenses : setListItems} isExpense={lineItemsToggle === 'Expense' ? true : false} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
+                                            }
+                                            {/* {
                                                 lineItemsToggle === 'Expense' ?
                                                     isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <LineItems headers={expensesHeaders} setColumns={setExpensesHeaders} datum={expenses} subtotal={expensesSubtotal} setDatum={setExpenses} isExpense={true} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
                                                     :
                                                     isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <LineItems headers={listItemsHeaders} setColumns={setListItemsHeaders} datum={listItems} subtotal={poSubtotal} setDatum={setListItems} isExpense={false} userId={props.userid} invoiceId={invDetails.InvoiceId} invoiceNumber={invDetails.InvoiceNumber} />
-                                            }
+                                            } */}
                                             {/* {
                                                 lineItemsToggle === 'Expense' ?
-                                                    isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <TestGrid columns={expensesHeaders} data={expenses} setData={setExpenses} />
+                                                    isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <TestGrid columns={expensesHeaders} data={expenses} setData={setExpenses} draggable={true} />
                                                     :
                                                     isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <TestGrid columns={listItemsHeaders} data={listItems} setData={setListItems} />
                                             } */}

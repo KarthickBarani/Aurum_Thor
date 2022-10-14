@@ -13,7 +13,7 @@ export const useDragAndDrop = () => {
     const [finallyArray, setfinallyArray] = useState<finallyArrayprops[]>([])
 
     useEffect(() => {
-        const draggableContainer: NodeListOf<Element> = document.querySelectorAll('.draggableContainer')
+        const draggableContainer: NodeListOf<Element> = document.querySelectorAll('draggableContainer')
         const dragEls: NodeListOf<Element> = document.querySelectorAll('.dragEl')
         dragEls.forEach((dragEl) => {
             dragEl.addEventListener('dragstart', () => onDragStart(dragEl))
@@ -24,6 +24,7 @@ export const useDragAndDrop = () => {
             el?.addEventListener('dragover', (e) => onDragOver(e, el))
         })
 
+        console.log(draggableContainer)
 
 
         return () => {

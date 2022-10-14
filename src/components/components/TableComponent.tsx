@@ -1,11 +1,15 @@
 import axios from "axios"
 import React, { ReactElement, useEffect, useState } from "react"
+import { createNoSubstitutionTemplateLiteral } from "typescript"
 import { array } from "yup"
 import { SweetAlert } from "../../Function/alert"
 import { setIsSelectProperty } from "../../Function/setSelect"
 import { useDragAndDrop } from "../../Hook/useDragAndDrop"
 import { expensesType } from "../Interface/Interface"
 import { DownArrowSvg, RemoveSvg, UpArrowSvg } from "../Svg/Svg"
+import tableStyle from "./TableComponent.module.css"
+
+
 
 type selectSrcprops = {
     array: any[]
@@ -35,6 +39,7 @@ export const TestGrid = (props: {
     data: any[]
     setData: Function
     selectable?: boolean
+    draggable?: boolean
 }) => {
     const [currentColumns, setCurrentColumns] = useState<columnProps>([...props.columns])
     const [currentData, setCurrentData] = useState<any[]>([])
@@ -45,6 +50,8 @@ export const TestGrid = (props: {
 
     const [currentEditElement, setCurrentEditElement] = useState<string>('')
     const [isEdit, setIsEdit] = useState<boolean>(false)
+
+    const afterDragEl = useDragAndDrop()
 
 
     useEffect(() => {
@@ -133,7 +140,7 @@ export const TestGrid = (props: {
         <div className="table-responsive hover-scroll-overlay-y">
             <table className="table table-hover gy-3 gs-7 table-rounded hover-scroll-overlay-y">
                 <thead className="fw-bolder fs-6 text-gray-800">
-                    <tr className="border-bottom-2 border-gray-200" >
+                    <tr className={`border-bottom-2 border-gray-200 ${props.draggable ? tableStyle.draggableContainer : ""}`} >
                         {
                             props.selectable
                                 ? <th key={0}>

@@ -7,8 +7,8 @@ import { Root } from './router/Root';
 function App() {
 
   useEffect(() => {
-    localStorage.clear()
-  }, [])
+    return () => localStorage.clear()
+  })
 
   return (
     <>
