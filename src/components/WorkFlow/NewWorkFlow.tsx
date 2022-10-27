@@ -1,4 +1,7 @@
 
+import { Field } from "formik"
+import { link } from "fs"
+import { DynamicField } from "../DynamicField"
 import { vendors, departments, locations, userProfileType, account, WorkFlowTableType, WorkFlowLevel } from "../Interface/Interface"
 import { LevelElement } from "./LevelElement"
 
@@ -126,7 +129,11 @@ export const NewWorkFlow = (props: {
                                     )
                                 }
                             </select>
+
                         </div>
+                        {
+                            props.workFlow.Approval.Fields.map((field, index) => (<DynamicField index={index} field={field} DyFields={props.workFlow} setDyFields={props.setWorkFlow} />))
+                        }
                     </> : null}
             </div>
             <div className="separator border-1 border-gray my-5"></div>

@@ -233,7 +233,7 @@ export type FieldValue = {
     Id: number,
     Field: string,
     Type: string,
-    Label: string[]
+    Label?: string[]
 }
 
 

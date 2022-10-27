@@ -8,6 +8,7 @@ import { Link } from "react-router-dom"
 import { propsAddressList, propsVendorPost, vendors } from "../components/Interface/Interface"
 import { SweetAlert } from "../Function/alert"
 import axios from "axios"
+import { toast } from "react-hot-toast"
 
 
 export const Vendor = () => {
@@ -51,10 +52,18 @@ export const Vendor = () => {
                                                             icon: 'success'
                                                         })
                                                     })
-                                                    .catch(err => console.log(err))
+                                                    .catch(err => {
+
+                                                        console.log(err)
+                                                    })
                                             }
                                             )
-                                            .catch(err => console.log(err))
+                                            .catch(() => {
+                                                toast.error("Sothing went wrong!.", {
+                                                    duration: 4000,
+                                                    position: "bottom-center"
+                                                })
+                                            })
 
                                     }
                                 })

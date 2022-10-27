@@ -440,7 +440,7 @@ export const InvoiceDetail = (props: {
             id: 1,
             headerName: 'Inv Qty',
             accessor: 'Quantity',
-            cell: (data) => <span id={'Quantity'} title="Invoice quantity is must lesser than PO quantity" className={data.POQuantity < data.Quantity ? "text-danger fw-bolder border border-2 rounded-pill bg-light p-2 shadow-sm" : ""}>{data.Quantity}</span>,
+            cell: (data) => <span id={'Quantity'} title={"Must lesser than PO Quantity"} className={data.POQuantity < data.Quantity ? "text-danger fw-bolder" : ""}>{data.Quantity}</span>,
             className: `min-w-100px dragEl`,
             isEdit: true,
             type: 'Number',
@@ -457,7 +457,7 @@ export const InvoiceDetail = (props: {
         },
         {
             id: 3,
-            headerName: 'Quantity Available To Billing',
+            headerName: 'Avail Qty To Bill',
             accessor: 'POQuantityAvailable',
             className: 'min-w-200px dragEl',
             draggable: true,
@@ -620,12 +620,12 @@ export const InvoiceDetail = (props: {
     const expensesSubtotal = useMemo(() => {
         return invDetails.Expenses?.reduce((prev, current) => prev + current.Amount, 0)
     },
-        [invDetails.Expenses])
+        [expenses])
 
     const poSubtotal = useMemo(() => {
         return invDetails.LineItems?.reduce((prev, current) => prev + (current.POQuantity * current.POUnitPrice), 0)
     },
-        [invDetails.LineItems])
+        [listItems])
 
 
     const save = () => {

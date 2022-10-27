@@ -50,67 +50,88 @@ export const LineItems = (props:
     }
 
     useEffect(() => {
-        const draggableContainer: NodeListOf<Element> = document.querySelectorAll('.draggableContainer')
+        const draggableContainer = document.querySelector<HTMLElement>('.draggableContainer')
         const dragEls: NodeListOf<Element> = document.querySelectorAll('.dragEl')
 
-        draggableContainer.forEach((el: Element) => {
-            el?.addEventListener('dragover', (e) => onDragOver(e, el))
-        })
+
+        const onDragStart = (e) => {
+            e.target.classList.add('dragging')
+            console.log('start')
+        }
+        const onDragEnd = (e) => {
+            let array: any[] = []
+            e.target.classList.remove('dragging')
+            console.log("end")
+
+
+            draggableContainer?.querySelectorAll('th').forEach(elChild => {
+                const temp = [...customColumns].find(arr => arr.headerName === elChild.innerText.trim())
+                if (temp) array.push(temp)
+            })
+            console.log(array)
+            saveColumnOrder(array)
+            setCustomColumns(array)
+        }
+        const onDragOver = (e) => {
+            console.log('over')
+            e.preventDefault()
+            e.stopPropagation()
+            const afterElement = getDragAfterElement(draggableContainer, e.clientX)
+            const currentDragEl = document.querySelector('.dragging')
+            if (afterElement === null) {
+                draggableContainer?.appendChild(currentDragEl as Element)
+            }
+            else {
+                draggableContainer?.insertBefore(currentDragEl as Element, afterElement)
+            }
+        }
+
 
         dragEls.forEach((dragEl) => {
-            dragEl.addEventListener('dragstart', () => onDragStart(dragEl))
-            dragEl.addEventListener('dragend', () => onDragEnd(dragEl, draggableContainer))
+            dragEl.addEventListener('dragstart', onDragStart)
+            dragEl.addEventListener('dragend', onDragEnd)
         })
-        console.log('trigger', draggableContainer.length, dragEls.length)
+
+        draggableContainer?.addEventListener('dragover', onDragOver)
+
+
+        console.log('trigger', dragEls.length)
+
 
 
         return () => {
 
             dragEls.forEach((dragEl) => {
-                dragEl.removeEventListener('dragstart', () => onDragStart(dragEl))
-                dragEl.removeEventListener('dragend', () => onDragEnd(dragEl, draggableContainer))
+                dragEl.removeEventListener('dragstart', onDragStart)
+                dragEl.removeEventListener('dragend', onDragEnd)
             })
-
-            draggableContainer.forEach((el) => {
-                el?.removeEventListener('dragover', e => onDragOver(e, el))
-            })
-            console.log('unTrigger')
+            draggableContainer?.removeEventListener('dragover', onDragOver)
+            console.log('untrigger', dragEls.length)
         }
 
     }, [customColumns])
 
-    const onDragOver = (e, el) => {
-        console.log('over')
-        e.preventDefault()
-        const afterElement = getDragAfterElement(el, e.clientX)
-        const currentDragEl = document.querySelector('.dragging')
-        if (afterElement === null) {
-            el.appendChild(currentDragEl as Element)
-        }
-        else {
-            el.insertBefore(currentDragEl as Element, afterElement)
-        }
-    }
 
-    const onDragStart = (dragEl) => {
-        dragEl.classList.add('dragging')
-        console.log('start')
-    }
-    const onDragEnd = (dragEl, draggableContainer) => {
-        let array: any[] = []
-        dragEl.classList.remove('dragging')
-        console.log("end")
 
-        draggableContainer.forEach((el) => {
-            el?.querySelectorAll('th').forEach(elChild => {
-                array.push({
-                    index: elChild.cellIndex,
-                    header: elChild.innerText.trim()
-                })
-            })
-        })
-        console.log(array)
-    }
+
+    // const onDragStart = (dragEl) => {
+    //     dragEl.classList.add('dragging')
+    //     console.log('start')
+    // }
+    // const onDragEnd = (dragEl, draggableContainer) => {
+    //     let array: any[] = []
+    //     dragEl.classList.remove('dragging')
+    //     console.log("end")
+
+    //     draggableContainer.forEach((el) => {
+    //         el?.querySelectorAll('th').forEach(elChild => {
+    //             const temp = [...customColumns].find(arr => arr.headerName === elChild.innerText.trim())
+    //             if (temp) array.push(temp)
+    //         })
+    //     })
+    //     saveColumnOrder(array)
+    //     // setCustomColumns(array)
+    // }
     function getDragAfterElement(draggableContainer, x: number) {
         const draggableElements = [...draggableContainer?.querySelectorAll('.dragEl:not(.dragging)')]
 
@@ -125,15 +146,15 @@ export const LineItems = (props:
         }, { offset: Number.NEGATIVE_INFINITY }).element
     }
 
-    // useEffect(() => {
-    //     AxiosGet(`/UserPreference/${props.userId}`)
-    //         .then(res => {
-    //             const col = props.isExpense ? res.find(data => data.ListTypeId === 3)?.Value : res.find(data => data.ListTypeId === 2)?.Value
-    //             setCustomColumns(col ? JSON.parse(col, reviver) : props.headers)
-    //             console.log('test', JSON.parse(col, reviver))
-    //         })
-    //         .catch(err => console.log(err))
-    // }, [props.headers, props.userId])
+    useEffect(() => {
+        AxiosGet(`/UserPreference/${props.userId}`)
+            .then(res => {
+                const col = props.isExpense ? res.find(data => data.ListTypeId === 3)?.Value : res.find(data => data.ListTypeId === 2)?.Value
+                setCustomColumns(prev => col ? JSON.parse(col, reviver) : prev)
+                console.log('test', JSON.parse(col, reviver))
+            })
+            .catch(err => console.log(err))
+    }, [props.headers, props.userId])
 
     useEffect(() => {
         setCustomColumns([...props.headers])
@@ -143,9 +164,7 @@ export const LineItems = (props:
         setFilterDatum([...props.datum])
     }, [props.datum])
 
-    // useEffect(() => {
-    //     saveColumnOrder(customColumns)
-    // }, [customColumns])
+
 
 
 
@@ -393,7 +412,7 @@ export const LineItems = (props:
                                                                 {
                                                                     header.input
                                                                         ?
-                                                                        <select name={header.accessor} className="form-select form-select-solid form-select-sm" value={data[header.accessor]} onChange={e => changeHandler(e, index)} >
+                                                                        <select name={header.accessor} className="form-select form-select-transparent form-select-sm" value={data[header.accessor]} onChange={e => changeHandler(e, index)} >
                                                                             <option key={0} value={0}></option>
                                                                             {header.input.inputSrc.map(
                                                                                 src => (<option key={src[header.input.srcId]} value={src[header.input.srcId]} >{src[header.input.srcName]}</option>)

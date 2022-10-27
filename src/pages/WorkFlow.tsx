@@ -123,6 +123,18 @@ export const WorkFlow = (
         })
     }
 
+    const addField = (value) => {
+        console.log(value)
+        const fieldObj = {
+            Id: value.Id,
+            FieldName: value.Label[0],
+            Type: value.Type
+        }
+        const obj = { ...workFlow }
+        obj.Approval.Fields.push(fieldObj)
+        setWorkFlow(obj)
+    }
+
     return (
         <>
             <div className="container-fluid">
@@ -143,30 +155,17 @@ export const WorkFlow = (
                                         toggleWorkflow
                                             ?
                                             <>
-                                                {
-                                                    workFLowType[type]?.WorkflowTypeId === 1 ?
-                                                        <div className="dropdown">
-                                                            <button className="btn btn-active-light-primary btn-sm mx-2 btn-hover-scale dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                                Add Field &nbsp;
-                                                            </button>
-                                                            <ul className="dropdown-menu">
-                                                                {fields.find(arr => arr.Type === workFLowType[type].Name)?.Value.map(value => (
-                                                                    <li key={value.Id} role={'button'} className="dropdown-item" onClick={() => {
-                                                                        const fieldObj = {
-                                                                            Id: value.Id,
-                                                                            FieldName: value.Label[0],
-                                                                            Type: value.Type
-                                                                        }
-                                                                        const obj = { ...workFlow }
-                                                                        obj.Approval.Fields.push(fieldObj)
-                                                                        setWorkFlow(obj)
-                                                                    }} > {value.Field}</li>
-                                                                ))}
-                                                            </ul>
-                                                        </div>
-                                                        :
-                                                        null
-                                                }
+
+                                                <div className="dropdown">
+                                                    <button className="btn btn-active-light-primary btn-sm mx-2 btn-hover-scale dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                        Add Field &nbsp;
+                                                    </button>
+                                                    <ul className="dropdown-menu">
+                                                        {fields.find(arr => arr.Type === workFLowType[type].Name)?.Value.map(value => (
+                                                            <li key={value.Id} role={'button'} className="dropdown-item" onClick={() => addField(value)} > {value.Field}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
 
                                                 <button onClick={back} className="btn btn-active-light-danger btn-sm m-1 btn-hover-scale">
                                                     <LeftDoubleArrowSvg clsName="svg-icon svg-icon-danger svg-icon-1" />Back
