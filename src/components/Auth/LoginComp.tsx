@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useFormik } from 'formik'
 import { useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { AuthUser } from '../Interface/Interface';
 
@@ -20,7 +20,7 @@ export const LoginComp = (props: {
 
   const onSubmit = () => {
     setLoading(true)
-    axios.post<AuthUser>(process.env.REACT_APP_BACKEND_BASEURL + '/api/v1/Auth', formik.values).then(res => {
+    axios.post<AuthUser>(process.env.REACT_APP_BACKEND_BASEURL + '/Auth', formik.values).then(res => {
       localStorage.setItem('user', JSON.stringify(res.data))
       res.data.Status === true
         ? setTimeout(() => navigation('/Home'))

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom"
 import { InputSelectField, InputTextAreaField, InputTextDateField, InputTextField } from "../components/InputField"
 import { AddSvg, CancelSvg, DollarSvg, DoubleTickSvg, RecallSvg, RemoveSvg, ViewSvg } from "../Svg/Svg"
 import { SweetAlert } from "../../Function/alert"
+import { AxiosGet } from "../../helpers/Axios"
 
 export const InvoiceDetailsForm = (props:
     {
@@ -17,7 +18,7 @@ export const InvoiceDetailsForm = (props:
         POSubtotal: number
         subsidiaries: subsidiary
         setInvDetails: Function
-        vendors: vendors
+        vendors: vendors[]
         departments: departments
         locations: locations
         nextApprovers: NextApprovers[]
@@ -57,7 +58,7 @@ export const InvoiceDetailsForm = (props:
                 })
             }
         }
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/Invoice/Submit/${props.invNumber}/${props.userid}`, {
+        axios.post(`${process.env.REACT_APP_BACKEND_BASEURL}/Invoice/Submit/${props.invNumber}/${props.userid}`, {
             StatusId: Status,
             Comments: comment,
             NextApproverId: props.nextApprovers.length === 0 ? null : props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0)[0]?.ApproverId
@@ -70,6 +71,7 @@ export const InvoiceDetailsForm = (props:
                         title: Action,
                     })
                     navigation('/Home')
+                    props.refetch()
                 } else {
                     SweetAlert({
                         title: `<h1>${res.data.Message}</h1>`,
@@ -85,20 +87,25 @@ export const InvoiceDetailsForm = (props:
                     text: 'Something went wrong!',
                 })
             })
-        props.refetch()
+        console.log('Submit', {
+            StatusId: Status,
+            Comments: comment,
+            NextApproverId: props.nextApprovers.length === 0 ? null : props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0)[0]?.ApproverId
+        })
+
     }
 
     useEffect(() => {
-        const ind = props.vendors?.findIndex(arr => arr.VendorId === Number(props.invDetails.VendorId))
-        const currentVendor = props.vendors[ind]
-        props.setInvDetails({
-            ...props.invDetails,
-            VendorName: currentVendor?.VendorName,
-            VendorCode: currentVendor?.VendorCode,
-            VendorAddress: currentVendor?.VendorAddressLine1 + ',' + currentVendor?.VendorCity + ',' + currentVendor?.VendorZipCode + ',' + currentVendor?.VendorState + ',' + currentVendor?.VendorCountry,
-            RemittanceAddress: currentVendor?.RemitAddressLine1 + ',' + currentVendor?.RemitCity + ',' + currentVendor?.RemitZipCode + ',' + currentVendor?.RemitState + ',' + currentVendor?.RemitCountry,
-        })
-        setSubsidiary(currentVendor?.SubsidiaryId)
+        AxiosGet(`/Vendor/Address/${props.invDetails.VendorId}`)
+            .then(res => {
+                props.setInvDetails({
+                    ...props.invDetails,
+                    VendorName: res.Vendor.VendorName,
+                    VendorCode: res?.Vendor.VendorCode,
+                    VendorAddress: res.AddressList[0]?.AddressLine1 + ',' + res.AddressList[0]?.City + ',' + res.AddressList[0]?.ZipCode + ',' + res.AddressList[0]?.State + ',' + res.AddressList[0]?.Country,
+                    RemittanceAddress: res.AddressList[1]?.AddressLine1 + ',' + res.AddressList[1]?.City + ',' + res.AddressList[1]?.ZipCode + ',' + res.AddressList[1]?.State + ',' + res.AddressList[1]?.Country,
+                })
+            })
         setInvoiceDate(moment(new Date(props.invDetails.InvoiceDate)).format('MM-DD-YYYY'))
         setDueDate(moment(new Date(props.invDetails.DueDate)).format('MM-DD-YYYY'))
 
@@ -117,6 +124,8 @@ export const InvoiceDetailsForm = (props:
             setDueDate(target.value)
         if (target.name === 'InvoiceDate')
             setInvoiceDate(target.value)
+        if (target.name === 'Subsidiary')
+            setSubsidiary(target.value)
         obj[name] = target.value
         props.setInvDetails(obj)
         switch (name) {
@@ -202,7 +211,7 @@ export const InvoiceDetailsForm = (props:
                                 id='VendorId'
                                 name='VendorId'
                                 className={formSelect}
-                                value={props.invDetails.VendorId}
+                                value={props.invDetails?.VendorId}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.vendors.map(vendor => { return { id: vendor.VendorId, value: vendor.VendorName } })}
@@ -218,18 +227,20 @@ export const InvoiceDetailsForm = (props:
                             id="VenderCode"
                             name="VenderCode"
                             className={formInput}
-                            value={props.invDetails.VendorCode}
+                            value={props.invDetails?.VendorCode ? props.invDetails?.VendorCode : ''}
                             onChange={changeHandler}
                             onBlur={blurHandler}
+                            readOnly={true}
                         />
                     </div>
                     <div className="col col-lg-6">
                         <div className="form-group text-start">
                             <InputSelectField
                                 label="Remit To"
-                                id='VendorId' name='VendorId'
+                                id='VendorId'
+                                name='VendorId'
                                 className={formSelect}
-                                value={props.invDetails.VendorId}
+                                value={props.invDetails?.VendorId}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.vendors.map(vendor => { return { id: vendor.VendorId, value: vendor.VendorName } })}
@@ -246,7 +257,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.VendorAddress?.split(',')[0]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[0] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -257,7 +268,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.VendorAddress?.split(',')[1]} ${props.invDetails?.VendorAddress?.split(',')[2]} ${props.invDetails?.VendorAddress?.split(',')[3]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[1] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[1]} ${props.invDetails?.VendorAddress?.split(',')[2] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[2]} ${props.invDetails?.VendorAddress?.split(',')[3] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -268,7 +279,7 @@ export const InvoiceDetailsForm = (props:
                                 id="VenderAddress"
                                 name="VenderAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.VendorAddress?.split(',')[4]}`}
+                                value={`${props.invDetails?.VendorAddress?.split(',')[4] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -283,7 +294,7 @@ export const InvoiceDetailsForm = (props:
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.RemittanceAddress?.split(',')[0]}`}
+                                value={`${props.invDetails?.RemittanceAddress?.split(',')[0] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -294,7 +305,7 @@ export const InvoiceDetailsForm = (props:
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.RemittanceAddress?.split(',')[1]} ${props.invDetails?.RemittanceAddress?.split(',')[2]} ${props.invDetails?.RemittanceAddress?.split(',')[3]}`}
+                                value={`${props.invDetails?.RemittanceAddress?.split(',')[1] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[1]} ${props.invDetails?.RemittanceAddress?.split(',')[2] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[2]} ${props.invDetails?.RemittanceAddress?.split(',')[3] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -305,7 +316,7 @@ export const InvoiceDetailsForm = (props:
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
                                 className={formInput}
-                                value={`${props.invDetails?.RemittanceAddress?.split(',')[4]}`}
+                                value={`${props.invDetails?.RemittanceAddress?.split(',')[4] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 readOnly={true}
@@ -351,7 +362,7 @@ export const InvoiceDetailsForm = (props:
                                 id='PurchaseNumber'
                                 name='PurchaseNumber'
                                 className={formSelect}
-                                value={props.invDetails.PurchaseNumber}
+                                value={0}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={[]}
@@ -421,7 +432,7 @@ export const InvoiceDetailsForm = (props:
                                 id="PurchaseNumber"
                                 name="PurchaseNumber"
                                 className={formInput}
-                                value={props.invDetails.PurchaseNumber}
+                                value={props.invDetails.PurchaseNumber ? props.invDetails.PurchaseNumber : ''}
                                 onChange={changeHandler}
                                 onBlur={blurHandler} />
                         </div>
@@ -606,10 +617,10 @@ export const InvoiceDetailsForm = (props:
                         </div>
                     </div>
                     <div className="row mt-5">
-                        <div className="col">
-                            <div className="d-flex flex-stack">
-                                <label className={formLabel}>Attachments</label>
-                                <div>
+                        <div className="d-flex flex-column">
+                            <div className="d-flex">
+                                <label className={formLabel + "me-auto"}>Attachments</label>
+                                <div className="ms-auto">
                                     <button type="button" title="Add" className="btn btn-icon-primary" data-bs-toggle={"modal"} data-bs-target="#kt_modal_1">
                                         <AddSvg clsName="svg-icon svg-icon-primary svg-icon-2" />
                                     </button>

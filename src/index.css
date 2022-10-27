@@ -56,9 +56,12 @@ th {
   vertical-align: middle;
 }
 
+.draggableContainer {
+  cursor: pointer;
+}
 
 .dragEl {
-  cursor: move;
+  cursor: pointer;
 }
 
 .dragging {

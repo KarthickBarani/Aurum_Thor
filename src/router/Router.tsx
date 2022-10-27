@@ -12,10 +12,11 @@ import { Settings } from '../pages/Settings';
 import { WorkFlow } from '../pages/WorkFlow';
 import axios from 'axios';
 import { InvoiceDetailsTable } from '../pages/InvoiceDetailsTable';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { vendors, departments, locations, subsidiary, account, AuthUser, userProfileType } from '../components/Interface/Interface'
 import { Inbox } from '../pages/Inbox';
 import { ProtectRoutes } from '../components/Auth/ProtectRoutes';
+import { Vendor } from '../pages/Vendor';
 
 
 
@@ -25,46 +26,50 @@ export const Router = () => {
   const [invNumber, setInvNumber] = useState<number>(0)
   const [authUser, setAuthUser] = useState<AuthUser>(JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user')))))
   const [users, setUsers] = useState<userProfileType[]>([] as userProfileType[])
-  const [vendors, setVendor] = useState<vendors>([] as vendors)
+  const [vendors, setVendor] = useState<vendors[]>([] as vendors[])
   const [departments, setDepartments] = useState<departments>([] as departments)
   const [locations, setLocation] = useState<locations>([] as locations)
   const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
   const [account, setAccount] = useState<account>([] as account)
+  const [refetchInterval, setRefetchInterval] = useState<number>(5000)
 
   const BASEURL = process.env.REACT_APP_BACKEND_BASEURL
 
 
+
+
+
+
+
   const fetchTableData = () => {
-    return axios.get(BASEURL + '/api/v1/Invoice')
+    return axios.get(BASEURL + '/Invoice')
   }
 
-
-
-
   useEffect(() => {
-    axios.get(BASEURL + '/api/v1/vendor')
+    axios.get(BASEURL + '/vendor')
       .then(res => setVendor(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/api/v1/vendor/Departments')
+    axios.get(BASEURL + '/vendor/Departments')
       .then(res => setDepartments(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/api/v1/vendor/Locations')
+    axios.get(BASEURL + '/vendor/Locations')
       .then(res => setLocation(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/api/v1/vendor/Subsidiaries')
+    axios.get(BASEURL + '/vendor/Subsidiaries')
       .then(res => setSubsidiaries(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/api/v1/vendor/Accounts')
+    axios.get(BASEURL + '/vendor/Accounts')
       .then(res => setAccount(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/api/v1/UserProfile')
+    axios.get(BASEURL + '/UserProfile')
       .then(res => setUsers(res.data))
       .catch(err => console.log(err))
-  }, [authUser])
+
+  }, [])
 
 
 
-  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true, refetchInterval: 5000 })
+  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true, refetchInterval: refetchInterval })
 
 
   return (<>
@@ -74,7 +79,7 @@ export const Router = () => {
         <Route path='/' element={<Login setAuthUser={setAuthUser} />} />
         <Route path='/Home' element={
           <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
-            <Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} userId={authUser?.User?.Id} isError={isError} />
+            <Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} userId={authUser?.User?.Id} isError={isError} setRefetchInterval={setRefetchInterval} />
           </ProtectRoutes>
         } />
         <Route path='InvoiceDetailTable' element={
@@ -106,12 +111,17 @@ export const Router = () => {
             <Inbox />
           </ProtectRoutes>
         } />
-        <Route path='Settings' element={
+        <Route path='Vendor' element={
+          <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <Vendor />
+          </ProtectRoutes>
+        } />
+        {/* <Route path='Settings' element={
           <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
             <Settings />
           </ProtectRoutes>
         }
-        />
+        /> */}
         <Route path='WorkFlow' element={
           <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
             <WorkFlow vendors={vendors} departments={departments} locations={locations} account={account} />

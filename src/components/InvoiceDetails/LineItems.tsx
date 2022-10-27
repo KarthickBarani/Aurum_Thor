@@ -1,30 +1,29 @@
-import axios from "axios"
 import moment from "moment"
 
 import { useEffect, useState } from "react"
-import { AxiosGet } from '../../helpers/Axios'
-import { AddSvg, CopySvg, RecallSvg, RemoveSvg, SaveSvg } from '../Svg/Svg'
+import { AxiosGet, AxiosInsert } from '../../helpers/Axios'
+import { AddSvg, CopySvg, RecallSvg, RemoveSvg } from '../Svg/Svg'
 import { TableFilterComponent } from '../components/TableComponent'
 import { SweetAlert } from "../../Function/alert"
 
 
 export const LineItems = (props:
     {
-        headers: any
+        headers: any[]
         setColumns: Function
-        datum: any
+        datum: any[]
         setDatum: Function
         subtotal: number
         isExpense: boolean
         userId: number
         invoiceId: number
+        invoiceNumber: string
     }) => {
 
 
     const [checkAll, setCheckAll] = useState<boolean>(false)
     const [checkAnyOne, setCheckAnyOne] = useState<boolean>(false)
     const [isLoading, SetIsLoading] = useState<boolean>(false)
-    const [process, setProcess] = useState<boolean>(false)
     const [isEdit, setIsEdit] = useState<boolean>(false)
     const [currentInput, setCurrentInput] = useState<string | null>(null)
 
@@ -34,7 +33,7 @@ export const LineItems = (props:
         header: string
     }[]
     const [afterDragElement, setAfterDragElement] = useState<afterDragElementProps>([])
-    const [customColumns, setCustomColumns] = useState([...props.headers])
+    const [customColumns, setCustomColumns] = useState<any[]>([])
 
     const replacer = (key, val) => {
         if (typeof val === 'function') {
@@ -51,14 +50,111 @@ export const LineItems = (props:
     }
 
     useEffect(() => {
-        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference/${props.userId}`)
+        const draggableContainer = document.querySelector<HTMLElement>('.draggableContainer')
+        const dragEls: NodeListOf<Element> = document.querySelectorAll('.dragEl')
+
+
+        const onDragStart = (e) => {
+            e.target.classList.add('dragging')
+            console.log('start')
+        }
+        const onDragEnd = (e) => {
+            let array: any[] = []
+            e.target.classList.remove('dragging')
+            console.log("end")
+
+
+            draggableContainer?.querySelectorAll('th').forEach(elChild => {
+                const temp = [...customColumns].find(arr => arr.headerName === elChild.innerText.trim())
+                if (temp) array.push(temp)
+            })
+            console.log(array)
+            saveColumnOrder(array)
+            setCustomColumns(array)
+        }
+        const onDragOver = (e) => {
+            console.log('over')
+            e.preventDefault()
+            e.stopPropagation()
+            const afterElement = getDragAfterElement(draggableContainer, e.clientX)
+            const currentDragEl = document.querySelector('.dragging')
+            if (afterElement === null) {
+                draggableContainer?.appendChild(currentDragEl as Element)
+            }
+            else {
+                draggableContainer?.insertBefore(currentDragEl as Element, afterElement)
+            }
+        }
+
+
+        dragEls.forEach((dragEl) => {
+            dragEl.addEventListener('dragstart', onDragStart)
+            dragEl.addEventListener('dragend', onDragEnd)
+        })
+
+        draggableContainer?.addEventListener('dragover', onDragOver)
+
+
+        console.log('trigger', dragEls.length)
+
+
+
+        return () => {
+
+            dragEls.forEach((dragEl) => {
+                dragEl.removeEventListener('dragstart', onDragStart)
+                dragEl.removeEventListener('dragend', onDragEnd)
+            })
+            draggableContainer?.removeEventListener('dragover', onDragOver)
+            console.log('untrigger', dragEls.length)
+        }
+
+    }, [customColumns])
+
+
+
+
+    // const onDragStart = (dragEl) => {
+    //     dragEl.classList.add('dragging')
+    //     console.log('start')
+    // }
+    // const onDragEnd = (dragEl, draggableContainer) => {
+    //     let array: any[] = []
+    //     dragEl.classList.remove('dragging')
+    //     console.log("end")
+
+    //     draggableContainer.forEach((el) => {
+    //         el?.querySelectorAll('th').forEach(elChild => {
+    //             const temp = [...customColumns].find(arr => arr.headerName === elChild.innerText.trim())
+    //             if (temp) array.push(temp)
+    //         })
+    //     })
+    //     saveColumnOrder(array)
+    //     // setCustomColumns(array)
+    // }
+    function getDragAfterElement(draggableContainer, x: number) {
+        const draggableElements = [...draggableContainer?.querySelectorAll('.dragEl:not(.dragging)')]
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect()
+            const offset = x - box.left - box.width / 2
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child }
+            } else {
+                return closest
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element
+    }
+
+    useEffect(() => {
+        AxiosGet(`/UserPreference/${props.userId}`)
             .then(res => {
-                const col = props.isExpense ? res.data.find(data => data.ListTypeId === 3)?.Value : res.data.find(data => data.ListTypeId === 2)?.Value
-                setCustomColumns(col ? JSON.parse(col, reviver) : props.headers)
-                console.log(JSON.parse(col, reviver))
+                const col = props.isExpense ? res.find(data => data.ListTypeId === 3)?.Value : res.find(data => data.ListTypeId === 2)?.Value
+                setCustomColumns(prev => col ? JSON.parse(col, reviver) : prev)
+                console.log('test', JSON.parse(col, reviver))
             })
             .catch(err => console.log(err))
-    }, [props.headers])
+    }, [props.headers, props.userId])
 
     useEffect(() => {
         setCustomColumns([...props.headers])
@@ -67,6 +163,8 @@ export const LineItems = (props:
     useEffect(() => {
         setFilterDatum([...props.datum])
     }, [props.datum])
+
+
 
 
 
@@ -167,7 +265,7 @@ export const LineItems = (props:
 
     const recallHandler = () => {
         SetIsLoading(true)
-        AxiosGet(`/api/v1/Invoice/Recall/${11}`)
+        AxiosGet(`/Invoice/Recall/${props.invoiceNumber}`)
             .then(res => props.setDatum(res))
             .catch(err => console.log(err))
             .finally(() => SetIsLoading(false))
@@ -199,95 +297,33 @@ export const LineItems = (props:
     }
 
     const saveColumnOrder = (array) => {
-
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference`, {
+        AxiosInsert('/UserPreference', {
             UserId: props.userId,
             ListId: 0,
             ListType: props.isExpense ? 'Expense' : 'LineItem',
             Value: JSON.stringify(array, replacer),
             ModifiedDateTime: null
         })
-            .then(() => {
-                console.log(props.isExpense)
+            .then((res) => {
+                console.log(array, res)
             })
             .catch(err => {
                 console.log(err)
             })
     }
 
-    useEffect(() => {
-        const draggableContainer = document.querySelectorAll('.draggableContainer')
-        const dragEls = document.querySelectorAll('.dragEl')
 
-        dragEls.forEach((dragEl) => {
-            dragEl.addEventListener('dragstart', () => {
-                dragEl.classList.add('dragging')
-            })
-            dragEl.addEventListener('dragend', () => {
-                dragEl.classList.remove('dragging')
-                const array: afterDragElementProps = []
-                draggableContainer.forEach((el) => {
-                    el?.querySelectorAll('th').forEach(elChild => {
-                        array.push({
-                            index: elChild.cellIndex,
-                            header: (elChild.innerText[elChild.innerText.length - 1] === '◢' || elChild.innerText[elChild.innerText.length - 1] === '◣') ? elChild.innerText.substring(0, elChild.innerText.length - 1).trim() : elChild.innerText
-                        })
-                    })
-                })
-                if (array.length > 0) {
-                    setAfterDragElement(array)
-                }
-            })
-        })
 
-        draggableContainer.forEach((el) => {
-            el?.addEventListener('dragover', (e: any) => {
-                e.preventDefault()
-                const afterElement = getDragAfterElement(el, e.clientX)
-                const currentDragEl = document.querySelector('.dragging')
-                if (afterElement == null) {
-                    el.appendChild(currentDragEl as Element)
-                }
-                else {
-                    el.insertBefore(currentDragEl as Element, afterElement)
-                }
-            })
-        })
 
-        function getDragAfterElement(draggableContainer, x: number) {
-            const draggableElements = [...draggableContainer?.querySelectorAll('.dragEl:not(.dragging)')]
-
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect()
-                const offset = x - box.left - box.width / 2
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child }
-                } else {
-                    return closest
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element
-        }
-    }, [filterDatum])
 
     // useEffect(() => {
     //     if (afterDragElement.length > 0) {
-    //         let array: any[] = []
+    //         const array: any[] = []
     //         const reminingColumns: any[] = []
-    //         // afterDragElement.forEach((el) => {
-    //         // })
-    //         const isInArray = (obj): boolean => {
-    //             for (let i = 0; i < afterDragElement.length; i++) {
-    //                 if (afterDragElement[i].header === obj.headerName) {
-    //                     return true
-    //                 }
-    //             }
-    //             return false
-    //         }
-    //         const ddd = customColumns.filter(isInArray)
-    //         const ccc = customColumns.filter(!(isInArray))
-    //         // console.log(afterDragElement.includes())
-    //         // array.shift()
-    //         console.log('check', ddd)
+    //         afterDragElement.forEach((el) => {
+    //             array.push(customColumns.find(arr => arr.headerName === el.header))
+    //         })
+    //         array.shift()
     //         customColumns.forEach(Column => {
     //             if (!array.includes(Column)) return reminingColumns.push(Column)
     //         })
@@ -299,30 +335,10 @@ export const LineItems = (props:
     //     }
     // }, [afterDragElement])
 
-
-    useEffect(() => {
-        if (afterDragElement.length > 0) {
-            const array: any[] = []
-            const reminingColumns: any[] = []
-            afterDragElement.forEach((el) => {
-                array.push(customColumns.find(arr => arr.headerName === el.header))
-            })
-            array.shift()
-            customColumns.forEach(Column => {
-                if (!array.includes(Column)) return reminingColumns.push(Column)
-            })
-            const Finalarray = array.concat(reminingColumns)
-            if (Finalarray.length > 0) {
-                setCustomColumns(Finalarray)
-                saveColumnOrder(Finalarray)
-            }
-        }
-    }, [afterDragElement])
-
     return (
         <>
             <div className="d-flex justify-content-between">
-                <div>
+                <div className="pb-3 px-5">
                     <>
                         <TableFilterComponent columns={customColumns} setColumns={setCustomColumns} datum={props.datum} setDatum={setFilterDatum} columnFilter={true} />
                     </>
@@ -364,23 +380,22 @@ export const LineItems = (props:
             <div className="table-responsive">
                 <table className="table table-striped gy-3 gs-7 p-2 table-rounded max-h-200px">
                     {
-                        filterDatum.length > 0 ?
-                            <>
-                                <thead>
-                                    <tr className='fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200 draggableContainer'>
-                                        <th key={'masterCheck'}>
-                                            <div className="form-check form-check-custom form-check-solid form-check-sm">
-                                                <input name='masterCheck' className="form-check-input" type="checkbox" checked={checkAll} onChange={masterCheckHandler} />
-                                            </div>
-                                        </th>
-                                        {customColumns.map(header => {
-                                            return header.hidden ? null : <th key={header.headerName} draggable={header.draggable} className={header.className}>{header.headerName}</th>
-                                        })}
-                                    </tr>
-                                </thead>
-                                <tbody >
-
-                                    {
+                        <>
+                            <thead>
+                                <tr className='fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200 draggableContainer'>
+                                    <th key={'masterCheck'}>
+                                        <div className="form-check form-check-custom form-check-solid form-check-sm">
+                                            <input name='masterCheck' className="form-check-input" type="checkbox" checked={checkAll} onChange={masterCheckHandler} />
+                                        </div>
+                                    </th>
+                                    {customColumns.map(header => {
+                                        return header?.hidden ? null : <th key={header?.headerName} draggable={header?.draggable} className={header?.className}>{header?.headerName}</th>
+                                    })}
+                                </tr>
+                            </thead>
+                            <tbody >
+                                {
+                                    filterDatum.length > 0 ?
                                         filterDatum?.map((data, index) => (
                                             <tr key={props.isExpense ? data?.ExpenseId : data?.LineItemId} >
                                                 <td key={0}>
@@ -395,7 +410,6 @@ export const LineItems = (props:
                                                         (
                                                             <td key={header.accessor} id={header.accessor} onDoubleClick={e => editHandler(e, index)} onBlur={() => setIsEdit(false)}>
                                                                 {
-
                                                                     header.input
                                                                         ?
                                                                         <select name={header.accessor} className="form-select form-select-transparent form-select-sm" value={data[header.accessor]} onChange={e => changeHandler(e, index)} >
@@ -407,50 +421,31 @@ export const LineItems = (props:
                                                                         :
                                                                         header.isEdit && isEdit && (currentInput === header.accessor + index) ? <input type={header.type} className='form-control form-control-transparent form-control-sm' autoFocus name={header.accessor} value={data[header.accessor]} onChange={e => changeHandler(e, index)} />
                                                                             :
-                                                                            header?.cell ? header?.cell(data) : data[header.accessor]
+                                                                            header?.cell ? header?.cell(data, index) : data[header.accessor]
                                                                 }
-                                                            </td>)
+                                                            </td>
+                                                        )
                                                 })}
                                             </tr>
-                                        ))}
-                                </tbody>
-                                <tfoot>
-                                    <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
-                                        {
-                                            <>
-                                                <td key={0}></td>
-                                                {customColumns?.map(
-                                                    col => col.hidden ? null : <td key={col.id}>{col?.footer ? col?.footer(props.datum) : null}</td>
-                                                )}
-                                            </>
-
-                                        }
-
-
-                                    </tr>
-                                    {/* {props.isExpense ?
-                                            <>
-                                                <th colSpan={1}></th>
-                                                <th> Subtotal </th>
-                                                <th>{props.subtotal.toFixed(2)}</th>
-                                                <th></th>
-                                                <th></th>
-                                                <th></th>
-                                            </>
-                                            :
-                                            <>
-                                                <th colSpan={9}></th>
-                                                <th className="min-w-150px">Items Subtotal</th>
-                                                <th>{`$ ${props.datum.reduce((prev, current) => { return prev + (current.Quantity * current.UnitPrice) }, 0).toFixed(2)}`}</th>
-                                                <th>{props.subtotal.toFixed(2)}</th>
-                                            </>
-                                        } */}
-                                </tfoot>
-                            </>
-                            :
-                            <tbody className="">
-                                <tr><td><h4 className='text-center'>Data not found</h4></td></tr>
+                                        ))
+                                        :
+                                        <tr key={0}><td colSpan={props.headers.length + 1}><h2 className='text-center'>Data not found</h2></td></tr>
+                                }
                             </tbody>
+                            <tfoot>
+                                <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
+                                    {
+                                        <>
+                                            <td key={0}></td>
+                                            {customColumns?.map(
+                                                col => col.hidden ? null : <td className="fw-bolder fs-6 text-gray-800" key={col.id}>{col?.footer ? col?.footer(props.datum) : null}</td>
+                                            )}
+                                        </>
+
+                                    }
+                                </tr>
+                            </tfoot>
+                        </>
                     }
                 </table>
             </div>

@@ -1,4 +1,7 @@
 
+import { Field } from "formik"
+import { link } from "fs"
+import { DynamicField } from "../DynamicField"
 import { vendors, departments, locations, userProfileType, account, WorkFlowTableType, WorkFlowLevel } from "../Interface/Interface"
 import { LevelElement } from "./LevelElement"
 
@@ -6,7 +9,7 @@ import { LevelElement } from "./LevelElement"
 export const NewWorkFlow = (props: {
     workFlow: WorkFlowTableType
     setWorkFlow: Function
-    vendors: vendors
+    vendors: vendors[]
     Department: departments
     locations: locations
     Account: account
@@ -25,14 +28,14 @@ export const NewWorkFlow = (props: {
         <div className="container-fluid">
 
             <div className="row">
-                <div className="col-3 mt-2">
+                <div className="col-12 col-md-3 mt-2">
                     <label htmlFor="workflowName" className="form-label">Name</label>
                     <input name="workflowName" id="workflowName" type="text" value={props.workFlow.Name} onChange={changeHandler} className="form-control form-control-sm" />
                 </div>
 
                 {props.workFlow.WorkFlowTypeId === 2 ?
                     <>
-                        <div className="col-3 mt-2">
+                        <div className="col-12 col-md-3 mt-2">
                             <label htmlFor={'Account'} className="form-label">Account</label>
                             <select name={'Account'} id={'Account'} value={props.workFlow.Approval.Fields.find(arr => arr.Type === 'Account')?.Id} onChange={e => {
                                 let obj = { ...props.workFlow }
@@ -63,7 +66,7 @@ export const NewWorkFlow = (props: {
                                 }
                             </select>
                         </div>
-                        <div className="col-3 mt-2">
+                        <div className="col-12 col-md-3 mt-2">
                             <label htmlFor={'Department'} className="form-label">Department</label>
                             <select name={'Department'} id={'Department'} value={props.workFlow.Approval.Fields.find(arr => arr.Type === 'Department')?.Id} onChange={e => {
                                 let obj = { ...props.workFlow }
@@ -96,7 +99,7 @@ export const NewWorkFlow = (props: {
                                 }
                             </select>
                         </div>
-                        <div className="col-3 mt-2">
+                        <div className="col-12 col-md-3 mt-2">
                             <label htmlFor={'locations'} className="form-label">locations</label>
                             <select name={'locations'} id={'locations'} value={props.workFlow.Approval.Fields.find(arr => arr.Type === 'locations')?.Id} onChange={e => {
                                 let obj = { ...props.workFlow }
@@ -126,7 +129,11 @@ export const NewWorkFlow = (props: {
                                     )
                                 }
                             </select>
+
                         </div>
+                        {
+                            props.workFlow.Approval.Fields.map((field, index) => (<DynamicField index={index} field={field} DyFields={props.workFlow} setDyFields={props.setWorkFlow} />))
+                        }
                     </> : null}
             </div>
             <div className="separator border-1 border-gray my-5"></div>

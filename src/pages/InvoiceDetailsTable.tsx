@@ -24,12 +24,12 @@ export const InvoiceDetailsTable = (props: {
 
     useEffect(() => {
         setIsLoading(true)
-        axios.get(process.env.REACT_APP_BACKEND_BASEURL + `/api/v1/Invoice/Pendings/${props.userId}`)
+        axios.get(process.env.REACT_APP_BACKEND_BASEURL + `/Invoice/Pendings/${props.userId}`)
             .then(res => {
                 setPending(res.data)
             })
             .catch(err => console.log(err))
-        axios.get(process.env.REACT_APP_BACKEND_BASEURL + `/api/v1/Invoice/Approvals/${props.userId}`)
+        axios.get(process.env.REACT_APP_BACKEND_BASEURL + `/Invoice/Approvals/${props.userId}`)
             .then(res => {
                 setApprovals(res.data)
                 setData(res.data)
@@ -279,7 +279,7 @@ export const InvoiceDetailsTable = (props: {
                                         isLoading
                                             ? <Loading />
                                             : isError
-                                                ? <Error />
+                                                ? <Error path={'/Home'} />
                                                 : <div className="table-responsive">
                                                     <table {...getTableProps()} className='table table-rounded table-stripted table-hover gs-3 gx-3'>
                                                         <thead className='fw-bolder fs-6'>

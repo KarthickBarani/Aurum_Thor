@@ -9,7 +9,6 @@ import { Error } from "../components/components/Error"
 import { Loading } from "../components/components/Loading"
 import { SweetAlert } from "../Function/alert"
 import { AddSvg, LeftDoubleArrowSvg, SaveSvg } from "../components/Svg/Svg"
-import toast from "react-hot-toast"
 
 
 
@@ -17,7 +16,7 @@ import toast from "react-hot-toast"
 
 export const WorkFlow = (
     props: {
-        vendors: vendors
+        vendors: vendors[]
         departments: departments
         locations: locations
         account: account
@@ -41,21 +40,21 @@ export const WorkFlow = (
 
 
     const fetchWorkflows = () => {
-        return axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Workflow`)
+        return axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/Workflow`)
     }
 
-    const { isLoading, data, isError, refetch } = useQuery('invDetails', fetchWorkflows)
+    const { isLoading, data, isError, refetch } = useQuery('Workflows', fetchWorkflows)
 
     useEffect(() => {
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/UserProfile`)
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/UserProfile`)
             .then(res => setUsers(res.data))
             .catch(err => console.log(err))
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Workflow/Type`)
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/Workflow/Type`)
             .then(res => {
                 setWorkFlowType(res.data)
             })
             .catch(err => console.log(err))
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Settings`)
+        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/Settings`)
             .then(res => {
                 setFields(res.data)
             })
@@ -68,14 +67,13 @@ export const WorkFlow = (
     const save = () => {
         setIsLoading(true)
         console.log('save:', workFlow)
-        axios[isNew ? 'post' : 'patch'](`${process.env.REACT_APP_BACKEND_BASEURL}/api/v1/Workflow`, workFlow)
+        axios[isNew ? 'post' : 'patch'](`${process.env.REACT_APP_BACKEND_BASEURL}/Workflow`, workFlow)
             .then(res => {
                 console.log('Response:', res)
                 setIsLoading(false)
                 SweetAlert({
                     title: isNew ? 'Saved' : 'Updated',
                     icon: 'success',
-                    timer: 4000
                 })
                 // toast.success(isNew ? 'Saved' : 'Updated')
                 back()
@@ -125,6 +123,18 @@ export const WorkFlow = (
         })
     }
 
+    const addField = (value) => {
+        console.log(value)
+        const fieldObj = {
+            Id: value.Id,
+            FieldName: value.Label[0],
+            Type: value.Type
+        }
+        const obj = { ...workFlow }
+        obj.Approval.Fields.push(fieldObj)
+        setWorkFlow(obj)
+    }
+
     return (
         <>
             <div className="container-fluid">
@@ -145,22 +155,14 @@ export const WorkFlow = (
                                         toggleWorkflow
                                             ?
                                             <>
+
                                                 <div className="dropdown">
                                                     <button className="btn btn-active-light-primary btn-sm mx-2 btn-hover-scale dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                                         Add Field &nbsp;
                                                     </button>
                                                     <ul className="dropdown-menu">
                                                         {fields.find(arr => arr.Type === workFLowType[type].Name)?.Value.map(value => (
-                                                            <li key={value.Id} role={'button'} className="dropdown-item" onClick={() => {
-                                                                const fieldObj = {
-                                                                    Id: value.Id,
-                                                                    FieldName: value.Label[0],
-                                                                    Type: value.Type
-                                                                }
-                                                                const obj = { ...workFlow }
-                                                                obj.Approval.Fields.push(fieldObj)
-                                                                setWorkFlow(obj)
-                                                            }} > {value.Field}</li>
+                                                            <li key={value.Id} role={'button'} className="dropdown-item" onClick={() => addField(value)} > {value.Field}</li>
                                                         ))}
                                                     </ul>
                                                 </div>

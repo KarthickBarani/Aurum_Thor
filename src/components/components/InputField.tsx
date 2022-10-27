@@ -9,7 +9,21 @@ const ErrorMessage = ({ children }) => {
     )
 }
 
-export const InputTextField = (props: { label: string, name: string, id: string, type: string, className: string, value: number | string, onChange?: React.ChangeEventHandler<HTMLInputElement>, onBlur?: React.FocusEventHandler<HTMLInputElement>, readOnly?: boolean, icon?: ReactElement, formError?: any, required?: boolean }) => {
+export const InputTextField = (props: {
+    label: string
+    name: string
+    id: string
+    type: string
+    className: string
+    value: number | string | undefined
+    onChange?: React.ChangeEventHandler<HTMLInputElement>
+    onBlur?: React.FocusEventHandler<HTMLInputElement>
+    readOnly?: boolean
+    icon?: ReactElement
+    formError?: any
+    required?: boolean
+    temp?: any
+}) => {
     return (
         <>
             <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}   > {props.label}</label>
@@ -19,7 +33,13 @@ export const InputTextField = (props: { label: string, name: string, id: string,
                     {props.icon ? props.icon : null}
                 </div>
             </div>
-            {props.formError ? props.formError[props.name] ? <ErrorMessage>{props.formError[props.name]}</ErrorMessage> : null : null}
+            {props.formError
+                ? props.formError[props.name]
+                    ? Array.isArray(props.formError[props.name]) || (typeof props.formError[props.name] === 'object' && props.formError[props.name] !== null)
+                        ? <ErrorMessage>{Array.isArray(props.formError[props.name]) ? props.formError[props.name][props.temp - 1][props.id] : props.formError[props.name][props.id]} </ErrorMessage>
+                        : <ErrorMessage>{props.formError[props.name]}</ErrorMessage>
+                    : null
+                : null}
         </>
     )
 }

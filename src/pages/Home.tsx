@@ -5,6 +5,7 @@ import { Error } from '../components/components/Error'
 import { Loading } from "../components/components/Loading"
 import { useEffect } from "react"
 import { SweetAlert } from "../Function/alert"
+import { useQueryClient } from "react-query"
 
 
 
@@ -16,9 +17,15 @@ export const Home = (props: {
     data: any
     isError: boolean
     userId: number
+    setRefetchInterval: Function
 }) => {
 
-
+    useEffect(() => {
+        props.setRefetchInterval(3000)
+        return () => {
+            props.setRefetchInterval(0)
+        }
+    })
 
     return (
         <div className="container-fluid">
