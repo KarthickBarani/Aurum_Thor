@@ -207,7 +207,7 @@ export const ErrorSvg = (props: {
     title?: string
 }) => {
     return (
-        <span className={props.clsName} role={props.role} onClick={() => props.function ? props.function() : null}>
+        <span className={props.clsName} title={props.title} role={props.role} onClick={() => props.function ? props.function() : null}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="currentColor" />
                 <rect x="11" y="14" width="7" height="2" rx="1" transform="rotate(-90 11 14)" fill="currentColor" />

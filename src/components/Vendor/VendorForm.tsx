@@ -1,6 +1,6 @@
 import { type } from "os"
 import { useEffect, useMemo, useState } from "react"
-import { AxiosGet } from "../../helpers/Axios"
+import { axiosGet, AxiosGet } from "../../helpers/Axios"
 import { InputTextField } from "../components/InputField"
 import { propsAddressType, propsVendorPost, vendors } from "../Interface/Interface"
 
@@ -15,9 +15,9 @@ export const VendorForm = (props: {
     const [toggle, setToggle] = useState<number>(1)
 
     useState(() => {
-        AxiosGet('/Vendor/AddressType')
+        axiosGet('/Vendor/AddressType')
             .then(res => {
-                setAddressType(res)
+                setAddressType(res.data)
             })
             .catch(err => console.log(err))
 

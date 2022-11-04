@@ -4,6 +4,7 @@ import { SettingsGrid } from '../components/Settings/SettingsGrid';
 import axios from 'axios';
 import { useHydrate, useQuery } from 'react-query';
 import { arrayBuffer } from 'stream/consumers';
+import { axiosGet } from '../helpers/Axios';
 type settings = {
   Field: string;
   Label: string;
@@ -18,8 +19,7 @@ export const Settings = () => {
   const [page, setPage] = useState<string>('Invoice');
 
   useEffect(() => {
-    axios
-      .get(process.env.REACT_APP_BACKEND_BASEURL + '/Settings')
+    axiosGet('/Settings')
       .then((res?: any) => {
         // const { Id, Type, Value } = res?.data[0];
         // console.log(Value);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AddUser } from '../components/Auth/AddUser';
 
-import { AxiosGet } from '../helpers/Axios';
+import { axiosGet } from '../helpers/Axios';
 import { useHydrate, useQuery } from 'react-query';
 import { useTable, useSortBy, useGlobalFilter } from 'react-table';
 import axios from 'axios';

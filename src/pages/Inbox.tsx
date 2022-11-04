@@ -8,6 +8,7 @@ import { TableGridComponent } from "../components/components/TableComponent"
 import { MailSvg, RecallSvg, RemoveSvg, ViewSvg } from "../components/Svg/Svg"
 import moment from "moment"
 import { Link } from "react-router-dom"
+import { axiosGet } from "../helpers/Axios"
 
 export const Inbox = () => {
 
@@ -150,7 +151,7 @@ export const Inbox = () => {
         // setIsBinLoading(true)
         const fetchData = setInterval(() => {
 
-            axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Inbox`)
+            axiosGet(`/InvoiceProcess/Inbox`)
                 .then(res => {
                     if (dataFetch) {
                         setInboxData(res.data)
@@ -163,7 +164,7 @@ export const Inbox = () => {
                     setIsError(true)
                     console.log(err)
                 })
-            axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/InvoiceProcess/Trash`)
+            axiosGet(`/InvoiceProcess/Trash`)
                 .then(res => {
                     setBinData(res.data)
                     setIsBinLoading(false)

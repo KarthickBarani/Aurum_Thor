@@ -7,7 +7,7 @@ import { PdfViewer } from "../components/components/PdfViewer"
 import { Loading } from "../components/components/Loading"
 import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, NextApprovers, WorkFlowTableType } from '../components/Interface/Interface'
 import { SweetAlert } from "../Function/alert"
-import { AxiosGet, AxiosInsert } from "../helpers/Axios"
+import { axiosGet, AxiosGet, AxiosInsert, axiosPost } from "../helpers/Axios"
 import { LevelElement } from "../components/WorkFlow/LevelElement"
 import { LineItems } from "../components/InvoiceDetails/LineItems"
 import { InvoiceDetailsForm } from "../components/InvoiceDetails/InvoiceDetailsForm"
@@ -69,26 +69,26 @@ export const InvoiceDetail = (props: {
 
     useEffect(() => {
         setIsLoading(true)
-        AxiosGet(`/Invoice/Details/${props.invNumber}`)
+        axiosGet(`/Invoice/Details/${props.invNumber}`)
             .then(res => {
-                setInvDetails(res)
-                setListItems(res.LineItems)
-                setExpenses(res.Expenses)
+                setInvDetails(res.data)
+                setListItems(res.data.LineItems)
+                setExpenses(res.data.Expenses)
                 setIsLoading(false)
                 setIsError(false)
-                AxiosGet(`/Invoice/InvoiceWorkflow/${props.invNumber}`)
+                axiosGet(`/Invoice/InvoiceWorkflow/${props.invNumber}`)
                     .then(res => {
-                        setWorkFlow(res)
+                        setWorkFlow(res.data)
                     })
                     .catch(err => console.error(err))
-                AxiosGet(`/Invoice/NextApprovers/${props.invNumber}`)
+                axiosGet(`/Invoice/NextApprovers/${props.invNumber}`)
                     .then(ress => {
-                        setNextApprover(ress)
+                        setNextApprover(ress.data)
                     })
                     .catch(err => console.error(err))
-                AxiosGet(`/Invoice/ApprovalFlow/${props.invNumber}`)
+                axiosGet(`/Invoice/ApprovalFlow/${props.invNumber}`)
                     .then(res => {
-                        setApprovalHistory(res)
+                        setApprovalHistory(res.data)
                         console.log(res)
                     })
                     .catch(err => console.error(err))
@@ -638,10 +638,10 @@ export const InvoiceDetail = (props: {
             })
         }
         setProcess(true)
-        AxiosInsert(`/Invoice`, invDetails)
+        axiosPost(`/Invoice`, invDetails)
             .then(res => {
                 console.log(invDetails)
-                console.log('Response:', res)
+                console.log('Response:', res.data)
                 setProcess(false)
                 SweetAlert({
                     title: 'Saved',
@@ -839,9 +839,9 @@ export const InvoiceDetail = (props: {
                                     console.log('final', final)
                                     obj.Level = final
                                     setProcess(true)
-                                    AxiosInsert(`/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, obj)
+                                    axiosPost(`/Workflow/CustomFlow/${props.invNumber}/${props.userid}`, obj)
                                         .then(res => {
-                                            console.log('data', res)
+                                            console.log('data', res.data)
                                             setProcess(false)
                                             setTrigger(!trigger)
                                         })
