@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom"
 import { InputSelectField, InputTextAreaField, InputTextDateField, InputTextField } from "../components/InputField"
 import { AddSvg, CancelSvg, DollarSvg, DoubleTickSvg, RecallSvg, RemoveSvg, ViewSvg } from "../Svg/Svg"
 import { SweetAlert } from "../../Function/alert"
-import { AxiosGet } from "../../helpers/Axios"
+import { axiosGet, AxiosGet, axiosPost } from "../../helpers/Axios"
 
 export const InvoiceDetailsForm = (props:
     {
@@ -58,7 +58,7 @@ export const InvoiceDetailsForm = (props:
                 })
             }
         }
-        axios.post(`${process.env.REACT_APP_BACKEND_BASEURL}/Invoice/Submit/${props.invNumber}/${props.userid}`, {
+        axiosPost(`/Invoice/Submit/${props.invNumber}/${props.userid}`, {
             StatusId: Status,
             Comments: comment,
             NextApproverId: props.nextApprovers.length === 0 ? null : props.nextApprovers.filter(arr => arr.Status === 3 || arr.Status === 0)[0]?.ApproverId
@@ -96,14 +96,14 @@ export const InvoiceDetailsForm = (props:
     }
 
     useEffect(() => {
-        AxiosGet(`/Vendor/Address/${props.invDetails.VendorId}`)
+        axiosGet(`/Vendor/Address/${props.invDetails.VendorId}`)
             .then(res => {
                 props.setInvDetails({
                     ...props.invDetails,
-                    VendorName: res.Vendor.VendorName,
-                    VendorCode: res?.Vendor.VendorCode,
-                    VendorAddress: res.AddressList[0]?.AddressLine1 + ',' + res.AddressList[0]?.City + ',' + res.AddressList[0]?.ZipCode + ',' + res.AddressList[0]?.State + ',' + res.AddressList[0]?.Country,
-                    RemittanceAddress: res.AddressList[1]?.AddressLine1 + ',' + res.AddressList[1]?.City + ',' + res.AddressList[1]?.ZipCode + ',' + res.AddressList[1]?.State + ',' + res.AddressList[1]?.Country,
+                    VendorName: res.data.Vendor.VendorName,
+                    VendorCode: res.data?.Vendor.VendorCode,
+                    VendorAddress: res.data.AddressList[0]?.AddressLine1 + ',' + res.data.AddressList[0]?.City + ',' + res.data.AddressList[0]?.ZipCode + ',' + res.data.AddressList[0]?.State + ',' + res.data.AddressList[0]?.Country,
+                    RemittanceAddress: res.data.AddressList[1]?.AddressLine1 + ',' + res.data.AddressList[1]?.City + ',' + res.data.AddressList[1]?.ZipCode + ',' + res.data.AddressList[1]?.State + ',' + res.data.AddressList[1]?.Country,
                 })
             })
         setInvoiceDate(moment(new Date(props.invDetails.InvoiceDate)).format('MM-DD-YYYY'))

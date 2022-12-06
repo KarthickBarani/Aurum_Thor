@@ -1,10 +1,11 @@
 import moment from "moment"
 
 import { useEffect, useState } from "react"
-import { AxiosGet, AxiosInsert } from '../../helpers/Axios'
+import { axiosGet, axiosPost } from '../../helpers/Axios'
 import { AddSvg, CopySvg, RecallSvg, RemoveSvg } from '../Svg/Svg'
 import { TableFilterComponent } from '../components/TableComponent'
 import { SweetAlert } from "../../Function/alert"
+import { Header } from "../Settings/Header"
 
 
 export const LineItems = (props:
@@ -32,11 +33,10 @@ export const LineItems = (props:
         index: number
         header: string
     }[]
-    const [afterDragElement, setAfterDragElement] = useState<afterDragElementProps>([])
     const [customColumns, setCustomColumns] = useState<any[]>([])
 
     const replacer = (key, val) => {
-        if (typeof val === 'function') {
+        if (key === 'cell' || key === 'footer') {
             return val.toString()
         }
         return val
@@ -69,7 +69,7 @@ export const LineItems = (props:
                 if (temp) array.push(temp)
             })
             console.log(array)
-            saveColumnOrder(array)
+            // saveColumnOrder(array)
             setCustomColumns(array)
         }
         const onDragOver = (e) => {
@@ -111,27 +111,6 @@ export const LineItems = (props:
 
     }, [customColumns])
 
-
-
-
-    // const onDragStart = (dragEl) => {
-    //     dragEl.classList.add('dragging')
-    //     console.log('start')
-    // }
-    // const onDragEnd = (dragEl, draggableContainer) => {
-    //     let array: any[] = []
-    //     dragEl.classList.remove('dragging')
-    //     console.log("end")
-
-    //     draggableContainer.forEach((el) => {
-    //         el?.querySelectorAll('th').forEach(elChild => {
-    //             const temp = [...customColumns].find(arr => arr.headerName === elChild.innerText.trim())
-    //             if (temp) array.push(temp)
-    //         })
-    //     })
-    //     saveColumnOrder(array)
-    //     // setCustomColumns(array)
-    // }
     function getDragAfterElement(draggableContainer, x: number) {
         const draggableElements = [...draggableContainer?.querySelectorAll('.dragEl:not(.dragging)')]
 
@@ -147,13 +126,26 @@ export const LineItems = (props:
     }
 
     useEffect(() => {
-        AxiosGet(`/UserPreference/${props.userId}`)
+        axiosGet(`/UserPreference/${props.userId}`)
             .then(res => {
-                const col = props.isExpense ? res.find(data => data.ListTypeId === 3)?.Value : res.find(data => data.ListTypeId === 2)?.Value
-                setCustomColumns(prev => col ? JSON.parse(col, reviver) : prev)
-                console.log('test', JSON.parse(col, reviver))
+                const col = JSON.parse(props.isExpense ? res.data.find(data => data.ListTypeId === 3)?.Value : res.data.find(data => data.ListTypeId === 2)?.Value, reviver)
+                let array: any[] = []
+                console.log(col)
+                col.forEach((el) => {
+                    if (props.headers.includes(el.accessor))
+                        array.push(props.headers[props.headers.findIndex(el.accessor)])
+                })
+                console.log(array)
+                // setCustomColumns(prev => col ? array : prev)
             })
-            .catch(err => console.log(err))
+            .catch(err => console.error(err))
+        // AxiosGet(`/UserPreference/${props.userId}`)
+        //     .then(res => {
+
+        //         console.log('now', JSON.parse(col, reviver))
+        //         // console.log('test', array)
+        //     })
+        //     .catch(err => console.log(err))
     }, [props.headers, props.userId])
 
     useEffect(() => {
@@ -265,8 +257,8 @@ export const LineItems = (props:
 
     const recallHandler = () => {
         SetIsLoading(true)
-        AxiosGet(`/Invoice/Recall/${props.invoiceNumber}`)
-            .then(res => props.setDatum(res))
+        axiosGet(`/Invoice/Recall/${props.invoiceNumber}`)
+            .then(res => props.setDatum(res.data))
             .catch(err => console.log(err))
             .finally(() => SetIsLoading(false))
     }
@@ -297,7 +289,7 @@ export const LineItems = (props:
     }
 
     const saveColumnOrder = (array) => {
-        AxiosInsert('/UserPreference', {
+        axiosPost('/UserPreference', {
             UserId: props.userId,
             ListId: 0,
             ListType: props.isExpense ? 'Expense' : 'LineItem',
@@ -305,7 +297,7 @@ export const LineItems = (props:
             ModifiedDateTime: null
         })
             .then((res) => {
-                console.log(array, res)
+                console.log(array, res.data)
             })
             .catch(err => {
                 console.log(err)

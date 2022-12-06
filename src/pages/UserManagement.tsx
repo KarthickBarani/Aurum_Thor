@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { AddUser } from '../components/Auth/AddUser';
 
-import { AxiosGet } from '../helpers/Axios';
-import { useHydrate, useQuery } from 'react-query';
-import { useTable, useSortBy, useGlobalFilter } from 'react-table';
+
+import { columnProps, TableFilterComponent, TestGrid } from '../components/components/TableComponent';
+import { AddSvg, EditSvg, RemoveSvg, UsersSvg, ViewSvg } from '../components/Svg/Svg';
+import { Link, NavLink } from 'react-router-dom';
+import { UserForm } from '../components/UserManagement/UserForm';
+import { RoleDetails } from '../components/UserManagement/RoleDetails';
+import { RoleDataType, RoleForm } from '../components/UserManagement/RoleForm';
+// import { Modal, ModalContent, ModalHeader } from '../components/components/Model';
+import { Modal } from "react-bootstrap"
+import { axiosGet } from '../helpers/Axios';
+import { boolean } from 'yup';
+import { PermissionDetails } from '../components/UserManagement/PermissionDetails';
 import axios from 'axios';
-import { Table } from '../components/Home/Table';
-import { Loading } from '../components/components/Loading';
-import { Error } from '../components/components/Error';
-import { UserGrid } from '../components/Auth/UserGrid';
-import { UserDetail } from '../components/Auth/UserDetail';
+import { PermissionForm } from '../components/UserManagement/PermissionForm';
 
 type UserProfileData = {
   Id: String;
@@ -45,10 +49,42 @@ type UserProfile = {
   Active: boolean;
   ResetRequired: boolean;
   RoleId: number;
-}[];
+}
 export const UserManagement = () => {
-  const [isClicked, setIsClicked] = useState<boolean>();
-  const [userDetail, setUserDetail] = useState<UserProfileData>();
+
+  const defalutUserData: UserProfile = {
+    Id: '',
+    EnterpriseId: 0,
+    CompanyId: 0,
+    CreatedTimeStamp: '',
+    LastModifiedtimeStamp: '',
+    Password: '',
+    UserName: '',
+    FirstName: '',
+    MiddleName: '',
+    LastName: '',
+    DisplayName: '',
+    EmailAddress: '',
+    Active: false,
+    ResetRequired: false,
+    RoleId: 0
+  }
+
+  const defalutRoleData = {
+    RoleId: 0,
+    Name: '',
+    Description: '',
+    IsActive: false,
+    Operations: []
+  }
+
+  const [currentUserData, setCurrentUserData] = useState<UserProfile>(defalutUserData)
+  const [currentRoleData, setCurrentRoleData] = useState<RoleDataType>({} as RoleDataType)
+  const [toggleUserType, setToggleUserType] = useState<'View' | 'Add' | 'Update'>('View')
+  const [toggleRoleType, setToggleRoleType] = useState<'View' | 'Add' | 'Update'>('View')
+  const [toggleTabType, setToggleTabType] = useState<'User' | 'Role' | 'Permission'>('User')
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false)
+
 
   let today: string = `${new Date().getFullYear()}-${new Date().getMonth() + 1 < 10
     ? `0${new Date().getMonth() + 1}`
@@ -58,354 +94,208 @@ export const UserManagement = () => {
       : new Date().getDate()
     }`;
 
-  const fetchUsers = () => {
-    return axios.get(
-      `${process.env.REACT_APP_BACKEND_BASEURL}/UserProfile`
-    );
-  };
+  const [userData, setUserData] = useState<UserProfile[]>([])
+  const [permissionData, setPermissionData] = useState([])
+  const [RoleData, setRoleData] = useState<RoleDataType[]>([] as RoleDataType[])
+  const [operation, setOperation] = useState(['Full Access', 'Add/Edit/Remove', 'API'])
 
-  const { isLoading, data, isError, isSuccess } = useQuery(
-    ['UserProfileData', isClicked],
-    fetchUsers
-  );
+
+  useEffect(() => {
+    axiosGet('/UserProfile')
+      .then(res => setUserData(res.data))
+      .catch(err => console.log(err))
+
+    // axiosGet('/Role/Operations')
+    // .then(res=>{
+    //   setRoleData()
+    // })  
+    axios.get('https://637b6a216f4024eac20cf00e.mockapi.io/api/v1/permission/permissions')
+      .then(res => setPermissionData(res.data))
+      .catch(err => console.log(err))
+  }, [toggleUserType])
+
+
+  const userColumns: columnProps = [
+    {
+      id: 1,
+      header: 'Action',
+      accessor: 'Action',
+      className: 'min-w-25px',
+      cell: (data) => (
+        <div className="d-flex justify-content-center gap-2 ">
+          <span role={'button'} >
+            <ViewSvg role={'button'} clsName='svg-icon svg-icon-primary svg-icon-2' function={() => {
+              setCurrentUserData(data)
+              setModalIsOpen(true)
+            }} />
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: 2,
+      header: 'Name',
+      accessor: 'Name',
+      cell: (data: UserProfile) => (
+        <div className="d-flex align-items-center">
+          {/* <div className="symbol symbol-50px">
+            <div className="symbol-label fs-2 fw-semibold text-success">{data.FirstName[0]}</div>
+          </div> */}
+          <div className="d-flex flex-column">
+            <h5 className='text-gray-800 fw-bolder'>{`${data.FirstName} ${data.LastName}`}</h5>
+            <span className="text-gray-500 fw-bold ">{data.UserName}</span>
+          </div>
+        </div>
+      ),
+      className: 'min-w-100px',
+    },
+    {
+      id: 3,
+      header: 'Email',
+      accessor: 'EmailAddress',
+      // cell: (data: UserProfile) => (
+      //   <span className="text-gray-500 fw-bold ">{data.EmailAddress}</span>
+      // ),
+    },
+    {
+      id: 4,
+      header: 'Status',
+      accessor: 'Status',
+      cell: (data: UserProfile) => (<span className={`badge badge-light-${data.Active ? 'success' : 'danger'}`}>{data.Active ? 'Active' : 'Inactive'}</span>),
+    },
+  ]
+
+  // const RoleColumns: columnProps = [
+  //   {
+  //     id: 1,
+  //     header: 'Action',
+  //     accessor: 'Action',
+  //     cell: (data) => <ViewSvg clsName='svg-icon svg-icon-1 svg-icon-primary' function={() => {
+  //       setRoleId(data.RoleId)
+  //       setToggleRoleType('Update')
+  //     }} />
+  //   },
+  //   {
+  //     id: 2,
+  //     header: 'Role Name',
+  //     accessor: 'Name',
+  //   },
+  //   {
+  //     id: 3,
+  //     header: 'Description',
+  //     accessor: 'Description',
+  //   },
+  //   {
+  //     id: 4,
+  //     header: 'Status',
+  //     accessor: 'Status',
+  //     cell: (data: UserProfile) => (<span className={`badge badge-light-${data.Active ? 'success' : 'danger'}`}>{data.Active ? 'Active' : 'Inactive'}</span>),
+  //   }
+  // ]
+
+  const PermissionColumns: columnProps = [
+    {
+      id: 1,
+      header: 'Action',
+      accessor: 'Action',
+      className: 'min-w-25px',
+      cell: (data) => (
+        <div className="d-flex justify-content-center gap-2 ">
+          <span role={'button'} >
+            <ViewSvg role={'button'} clsName='svg-icon svg-icon-primary svg-icon-2' function={() => {
+              setCurrentUserData(data)
+              setModalIsOpen(true)
+            }} />
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: 3,
+      header: 'Role Name',
+      accessor: 'roleName'
+    },
+    {
+      id: 4,
+      header: 'Number of permission',
+      accessor: 'Number of permission',
+      cell: (data) => 5
+    }
+  ]
 
   return (
     <>
-      <div className='container-fluid'>
-        <div className='row my-10'>
-          <div className='col'>
-            <h4 className='text-white'>User Management</h4>
+      <div className="container-fluid">
+        <div className="row my-10">
+          <div className="col">
+            <h4 className="text-white" >User Management</h4>
           </div>
         </div>
+        <div className="row justify-content-between g-5">
+          <div className="col">
+            <div className="card card-flush " style={{ height: "75vh" }}>
+              <div className="card-header">
+                <h4 className="card-title">User Management</h4>
+                <div className="toolbar">
+                  <button className="btn btn-sm btn-light-primary" onClick={() => {
+                    setCurrentUserData({} as UserProfile)
+                    setCurrentRoleData({} as RoleDataType)
+                    setModalIsOpen(true)
+                  }}><AddSvg clsName='svg-icon svg-icon-3 svg-icon-primary ' />Add New</button>
+                </div>
+              </div>
+              <div className="card-body overflow-hidden">
 
-        <div className='row'>
-          <div className='col'>
-            <div
-              className='card card-flush shadow-sm'
-              style={{ minHeight: '100vh' }}
-            >
-              <h3 className='w-50 px-10 py-5 my-3 fw-bolder fs-4 text-gray-800'>
-                User Management
-              </h3>
-              <ul className='nav nav-tabs mx-10 mb-5 fs-6'>
-                <li className='nav-item'>
-                  <a
-                    className='nav-link active'
-                    data-bs-toggle='tab'
-                    href='#kt_tab_pane_4'
-                  >
-                    Users
-                  </a>
-                </li>
-                <li className='nav-item'>
-                  <a
-                    className='nav-link'
-                    data-bs-toggle='tab'
-                    href='#kt_tab_pane_5'
-                  >
-                    Roles
-                  </a>
-                </li>
-                <li className='nav-item'>
-                  <a
-                    className='nav-link'
-                    data-bs-toggle='tab'
-                    href='#kt_tab_pane_6'
-                  >
-                    Permissions
-                  </a>
-                </li>
-              </ul>
-
-              <div className='tab-content' id='myTabContent'>
-                <div
-                  className='tab-pane fade show active'
-                  id='kt_tab_pane_4'
-                  role='tabpanel'
-                >
-                  <div
-                    className='d-flex flex-column flex-md-row rounded p-10'
-                    style={{ minHeight: '85vh' }}
-                  >
-                    <ul
-                      className='nav nav-tabs nav-pills flex-row border flex-md-column me-5 mb-3 mb-md-0 fs-6'
-                      style={{ border: '1px solid' }}
-                    >
-                      <li className='nav-item me-0 mb-md-2'>
-                        <a
-                          className='nav-link active btn btn-flex btn-active-light-success'
-                          data-bs-toggle='tab'
-                          href='#kt_vtab_pane_4'
-                        >
-                          <span className='svg-icon svg-icon-2'>
-                            <svg>...</svg>
-                          </span>
-                          <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>
-                              View Active Users
-                            </span>
-                            <span className='fs-7'>Edit or Remove Users</span>
-                          </span>
-                        </a>
-                      </li>
-                      <li className='nav-item me-0 mb-md-2'>
-                        <a
-                          className='nav-link btn btn-flex btn-active-light-success'
-                          data-bs-toggle='tab'
-                          href='#kt_vtab_pane_5'
-                        >
-                          <span className='svg-icon svg-icon-2'>
-                            <svg>...</svg>
-                          </span>
-                          <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>Add Users</span>
-                            <span className='fs-7'>Add New User</span>
-                          </span>
-                        </a>
-                      </li>
-                      <li className='nav-item me-0 mb-md-2'>
-                        <a
-                          className='nav-link btn btn-flex btn-active-light-success'
-                          data-bs-toggle='tab'
-                          href='#kt_vtab_pane_6'
-                        >
-                          <span className='svg-icon svg-icon-2'>
-                            <svg>...</svg>
-                          </span>
-                          <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>All Users</span>
-                            <span className='fs-7'>View All Users</span>
-                          </span>
-                        </a>
-                      </li>
-                      <li className='nav-item me-0 mb-md-2'>
-                        <a
-                          className='nav-link btn btn-flex btn-active-light-danger'
-                          data-bs-toggle='tab'
-                          href='#kt_vtab_pane_7'
-                        >
-                          <span className='svg-icon svg-icon-2'>
-                            <svg>...</svg>
-                          </span>
-                          <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>
-                              Deleted Users
-                            </span>
-                            <span className='fs-7'>View Deleted Users</span>
-                          </span>
-                        </a>
-                      </li>
-                    </ul>
-                    <div
-                      className='tab-content'
-                      id='myTabContent'
-                      style={{ width: '80%' }}
-                    >
-                      <div
-                        className='tab-pane fade show active'
-                        id='kt_vtab_pane_4'
-                        role='tabpanel'
-                      >
-                        {isLoading ? (
-                          <Loading />
-                        ) : isError ? (
-                          <Error />
-                        ) : data?.data && !isClicked ? (
-                          <UserGrid
-                            setUserDetail={setUserDetail}
-                            setIsClicked={setIsClicked}
-                            data={data?.data.filter(
-                              (arr) => arr.Active === true
-                            )}
-                            page='UserManagement'
-                          />
-                        ) : (
-                          <UserDetail
-                            data={userDetail}
-                            setIsClicked={setIsClicked}
-                          />
-                        )}
+                <div className="d-flex h-100 flex-column flex-lg-row w-">
+                  <div className="d-flex">
+                    <div className="menu menu-rounded menu-column menu-active-bg menu-hover-bg menu-title-gray-700 fs-5 fw-semibold w-250px" >
+                      <div className="menu-item">
+                        <div className="menu-content pb-2">
+                          <span className="menu-section text-muted text-uppercase fs-7 fw-bold">User</span>
+                        </div>
                       </div>
-                      <div
-                        className='tab-pane fade'
-                        id='kt_vtab_pane_5'
-                        role='tabpanel'
-                      >
-                        <UserDetail data='' setIsClicked={setIsClicked} />
+                      <div className="menu-item">
+                        <Link to={''} className={`menu-link border-3 border-start border-primary ${toggleTabType === 'User' ? 'active' : ''}`} onClick={() => setToggleTabType('User')}>
+                          <span className="menu-title">Users List</span>
+                          <span className="menu-badge fs-7 fw-normal text-muted">{userData.length}</span>
+                        </Link>
                       </div>
-                      <div
-                        className='tab-pane fade'
-                        id='kt_vtab_pane_6'
-                        role='tabpanel'
-                      >
-                        {isLoading ? (
-                          <Loading />
-                        ) : isError ? (
-                          <Error />
-                        ) : data?.data && !isClicked ? (
-                          <UserGrid
-                            setUserDetail={setUserDetail}
-                            setIsClicked={setIsClicked}
-                            data={data?.data}
-                            page='UserManagement'
-                          />
-                        ) : (
-                          <UserDetail
-                            data={userDetail}
-                            setIsClicked={setIsClicked}
-                          />
-                        )}
+                      <div className="menu-item">
+                        <div className="menu-content pb-2">
+                          <span className="menu-section text-muted text-uppercase fs-7 fw-bold" >Role</span>
+                        </div>
                       </div>
-                      <div
-                        className='tab-pane fade'
-                        id='kt_vtab_pane_7'
-                        role='tabpanel'
-                      >
-                        {isLoading ? (
-                          <Loading />
-                        ) : isError ? (
-                          <Error />
-                        ) : data?.data && !isClicked ? (
-                          <UserGrid
-                            setUserDetail={setUserDetail}
-                            setIsClicked={setIsClicked}
-                            data={data?.data.filter(
-                              (arr) => arr.Active === false
-                            )}
-                            page='UserManagement'
-                          />
-                        ) : (
-                          <UserDetail
-                            data={userDetail}
-                            setIsClicked={setIsClicked}
-                          />
-                        )}
+                      <div className="menu-item">
+                        <Link to={''} className={`menu-link border-3 border-start border-primary ${toggleTabType === 'Role' ? 'active' : ''}`} onClick={() => setToggleTabType('Role')}>
+                          <span className="menu-title">Role List</span>
+                        </Link>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div
-                  className='tab-pane fade'
-                  id='kt_tab_pane_5'
-                  role='tabpanel'
-                >
-                  <div
-                    className='d-flex flex-column flex-md-row rounded p-10'
-                    style={{ minHeight: '85vh' }}
-                  >
-                    <ul className='nav nav-tabs nav-pills flex-row border flex-md-column me-5 mb-3 mb-md-0 fs-6'>
-                      <li className='nav-item me-0 mb-md-2'>
-                        <a
-                          className='nav-link active btn btn-flex btn-active-light-success'
-                          data-bs-toggle='tab'
-                          href='#kt_vtab_pane_10'
-                        >
-                          <span className='svg-icon svg-icon-2'>
-                            <svg>...</svg>
-                          </span>
-                          <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>View Roles</span>
-                            <span className='fs-7'>Edit or Remove Roles</span>
-                          </span>
-                        </a>
-                      </li>
-                      <li className='nav-item me-0 mb-md-2'>
-                        <a
-                          className='nav-link btn btn-flex btn-active-light-info'
-                          data-bs-toggle='tab'
-                          href='#kt_vtab_pane_11'
-                        >
-                          <span className='svg-icon svg-icon-2'>
-                            <svg>...</svg>
-                          </span>
-                          <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>Add Roles</span>
-                            <span className='fs-7'>Add New Role</span>
-                          </span>
-                        </a>
-                      </li>
-                    </ul>
-                    <div className='tab-content' id='myTabContent'>
-                      <div
-                        className='tab-pane fade show active'
-                        id='kt_vtab_pane_10'
-                        role='tabpanel'
-                      >
-                        {/* Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. */}
-                      </div>
-                      <div
-                        className='tab-pane fade'
-                        id='kt_vtab_pane_11'
-                        role='tabpanel'
-                      >
-                        {/* Nulla est ullamco ut irure incididunt nulla Lorem Lorem minim irure officia enim reprehenderit. */}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className='tab-pane fade'
-                  id='kt_tab_pane_6'
-                  role='tabpanel'
-                >
-                  <div
-                    className='d-flex flex-column flex-md-row rounded p-10'
-                    style={{ minHeight: '85vh' }}
-                  >
-                    <ul className='nav nav-tabs nav-pills flex-row border flex-md-column me-5 mb-3 mb-md-0 fs-6'>
-                      <li className='nav-item me-0 mb-md-2'>
-                        <a
-                          className='nav-link active btn btn-flex btn-active-light-success'
-                          data-bs-toggle='tab'
-                          href='#kt_vtab_pane_12'
-                        >
-                          <span className='svg-icon svg-icon-2'>
-                            <svg>...</svg>
-                          </span>
-                          <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>
-                              View Permissions
-                            </span>
-                            <span className='fs-7'>
-                              Edit or Remove Permissions
-                            </span>
-                          </span>
-                        </a>
-                      </li>
-                      <li className='nav-item me-0 mb-md-2'>
-                        <a
-                          className='nav-link btn btn-flex btn-active-light-info'
-                          data-bs-toggle='tab'
-                          href='#kt_vtab_pane_13'
-                        >
-                          <span className='svg-icon svg-icon-2'>
-                            <svg>...</svg>
-                          </span>
-                          <span className='d-flex flex-column align-items-start'>
-                            <span className='fs-4 fw-bolder'>
-                              Add Permissions
-                            </span>
-                            <span className='fs-7'>Add New Permission</span>
-                          </span>
-                        </a>
-                      </li>
-                    </ul>
-                    <div className='tab-content' id='myTabContent'>
-                      <div
-                        className='tab-pane fade show active'
-                        id='kt_vtab_pane_12'
-                        role='tabpanel'
-                      >
-                        {/* Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. */}
-                      </div>
-                      <div
-                        className='tab-pane fade'
-                        id='kt_vtab_pane_13'
-                        role='tabpanel'
-                      >
-                        {/* Nulla est ullamco ut irure incididunt nulla Lorem Lorem minim irure officia enim reprehenderit. */}
-                      </div>
-                    </div>
+                  <div className="w-100 hover-scroll-overlay-y p-5">
+                    <>
+                      {
+                        toggleTabType === 'User'
+                          ?
+                          <TestGrid data={userData} columns={userColumns} setData={() => { }} />
+                          :
+                          null
+                      }
+                      {
+                        toggleTabType === 'Role'
+                          ?
+                          < RoleDetails setModalIsOpen={setModalIsOpen} setRole={setCurrentRoleData} />
+                          :
+                          null
+                      }
+                      {
+                        toggleTabType === 'Permission'
+                          ?
+                          <PermissionDetails data={permissionData} column={PermissionColumns} />
+                          :
+                          null
+                      }
+                    </>
                   </div>
                 </div>
               </div>
@@ -413,6 +303,35 @@ export const UserManagement = () => {
           </div>
         </div>
       </div>
+      <Modal show={modalIsOpen} onHide={() => setModalIsOpen(prev => !prev)} size={'xl'} scrollable={true} centered={true} >
+        <Modal.Header closeButton={true}>
+          <Modal.Title>{toggleTabType ? 'Add User' : 'Add a Role'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {
+            toggleTabType === 'User'
+              ?
+              <UserForm setModalIsOpen={setModalIsOpen} userData={currentUserData} />
+              :
+              null
+          }
+          {
+            toggleTabType === 'Role'
+              ?
+              <RoleForm setModalIsOpen={setModalIsOpen} RoleData={currentRoleData} />
+              :
+              null
+          }
+          {
+            toggleTabType === 'Permission'
+              ?
+              <PermissionForm />
+              :
+              null
+          }
+        </Modal.Body>
+      </Modal>
     </>
-  );
-};
+  )
+
+}

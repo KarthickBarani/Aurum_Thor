@@ -4,8 +4,6 @@ import { Table } from "../components/Home/Table"
 import { Error } from '../components/components/Error'
 import { Loading } from "../components/components/Loading"
 import { useEffect } from "react"
-import { SweetAlert } from "../Function/alert"
-import { useQueryClient } from "react-query"
 
 
 
@@ -21,7 +19,7 @@ export const Home = (props: {
 }) => {
 
     useEffect(() => {
-        props.setRefetchInterval(3000)
+        props.setRefetchInterval(5000)
         return () => {
             props.setRefetchInterval(0)
         }

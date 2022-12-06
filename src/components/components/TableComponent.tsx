@@ -22,8 +22,8 @@ export type columnProps = {
     id: string | number
     header: string | HTMLElement
     accessor: string
-    cell?: (data) => string | number
-    className: string
+    cell?: (data, index) => string | number | ReactElement
+    className?: string
     draggable?: boolean | undefined
     sortable?: boolean | undefined
     hidden?: boolean | undefined
@@ -36,7 +36,7 @@ export type columnProps = {
 
 export const TestGrid = (props: {
     columns: columnProps
-    data: any[]
+    data: any
     setData: Function
     selectable?: boolean
     draggable?: boolean
@@ -51,7 +51,9 @@ export const TestGrid = (props: {
     const [currentEditElement, setCurrentEditElement] = useState<string>('')
     const [isEdit, setIsEdit] = useState<boolean>(false)
 
-    const afterDragEl = useDragAndDrop()
+    if (props.draggable) {
+        // const afterDragEl = useDragAndDrop()
+    }
 
 
     useEffect(() => {
@@ -176,7 +178,7 @@ export const TestGrid = (props: {
                         }
                     </tr>
                 </thead>
-                <tbody className="hover-scroll-overlay-y">
+                <tbody className="hover-scroll-overlay-y table-group-divider">
                     {
                         currentData.length !== 0
                             ?
@@ -209,7 +211,7 @@ export const TestGrid = (props: {
                                                                     : header.isEdit && (currentEditElement === index + header.accessor) && isEdit
                                                                         ? <input type={header.isEdit.input?.type} className='form-control form-control-transparent form-control-sm' autoFocus name={header.accessor} id={index.toString()} onChange={header.isEdit.input?.onChange} value={datum[header.accessor]} />
                                                                         : header?.cell
-                                                                            ? header?.cell(datum)
+                                                                            ? header?.cell(datum, index)
                                                                             : datum[header.accessor]
                                                             }
                                                         </td>

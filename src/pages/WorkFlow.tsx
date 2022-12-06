@@ -9,6 +9,7 @@ import { Error } from "../components/components/Error"
 import { Loading } from "../components/components/Loading"
 import { SweetAlert } from "../Function/alert"
 import { AddSvg, LeftDoubleArrowSvg, SaveSvg } from "../components/Svg/Svg"
+import { axiosGet, baseUrl } from "../helpers/Axios"
 
 
 
@@ -40,21 +41,21 @@ export const WorkFlow = (
 
 
     const fetchWorkflows = () => {
-        return axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/Workflow`)
+        return axiosGet(`/Workflow`)
     }
 
     const { isLoading, data, isError, refetch } = useQuery('Workflows', fetchWorkflows)
 
     useEffect(() => {
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/UserProfile`)
+        axiosGet(`/UserProfile`)
             .then(res => setUsers(res.data))
             .catch(err => console.log(err))
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/Workflow/Type`)
+        axiosGet(`/Workflow/Type`)
             .then(res => {
                 setWorkFlowType(res.data)
             })
             .catch(err => console.log(err))
-        axios.get(`${process.env.REACT_APP_BACKEND_BASEURL}/Settings`)
+        axiosGet(`/Settings`)
             .then(res => {
                 setFields(res.data)
             })
@@ -67,7 +68,7 @@ export const WorkFlow = (
     const save = () => {
         setIsLoading(true)
         console.log('save:', workFlow)
-        axios[isNew ? 'post' : 'patch'](`${process.env.REACT_APP_BACKEND_BASEURL}/Workflow`, workFlow)
+        axios[isNew ? 'post' : 'patch'](`${baseUrl}/Workflow`, workFlow)
             .then(res => {
                 console.log('Response:', res)
                 setIsLoading(false)
@@ -75,7 +76,6 @@ export const WorkFlow = (
                     title: isNew ? 'Saved' : 'Updated',
                     icon: 'success',
                 })
-                // toast.success(isNew ? 'Saved' : 'Updated')
                 back()
             })
             .catch(err => {
@@ -85,7 +85,6 @@ export const WorkFlow = (
                     text: 'Sothing went wrong!',
                     icon: 'error',
                 })
-                // toast.error('Sothing went wrong!')
                 setIsLoading(false)
                 back()
             })
@@ -155,7 +154,6 @@ export const WorkFlow = (
                                         toggleWorkflow
                                             ?
                                             <>
-
                                                 <div className="dropdown">
                                                     <button className="btn btn-active-light-primary btn-sm mx-2 btn-hover-scale dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                                         Add Field &nbsp;
@@ -194,7 +192,6 @@ export const WorkFlow = (
                                                 <button onClick={addWorkFlow} title='Add Workflow' className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
                                                     <AddSvg clsName='svg-icon svg-icon-primary svg-icon-3' />
                                                 </button>
-
                                     }
 
                                 </div>
@@ -209,13 +206,14 @@ export const WorkFlow = (
                                         ?
                                         <Loading />
                                         :
-                                        isError ?
+                                        isError
+                                            ?
                                             <Error />
                                             :
                                             <>
                                                 <ul className="nav nav-tabs nav-line-tabs mb-5 fs-6">
                                                     {workFLowType?.map((types, index) => (
-                                                        <li key={types?.WorkflowTypeId} className="nav-item">
+                                                        <li key={index} className="nav-item">
                                                             <a className={`nav-link ${index === type ? 'active' : ''} fw-bolder text-gray-800`} onClick={() => setType(index)} data-bs-toggle="tab" href={`#tab-${index}`}>{types.Name}</a>
                                                         </li>
                                                     ))}

@@ -3,10 +3,10 @@ import { invDetailsType } from "../components/Interface/Interface"
 import { useTable, useSortBy, useGlobalFilter } from 'react-table'
 import { useNavigate } from "react-router-dom"
 import { useEffect, useMemo, useState } from "react"
-import axios from 'axios'
 import { Loading } from '../components/components/Loading'
 import { Error } from '../components/components/Error'
 import { DoubleTickSvg, ErrorSvg, ViewSvg } from '../components/Svg/Svg'
+import { axiosGet } from "../helpers/Axios"
 
 
 
@@ -24,12 +24,12 @@ export const InvoiceDetailsTable = (props: {
 
     useEffect(() => {
         setIsLoading(true)
-        axios.get(process.env.REACT_APP_BACKEND_BASEURL + `/Invoice/Pendings/${props.userId}`)
+        axiosGet(`/Invoice/Pendings/${props.userId}`)
             .then(res => {
                 setPending(res.data)
             })
             .catch(err => console.log(err))
-        axios.get(process.env.REACT_APP_BACKEND_BASEURL + `/Invoice/Approvals/${props.userId}`)
+        axiosGet(`/Invoice/Approvals/${props.userId}`)
             .then(res => {
                 setApprovals(res.data)
                 setData(res.data)

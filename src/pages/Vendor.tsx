@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react"
-import { TableFilterComponent, TableGridComponent } from "../components/components/TableComponent"
+import { TableFilterComponent } from "../components/components/TableComponent"
 import { AddSvg, EditSvg, RemoveSvg, SaveSvg, UsersSvg } from "../components/Svg/Svg"
-import { AxiosGet, AxiosInsert } from "../helpers/Axios"
+import { axiosGet, axiosPost } from "../helpers/Axios"
 import { VendorForm } from "../components/Vendor/VendorForm"
 import { VendorTable } from "../components/Vendor/VendorTable"
 import { Link } from "react-router-dom"
-import { propsAddressList, propsVendorPost, vendors } from "../components/Interface/Interface"
+import { propsVendorPost } from "../components/Interface/Interface"
 import { SweetAlert } from "../Function/alert"
 import axios from "axios"
 import { toast } from "react-hot-toast"
 
 
 export const Vendor = () => {
-
-
 
     const columns = [
         {
@@ -40,12 +38,12 @@ export const Vendor = () => {
                             })
                                 .then((result) => {
                                     if (result.isConfirmed) {
-                                        AxiosGet(`Vendor/Remove/${data.VendorId}`)
+                                        axiosGet(`Vendor/Remove/${data.VendorId}`)
                                             .then(res => {
-                                                AxiosGet('Vendor')
+                                                axiosGet('Vendor')
                                                     .then(ress => {
-                                                        setData(ress)
-                                                        setFilterData(ress)
+                                                        setData(ress.data)
+                                                        setFilterData(ress.data)
                                                         SweetAlert({
                                                             title: 'Deleted!',
                                                             text: 'Your data has been deleted.',
@@ -218,19 +216,19 @@ export const Vendor = () => {
     }
 
     useEffect(() => {
-        AxiosGet('/Vendor')
+        axiosGet('/Vendor')
             .then(res => {
-                setData(res)
-                setFilterData(res)
+                setData(res.data)
+                setFilterData(res.data)
 
             })
             .catch(err => console.log(err))
     }, [])
 
     useEffect(() => {
-        AxiosGet(`/Vendor/Address/${vendorId}`)
+        axiosGet(`/Vendor/Address/${vendorId}`)
             .then((res) => {
-                const vendor = res.AddressList.length === 0 ? { ...res, AddressList: [vendorDefaultAddress, remitDefaultAddress] } : { ...res }
+                const vendor = res.data.AddressList.length === 0 ? { ...res.data, AddressList: [vendorDefaultAddress, remitDefaultAddress] } : { ...res.data }
                 console.log(vendor)
                 setVendorPost(vendor)
             })
@@ -241,19 +239,19 @@ export const Vendor = () => {
         console.log('check', vendorPost)
         validation()
         if (isVaild()) {
-            AxiosInsert('/Vendor/New', vendorPost)
+            axiosPost('/Vendor/New', vendorPost)
                 .then(res => {
-                    if (res.Status) {
+                    if (res.data.Status) {
                         SweetAlert({
                             title: 'Saved',
-                            text: res.Message,
+                            text: res.data.Message,
                             icon: 'success'
                         })
                     } else {
                         SweetAlert({
                             icon: 'error',
                             title: 'Oops...',
-                            text: res.Message
+                            text: res.data.Message
                         })
                     }
                 })

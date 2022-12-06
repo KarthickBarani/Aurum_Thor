@@ -131,7 +131,7 @@ export const ViewSvg = (props: {
     title?: string
 }) => {
     return (
-        <span className={props.clsName} role={props.role} onClick={() => props.function ? props.function() : null}>
+        <span className={props.clsName} title={props.title} role={props.role} onClick={() => props.function ? props.function() : null}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path opacity="0.3" d="M19 22H5C4.4 22 4 21.6 4 21V3C4 2.4 4.4 2 5 2H14L20 8V21C20 21.6 19.6 22 19 22Z" fill="currentColor" />
                 <path d="M15 8H20L14 2V7C14 7.6 14.4 8 15 8Z" fill="currentColor" />
@@ -207,7 +207,7 @@ export const ErrorSvg = (props: {
     title?: string
 }) => {
     return (
-        <span className={props.clsName} role={props.role} onClick={() => props.function ? props.function() : null}>
+        <span className={props.clsName} title={props.title} role={props.role} onClick={() => props.function ? props.function() : null}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="currentColor" />
                 <rect x="11" y="14" width="7" height="2" rx="1" transform="rotate(-90 11 14)" fill="currentColor" />
@@ -354,6 +354,22 @@ export const UsersSvg = (props: {
         </span>
     )
 }
+export const UserSvg = (props: {
+    clsName: string,
+    function?: Function
+    role?: string,
+    title?: string
+}) => {
+    return (
+        <span className={props.clsName} role={props.role} onClick={() => props.function ? props.function() : null}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.28548 15.0861C7.34369 13.1814 9.35142 12 11.5304 12H12.4696C14.6486 12 16.6563 13.1814 17.7145 15.0861L19.3493 18.0287C20.0899 19.3618 19.1259 21 17.601 21H6.39903C4.87406 21 3.91012 19.3618 4.65071 18.0287L6.28548 15.0861Z" fill="currentColor" />
+                <rect opacity="0.3" x="8" y="3" width="8" height="8" rx="4" fill="currentColor" />
+            </svg>
+        </span>
+    )
+}
+
 export const WorkFlowSvg = (props: {
     clsName: string,
     function?: Function

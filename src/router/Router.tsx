@@ -17,6 +17,7 @@ import { vendors, departments, locations, subsidiary, account, AuthUser, userPro
 import { Inbox } from '../pages/Inbox';
 import { ProtectRoutes } from '../components/Auth/ProtectRoutes';
 import { Vendor } from '../pages/Vendor';
+import { axiosGet } from '../helpers/Axios';
 
 
 
@@ -31,9 +32,9 @@ export const Router = () => {
   const [locations, setLocation] = useState<locations>([] as locations)
   const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
   const [account, setAccount] = useState<account>([] as account)
-  const [refetchInterval, setRefetchInterval] = useState<number>(5000)
+  const [refetchInterval, setRefetchInterval] = useState<number>(0)
 
-  const BASEURL = process.env.REACT_APP_BACKEND_BASEURL
+
 
 
 
@@ -42,26 +43,26 @@ export const Router = () => {
 
 
   const fetchTableData = () => {
-    return axios.get(BASEURL + '/Invoice')
+    return axiosGet('/Invoice')
   }
 
   useEffect(() => {
-    axios.get(BASEURL + '/vendor')
+    axiosGet('/vendor')
       .then(res => setVendor(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/vendor/Departments')
+    axiosGet('/vendor/Departments')
       .then(res => setDepartments(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/vendor/Locations')
+    axiosGet('/vendor/Locations')
       .then(res => setLocation(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/vendor/Subsidiaries')
+    axiosGet('/vendor/Subsidiaries')
       .then(res => setSubsidiaries(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/vendor/Accounts')
+    axiosGet('/vendor/Accounts')
       .then(res => setAccount(res.data))
       .catch(err => console.log(err))
-    axios.get(BASEURL + '/UserProfile')
+    axiosGet('/UserProfile')
       .then(res => setUsers(res.data))
       .catch(err => console.log(err))
 
@@ -69,7 +70,7 @@ export const Router = () => {
 
 
 
-  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true, refetchInterval: refetchInterval })
+  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true, refetchInterval })
 
 
   return (<>
@@ -116,12 +117,12 @@ export const Router = () => {
             <Vendor />
           </ProtectRoutes>
         } />
-        {/* <Route path='Settings' element={
+        <Route path='Settings' element={
           <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
             <Settings />
           </ProtectRoutes>
         }
-        /> */}
+        />
         <Route path='WorkFlow' element={
           <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
             <WorkFlow vendors={vendors} departments={departments} locations={locations} account={account} />

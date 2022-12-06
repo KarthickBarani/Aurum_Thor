@@ -1,5 +1,6 @@
 
 import axios from "axios"
+import { axiosGet } from "../../helpers/Axios"
 import { WorkFlowTableType } from "../Interface/Interface"
 import { EditSvg, RemoveSvg } from "../Svg/Svg"
 
@@ -14,7 +15,7 @@ export const WorkFlowTable = (props: {
 
     const updateHandler = (index) => {
         let workFlowId = (props.workFlows?.filter(arr => arr.WorkFlowTypeId === props.type)[index]?.WorkFlowId)
-        axios.get<WorkFlowTableType>(`${process.env.REACT_APP_BACKEND_BASEURL}/Workflow/${workFlowId}`)
+        axiosGet(`/Workflow/${workFlowId}`)
             .then(res => {
                 props.setWorkFlow(res.data)
                 props.setIsNew(false)

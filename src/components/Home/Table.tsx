@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { ErrorSvg, ViewSvg } from '../Svg/Svg'
 import axios from 'axios'
+import { axiosPost } from '../../helpers/Axios'
 
 
 
@@ -55,15 +56,22 @@ export const Table = (props:
             Cell: ({ row }) => {
                 return (
                     <>
-                        <ViewSvg
-                            role='button'
-                            clsName='svg-icon svg-icon-primary svg-icon-1'
-                            function={() => {
-                                props.setInvNumber(row.values.InvoiceId)
-                                setTimeout(() => navigation('/InvoiceDetail'))
-                            }} />
-                        &nbsp;&nbsp;
-                        <ErrorSvg role={'button'} title={'Error code not found'} clsName='svg-icon svg-icon-danger svg-icon-1' />
+                        <div className="d-flex gap-2">
+                            <ViewSvg
+                                role='button'
+                                title={'Detail View'}
+                                clsName='svg-icon svg-icon-primary svg-icon-1'
+                                function={() => {
+                                    props.setInvNumber(row.values.InvoiceId)
+                                    setTimeout(() => navigation('/InvoiceDetail'))
+                                }} />
+                            {
+                                row.original.ErrorList.length > 0
+                                    ?
+                                    <ErrorSvg role={'button'} title={row.original.ErrorList.length > 0 ? row.original.ErrorList[0] : 'Error code not found'} clsName='svg-icon svg-icon-danger svg-icon-1' />
+                                    : null
+                            }
+                        </div>
                     </>
                 )
             }
@@ -184,21 +192,21 @@ export const Table = (props:
         return val
     }
 
-    useEffect(() => {
-        axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference/${props.userId}`)
-            .then(res => {
-                const col = res.data.find(data => data.ListTypeId === 1)?.Value
-                const parse = JSON.parse(col, reviver)
-                const array: any[] = []
-                parse.forEach(element => {
-                    array.push(defaultColumns.find(arr => arr.id === element.id))
-                });
-                // console.log(JSON.parse(col, reviver))
-                // setColumns(defaultColumns)
-                setColumns(parse ? array : defaultColumns)
-            })
-            .catch(err => console.log(err))
-    }, [props.userId])
+    // useEffect(() => {
+    //     axios.get(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference/${props.userId}`)
+    //         .then(res => {
+    //             const col = res.data.find(data => data.ListTypeId === 1)?.Value
+    //             const parse = JSON.parse(col, reviver)
+    //             const array: any[] = []
+    //             parse.forEach(element => {
+    //                 array.push(defaultColumns.find(arr => arr.id === element.id))
+    //             });
+    //             // console.log(JSON.parse(col, reviver))
+    //             // setColumns(defaultColumns)
+    //             setColumns(parse ? array : defaultColumns)
+    //         })
+    //         .catch(err => console.log(err))
+    // }, [props.userId])
 
     const navigation = useNavigate()
 
@@ -213,7 +221,7 @@ export const Table = (props:
             )
             if (array.length > 0) {
                 setColumns(array)
-                saveColumnOrder(array)
+                // saveColumnOrder(array)
             }
         }
     }, [afterDragElement])
@@ -225,7 +233,7 @@ export const Table = (props:
 
     const saveColumnOrder = (array) => {
 
-        axios.post(`https://invoiceprocessingapi.azurewebsites.net/api/v1/UserPreference`, {
+        axiosPost(`/UserPreference`, {
             UserId: props.userId,
             ListId: 0,
             ListType: 'Invoice',

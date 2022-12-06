@@ -10,10 +10,10 @@ export const DynamicField = (props: {
 
 
     const removeFields = () => {
-        let delarr = [...props.DyFields]
-        delarr.splice(props.index, 1)
-        props.setDyFields(delarr)
-        console.log(delarr)
+        // let delarr = [...props.DyFields]
+        // delarr.splice(props.index, 1)
+        // props.setDyFields(delarr)
+        // console.log(delarr)
     }
 
     return (
