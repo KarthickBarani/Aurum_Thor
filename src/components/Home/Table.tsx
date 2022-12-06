@@ -56,15 +56,22 @@ export const Table = (props:
             Cell: ({ row }) => {
                 return (
                     <>
-                        <ViewSvg
-                            role='button'
-                            clsName='svg-icon svg-icon-primary svg-icon-1'
-                            function={() => {
-                                props.setInvNumber(row.values.InvoiceId)
-                                setTimeout(() => navigation('/InvoiceDetail'))
-                            }} />
-                        &nbsp;&nbsp;
-                        <ErrorSvg role={'button'} title={'Error code not found'} clsName='svg-icon svg-icon-danger svg-icon-1' />
+                        <div className="d-flex gap-2">
+                            <ViewSvg
+                                role='button'
+                                title={'Detail View'}
+                                clsName='svg-icon svg-icon-primary svg-icon-1'
+                                function={() => {
+                                    props.setInvNumber(row.values.InvoiceId)
+                                    setTimeout(() => navigation('/InvoiceDetail'))
+                                }} />
+                            {
+                                row.original.ErrorList.length > 0
+                                    ?
+                                    <ErrorSvg role={'button'} title={row.original.ErrorList.length > 0 ? row.original.ErrorList[0] : 'Error code not found'} clsName='svg-icon svg-icon-danger svg-icon-1' />
+                                    : null
+                            }
+                        </div>
                     </>
                 )
             }
@@ -214,7 +221,7 @@ export const Table = (props:
             )
             if (array.length > 0) {
                 setColumns(array)
-                saveColumnOrder(array)
+                // saveColumnOrder(array)
             }
         }
     }, [afterDragElement])

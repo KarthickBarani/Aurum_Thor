@@ -2,8 +2,8 @@ import { Children } from "react"
 
 export const Modal = ({ children }) => {
     return (
-        <div className="modal fade" id="reactModal">
-            <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div className="modal fade-in" id="reactModal">
+            <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 {children}
             </div>
         </div>

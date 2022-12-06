@@ -69,7 +69,7 @@ export const LineItems = (props:
                 if (temp) array.push(temp)
             })
             console.log(array)
-            saveColumnOrder(array)
+            // saveColumnOrder(array)
             setCustomColumns(array)
         }
         const onDragOver = (e) => {
@@ -127,16 +127,22 @@ export const LineItems = (props:
 
     useEffect(() => {
         axiosGet(`/UserPreference/${props.userId}`)
-            .then(res => console.log(res.data))
+            .then(res => {
+                const col = JSON.parse(props.isExpense ? res.data.find(data => data.ListTypeId === 3)?.Value : res.data.find(data => data.ListTypeId === 2)?.Value, reviver)
+                let array: any[] = []
+                console.log(col)
+                col.forEach((el) => {
+                    if (props.headers.includes(el.accessor))
+                        array.push(props.headers[props.headers.findIndex(el.accessor)])
+                })
+                console.log(array)
+                // setCustomColumns(prev => col ? array : prev)
+            })
             .catch(err => console.error(err))
         // AxiosGet(`/UserPreference/${props.userId}`)
         //     .then(res => {
 
-        //         const col = props.isExpense ? res.find(data => data.ListTypeId === 3)?.Value : res.find(data => data.ListTypeId === 2)?.Value
         //         console.log('now', JSON.parse(col, reviver))
-        //         // let array: any[] = []
-        //         // col.forEach((el) => (props.headers.includes(el.accessor)) ? array.push(el) : null)
-        //         // setCustomColumns(prev => col ? array : prev)
         //         // console.log('test', array)
         //     })
         //     .catch(err => console.log(err))

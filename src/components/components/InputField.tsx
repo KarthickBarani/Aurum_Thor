@@ -20,6 +20,7 @@ export const InputTextField = (props: {
     onBlur?: React.FocusEventHandler<HTMLInputElement>
     readOnly?: boolean
     icon?: ReactElement
+    placeHolder?: string | undefined
     formError?: any
     required?: boolean
     temp?: any
@@ -28,7 +29,19 @@ export const InputTextField = (props: {
         <>
             <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}   > {props.label}</label>
             <div className="position-relative">
-                <input id={props.id} name={props.name} type={props.type} min={props.type === 'number' ? 0 : undefined} className={props.className + `${props.icon ? ' ps-10' : ''}`} value={props?.value} onChange={props.onChange} onBlur={props.onBlur} readOnly={props.readOnly} required={props.required} />
+                <input
+                    id={props.id}
+                    name={props.name}
+                    type={props.type}
+                    min={props.type === 'number' ? 0 : undefined}
+                    className={props.className + `${props.icon ? ' ps-10' : ''}`}
+                    value={props?.value}
+                    onChange={props.onChange}
+                    onBlur={props.onBlur}
+                    placeholder={props.placeHolder}
+                    readOnly={props.readOnly}
+                    required={props.required}
+                />
                 <div className="position-absolute translate-middle-y top-50 start-0 ms-2">
                     {props.icon ? props.icon : null}
                 </div>
@@ -97,6 +110,8 @@ export const InputSelectField = (props: {
         id: number
         value: string
     }[],
+    placeHolder?: string,
+    multiple?: boolean
     icon?: ReactElement,
     formError?: any,
     required?: boolean
@@ -115,6 +130,8 @@ export const InputSelectField = (props: {
                 onChange={props.onChange}
                 onBlur={props.onBlur}
                 required={props.required}
+                multiple={props.multiple}
+                placeholder={props.placeHolder}
             >
                 <option key={0} value={0}></option>
                 {props.option.map(option => (<option key={option.id} value={option.id}>{option.value}</option>))}

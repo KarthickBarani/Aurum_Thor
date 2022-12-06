@@ -19,7 +19,7 @@ export const Home = (props: {
 }) => {
 
     useEffect(() => {
-        props.setRefetchInterval(3000)
+        props.setRefetchInterval(5000)
         return () => {
             props.setRefetchInterval(0)
         }
