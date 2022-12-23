@@ -1,71 +1,73 @@
 import { useEffect, useState } from "react"
-import { Modal } from "react-bootstrap"
 import { toast } from "react-hot-toast"
-import { axiosGet, axiosPatch, axiosPost } from "../../helpers/Axios"
-import { InputSelectField, InputTextField } from "../components/InputField"
+import { axiosGet, axiosPost, axiosPut } from "../../helpers/Axios"
+import { InputTextField } from "../components/InputField"
 import { userProfileType } from "../Interface/Interface"
 
-export const UserForm = ({ userData, setModalIsOpen }) => {
+export const UserForm = ({ userId, setModalIsOpen }) => {
+
+    const [userFormData, setUserFormData] = useState<userProfileType>({} as userProfileType)
+    const [role, setRole] = useState<any[]>([])
 
     const formInput = 'form-control form-control-solid form-control-sm'
 
-    const [show, setShow] = useState<boolean>(false)
-
-
     const save = () => {
-        // if (toggleType === 'Add') {
-        //     axiosPost('/UserProfile', userFormData)
-        //         .then(res => toast.success(res.statusText))
-        //         .catch(err => toast.error(err.toString()))
-        // } else {
-        // }
-        axiosPatch('/UserProfile', userFormData)
-            .then(res => toast.success(res.statusText))
-            .catch(err => toast.error(err.toString()))
-            .finally(() => setModalIsOpen(false))
+        if (userId === 0) {
+            axiosPost('/UserProfile', userFormData)
+                .then(res => toast.success(res.statusText))
+                .catch(err => toast.error(err.toString()))
+        } else {
+            axiosPut('/UserProfile', userFormData)
+                .then(res => toast.success(res.statusText))
+                .catch(err => toast.error(err.toString()))
+                .finally(() => setModalIsOpen(false))
+        }
     }
 
     const changeHandler = (e) => {
         const name = e.target.name
         const type = e.target.type
         const value = e.target.value
+        const checked = e.target.checked
+        const dataSet = e.target.dataset
         const obj = { ...userFormData }
-        obj[name] = type === 'checkbox' ? e.target.checked : value
+        if (type === 'checkbox') {
+            if (name === 'Roles') {
+                if (checked) {
+                    obj.Roles.push(JSON.parse(dataSet.role))
+                } else {
+                    const lastIndex = obj.Roles.findIndex(role => role.RoleId === JSON.parse(dataSet.role).RoleId)
+                    obj.Roles.splice(lastIndex)
+                }
+            } else {
+                obj[name] = e.target.checked
+            }
+        } else {
+            obj[name] = value
+        }
+        // console.log(obj)
         setUserFormData(obj)
     }
     const blurHandler = () => {
     }
 
-    const [userFormData, setUserFormData] = useState<userProfileType>(userData)
-    const [role, setRole] = useState<any[]>([
-        {
-            id: 1,
-            value: 'Admin'
-        },
-        {
-            id: 2,
-            value: 'User'
-        },
-        {
-            id: 3,
-            value: 'Developer'
-        },
-        {
-            id: 4,
-            value: 'Support'
-        },
-    ])
-
     useEffect(() => {
-        setUserFormData(userData)
-    }, [userData])
+        axiosGet(`/UserProfile/${userId}`)
+            .then(res => {
+                setUserFormData(res.data)
+            })
+            .catch(err => {
+                if (userId !== 0) {
+                    toast.error(err.toString())
+                }
+            })
+    }, [userId])
 
     useEffect(() => {
         axiosGet('/Role')
             .then(res => {
                 setRole(res.data)
-            }
-            )
+            })
             .catch(err => {
                 console.log(err)
             })
@@ -111,7 +113,6 @@ export const UserForm = ({ userData, setModalIsOpen }) => {
                             value={userFormData?.LastName}
                             onChange={changeHandler}
                             onBlur={blurHandler}
-
                         />
                     </div>
                 </div>
@@ -138,7 +139,6 @@ export const UserForm = ({ userData, setModalIsOpen }) => {
                             value={userFormData?.DisplayName}
                             onChange={changeHandler}
                             onBlur={blurHandler}
-
                         />
                     </div>
                 </div>
@@ -156,7 +156,6 @@ export const UserForm = ({ userData, setModalIsOpen }) => {
 
                         />
                     </div>
-
                     <div className="col align-self-end">
                         <div className="form-check form-check-custom form-check-solid">
                             <input className="form-check-input" type="checkbox" checked={userFormData.Active} onChange={changeHandler} name="Active" id="Active" />
@@ -168,19 +167,22 @@ export const UserForm = ({ userData, setModalIsOpen }) => {
                 </div>
                 <div className="row mt-2">
                     <div className="col">
-                        <InputSelectField
-                            label='Role'
-                            id="Role"
-                            name="Role"
-                            className={formInput}
-                            value={userFormData?.UserName}
-                            onChange={changeHandler}
-                            onBlur={blurHandler}
-                            option={role.map(role => {
-                                return ({ id: role.id, value: role.Name })
-                            })}
-                            multiple={true}
-                        />
+                        <div className="row">
+                            <label
+                                className={`form-label fw-bolder fs-6 gray-700 mt-2`}>
+                                Roles
+                            </label>
+                            {
+                                role.map((role, index) => (
+                                    <div className="col-3 m-2" key={index}>
+                                        <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
+                                            <input type="checkbox" checked={userFormData.Roles?.find(el => el.RoleId === role.RoleId)} onChange={changeHandler} className="form-check-input" name='Roles' data-role={JSON.stringify(role)} />
+                                            <label className="form-check-label" >{role.Name}</label>
+                                        </label>
+                                    </div>
+                                ))
+                            }
+                        </div>
                         <div className="d-flex float-end justify-content-end align-items-center gap-2 mt-10">
                             <button role={'button'} className="btn btn-sm btn-light-primary" onClick={save} >Save</button>
                         </div>

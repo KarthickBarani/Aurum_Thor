@@ -2,13 +2,14 @@
 import { NavLink, Link } from 'react-router-dom';
 import { ApprovalSvg, DashboardSvg, MailSvg, SettingSvg, UsersSvg, WorkFlowSvg } from '../Svg/Svg';
 import { AuthUser } from '../Interface/Interface';
+import { useContext } from 'react';
+import { AuthContext, PermissionContext } from '../../router/Router';
 
 
-export const Navbar = (props: {
-  user: AuthUser
-  setAuthUser: Function
-}) => {
+export const Navbar = () => {
 
+  const currentRole = useContext(AuthContext)
+  const currentPermission = useContext(PermissionContext)
 
 
   return (
@@ -29,14 +30,10 @@ export const Navbar = (props: {
         </button>
 
         {
-          props?.user?.Status
+          currentRole?.authUser && currentRole?.authUser.Status && currentRole?.authUser.User.Roles.length > 0
             ? <div className="collapse navbar-collapse" id="navbarNav">
               <ul className="navbar-nav ms-auto fw-bold fs-6">
-                <li className="nav-item">
-                  <NavLink to={'/Home'} className="nav-link " >
-                    <DashboardSvg clsName='svg-icon svg-icon-light svg-icon-1' />
-                    Dashboard</NavLink>
-                </li>
+                {/* 
                 <li className="nav-item">
                   <NavLink to={'/InvoiceDetailTable'} className="nav-link" >
                     <ApprovalSvg clsName='svg-icon svg-icon-light svg-icon-1' />
@@ -64,33 +61,66 @@ export const Navbar = (props: {
                   <NavLink to={'/Settings'} className="nav-link">
                     <SettingSvg clsName='svg-icon svg-icon-light svg-icon-1' />
                     Setting </NavLink>
-                </li>
+                </li> */}
+                {/* {
+                  props.role && props.role.Permission.filter(permission => permission.Access).map(permission => (
+                    <li className="nav-item">
+                    <NavLink to={`/${permission.Name}`} className="nav-link">
+                    {permission.Name}
+                    </NavLink>
+                    </li>))
+                  } */}
+                {
+                  currentPermission?.permission
+                    ?
+                    <>
+                      <li className="nav-item">
+                        <NavLink to={'/Home'} className="nav-link " >
+                          Dashboard</NavLink>
+                      </li>
+                      {
+                        currentPermission?.permission && currentPermission.permission.Permission
+                          .filter((permission) => permission.Access)
+                          .map(
+                            permission => (
+                              (<li key={permission.PermissionId} className="nav-item">
+                                <NavLink to={`/${permission.Name}`} className="nav-link">
+                                  {permission.Name}
+                                </NavLink>
+                              </li>)
+                            )
+                          )
+                      }
+                    </>
+                    :
+                    null
+                }
 
                 {
-                  props?.user?.Status
+                  currentRole.authUser.Status
                     ?
                     <>
                       <li className="nav-item dropdown">
                         <Link className="nav-link dropdown-toggle" to={''} id="navbarDropdown" role="button" data-bs-toggle="dropdown" data-bs-offset="50,50" aria-expanded="false">
                           <div className="symbol symbol-25px align-self-center ">
-                            <div className="symbol-label fs-4 fw-bold text-success">{props.user?.User?.FirstName[0]}</div>
+                            <div className="symbol-label fs-4 fw-bold text-success">{currentRole.authUser?.User?.FirstName[0]}</div>
                           </div>
-                          &nbsp; {props.user.User?.DisplayName}
+                          &nbsp; {currentRole.authUser.User?.DisplayName}
                         </Link>
                         <ul className="dropdown-menu shadow-lg dropdown-menu-end text-center w-auto" aria-labelledby="navbarDarkDropdownMenuLink">
                           <div className="d-flex w-100 p-2">
                             <div className="symbol symbol-50px align-self-center ">
-                              <div className="symbol-label fs-2 fw-bold text-success">{props.user?.User?.FirstName[0]}</div>
+                              <div className="symbol-label fs-2 fw-bold text-success">{currentRole.authUser?.User?.FirstName[0]}</div>
                             </div>
                             <div className='mx-2 align-self-end'>
-                              <p className='pt-4 fs-5 text-start text-gray-800' >{props.user?.User?.LastName} {props.user?.User?.FirstName}<br /><span className='fs-7 text-start text-gray-400'>{props.user?.User?.UserName}</span></p>
+                              <p className='pt-4 fs-5 text-start text-gray-800' >{currentRole.authUser?.User?.LastName} {currentRole.authUser?.User?.FirstName}<br /><span className='fs-7 text-start text-gray-400'>{currentRole.authUser?.User?.UserName}</span></p>
                             </div>
                           </div>
                           <hr className='dropdown-divider text-gray-500' />
                           <NavLink onClick={() => {
                             localStorage.clear()
-                            props.setAuthUser(null)
-
+                            currentRole.authSetMethod(null)
+                            currentPermission?.permissionSetMethod(null)
                           }} to={'/'} className="dropdown-item text-start"> <span className="svg-icon svg-icon-primary svg-icon-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <rect opacity="0.3" x="8.5" y="11" width="12" height="2" rx="1" fill="black" />
                             <path d="M10.3687 11.6927L12.1244 10.2297C12.5946 9.83785 12.6268 9.12683 12.194 8.69401C11.8043 8.3043 11.1784 8.28591 10.7664 8.65206L7.84084 11.2526C7.39332 11.6504 7.39332 12.3496 7.84084 12.7474L10.7664 15.3479C11.1784 15.7141 11.8043 15.6957 12.194 15.306C12.6268 14.8732 12.5946 14.1621 12.1244 13.7703L10.3687 12.3073C10.1768 12.1474 10.1768 11.8526 10.3687 11.6927Z" fill="black" />

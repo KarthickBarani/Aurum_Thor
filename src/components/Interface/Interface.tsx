@@ -177,6 +177,7 @@ export type userProfileType = {
     Active: boolean
     ResetRequired: boolean
     RoleId: number
+    Roles: any[]
 }
 
 export type WorkFlowFields = {

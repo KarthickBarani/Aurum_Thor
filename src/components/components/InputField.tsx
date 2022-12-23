@@ -23,11 +23,12 @@ export const InputTextField = (props: {
     placeHolder?: string | undefined
     formError?: any
     required?: boolean
+    disabled?: boolean
     temp?: any
 }) => {
     return (
         <>
-            <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}   > {props.label}</label>
+            <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''} ${props.disabled ? 'disable' : ''}`}   > {props.label}</label>
             <div className="position-relative">
                 <input
                     id={props.id}
@@ -41,6 +42,10 @@ export const InputTextField = (props: {
                     placeholder={props.placeHolder}
                     readOnly={props.readOnly}
                     required={props.required}
+                    disabled={props.disabled}
+                    style={props.disabled ? {
+                        cursor: 'not-allowed'
+                    } : {}}
                 />
                 <div className="position-absolute translate-middle-y top-50 start-0 ms-2">
                     {props.icon ? props.icon : null}
@@ -57,16 +62,43 @@ export const InputTextField = (props: {
     )
 }
 
-export const InputTextAreaField = (props: { label: string, name: string, id: string, className: string, value: number | string, onChange?: React.ChangeEventHandler<HTMLTextAreaElement>, onBlur?: React.FocusEventHandler<HTMLTextAreaElement>, readOnly?: boolean, formError?: any, required?: boolean }) => {
+export const InputTextAreaField = (props: {
+    label: string,
+    name: string,
+    id: string,
+    className:
+    string,
+    value: number | string,
+    onChange?: React.ChangeEventHandler<HTMLTextAreaElement>,
+    onBlur?: React.FocusEventHandler<HTMLTextAreaElement>,
+    readOnly?: boolean,
+    formError?: any,
+    required?: boolean
+    disabled?: boolean
+}) => {
     return (
         <>
             <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}>{props.label}</label>
-            <textarea id={props.id} name={props.name} className={props.className} value={props?.value} onChange={props.onChange} onBlur={props.onBlur} readOnly={props.readOnly} required={props.required} />
+            <textarea id={props.id} name={props.name} className={props.className} value={props?.value} onChange={props.onChange} onBlur={props.onBlur} readOnly={props.readOnly} required={props.required} disabled={props.disabled} style={props.disabled ? {
+                cursor: 'not-allowed'
+            } : {}} />
             <ErrorMessage>{props.formError}</ErrorMessage>
         </>
     )
 }
-export const InputTextDateField = (props: { label: string, name: string, id: string, className: string, value: number | string, onChange?: React.ChangeEventHandler<HTMLTextAreaElement>, onBlur?: React.FocusEventHandler<HTMLTextAreaElement>, readOnly?: boolean, formError?: any, required?: boolean }) => {
+export const InputTextDateField = (props: {
+    label: string,
+    name: string,
+    id: string,
+    className: string,
+    value: number | string,
+    onChange?: React.ChangeEventHandler<HTMLTextAreaElement>,
+    onBlur?: React.FocusEventHandler<HTMLTextAreaElement>,
+    readOnly?: boolean,
+    formError?: any,
+    required?: boolean
+    disabled?: boolean
+}) => {
     return (
         <>
             <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}>{props.label}</label>
@@ -79,6 +111,11 @@ export const InputTextDateField = (props: { label: string, name: string, id: str
                 value={props.value}
                 onChange={props.onChange}
                 onBlur={props.onBlur}
+                disabled={props.disabled}
+                readOnly={props.readOnly}
+                style={props.disabled ? {
+                    cursor: 'not-allowed'
+                } : {}}
             />
             {
                 props.formError
@@ -115,6 +152,7 @@ export const InputSelectField = (props: {
     icon?: ReactElement,
     formError?: any,
     required?: boolean
+    disabled?: boolean
 }) => {
     return (<>
         <label
@@ -132,6 +170,10 @@ export const InputSelectField = (props: {
                 required={props.required}
                 multiple={props.multiple}
                 placeholder={props.placeHolder}
+                disabled={props.disabled}
+                style={props.disabled ? {
+                    cursor: 'not-allowed'
+                } : {}}
             >
                 <option key={0} value={0}></option>
                 {props.option.map(option => (<option key={option.id} value={option.id}>{option.value}</option>))}

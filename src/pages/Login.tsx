@@ -1,11 +1,12 @@
 import { LoginComp } from '../components/Auth/LoginComp';
+import { AuthUser } from '../components/Interface/Interface';
 
-export const Login = (props: { setAuthUser: Function }) => {
+export const Login = (props: { setPermission: Function }) => {
 
 
     return (
         <>
-            <LoginComp setAuthUser={props.setAuthUser} />
+            <LoginComp setPermission={props.setPermission} />
         </>
     )
 }

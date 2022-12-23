@@ -10,10 +10,9 @@ import { RoleDataType, RoleForm } from '../components/UserManagement/RoleForm';
 // import { Modal, ModalContent, ModalHeader } from '../components/components/Model';
 import { Modal } from "react-bootstrap"
 import { axiosGet } from '../helpers/Axios';
-import { boolean } from 'yup';
 import { PermissionDetails } from '../components/UserManagement/PermissionDetails';
 import axios from 'axios';
-import { PermissionForm } from '../components/UserManagement/PermissionForm';
+
 
 type UserProfileData = {
   Id: String;
@@ -78,21 +77,14 @@ export const UserManagement = () => {
     Operations: []
   }
 
-  const [currentUserData, setCurrentUserData] = useState<UserProfile>(defalutUserData)
-  const [currentRoleData, setCurrentRoleData] = useState<RoleDataType>({} as RoleDataType)
+  const [currentUserId, setCurrentUserId] = useState<number>(0)
+  const [currentRoleId, setCurrentRoleId] = useState<number>(0)
   const [toggleUserType, setToggleUserType] = useState<'View' | 'Add' | 'Update'>('View')
   const [toggleRoleType, setToggleRoleType] = useState<'View' | 'Add' | 'Update'>('View')
   const [toggleTabType, setToggleTabType] = useState<'User' | 'Role' | 'Permission'>('User')
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false)
 
 
-  let today: string = `${new Date().getFullYear()}-${new Date().getMonth() + 1 < 10
-    ? `0${new Date().getMonth() + 1}`
-    : new Date().getMonth() + 1
-    }-${new Date().getDate() < 10
-      ? `0${new Date().getDate()}`
-      : new Date().getDate()
-    }`;
 
   const [userData, setUserData] = useState<UserProfile[]>([])
   const [permissionData, setPermissionData] = useState([])
@@ -125,7 +117,7 @@ export const UserManagement = () => {
         <div className="d-flex justify-content-center gap-2 ">
           <span role={'button'} >
             <ViewSvg role={'button'} clsName='svg-icon svg-icon-primary svg-icon-2' function={() => {
-              setCurrentUserData(data)
+              setCurrentUserId(data.Id)
               setModalIsOpen(true)
             }} />
           </span>
@@ -165,63 +157,8 @@ export const UserManagement = () => {
     },
   ]
 
-  // const RoleColumns: columnProps = [
-  //   {
-  //     id: 1,
-  //     header: 'Action',
-  //     accessor: 'Action',
-  //     cell: (data) => <ViewSvg clsName='svg-icon svg-icon-1 svg-icon-primary' function={() => {
-  //       setRoleId(data.RoleId)
-  //       setToggleRoleType('Update')
-  //     }} />
-  //   },
-  //   {
-  //     id: 2,
-  //     header: 'Role Name',
-  //     accessor: 'Name',
-  //   },
-  //   {
-  //     id: 3,
-  //     header: 'Description',
-  //     accessor: 'Description',
-  //   },
-  //   {
-  //     id: 4,
-  //     header: 'Status',
-  //     accessor: 'Status',
-  //     cell: (data: UserProfile) => (<span className={`badge badge-light-${data.Active ? 'success' : 'danger'}`}>{data.Active ? 'Active' : 'Inactive'}</span>),
-  //   }
-  // ]
 
-  const PermissionColumns: columnProps = [
-    {
-      id: 1,
-      header: 'Action',
-      accessor: 'Action',
-      className: 'min-w-25px',
-      cell: (data) => (
-        <div className="d-flex justify-content-center gap-2 ">
-          <span role={'button'} >
-            <ViewSvg role={'button'} clsName='svg-icon svg-icon-primary svg-icon-2' function={() => {
-              setCurrentUserData(data)
-              setModalIsOpen(true)
-            }} />
-          </span>
-        </div>
-      ),
-    },
-    {
-      id: 3,
-      header: 'Role Name',
-      accessor: 'roleName'
-    },
-    {
-      id: 4,
-      header: 'Number of permission',
-      accessor: 'Number of permission',
-      cell: (data) => 5
-    }
-  ]
+
 
   return (
     <>
@@ -238,8 +175,8 @@ export const UserManagement = () => {
                 <h4 className="card-title">User Management</h4>
                 <div className="toolbar">
                   <button className="btn btn-sm btn-light-primary" onClick={() => {
-                    setCurrentUserData({} as UserProfile)
-                    setCurrentRoleData({} as RoleDataType)
+                    setCurrentUserId(0)
+                    setCurrentRoleId(0)
                     setModalIsOpen(true)
                   }}><AddSvg clsName='svg-icon svg-icon-3 svg-icon-primary ' />Add New</button>
                 </div>
@@ -284,14 +221,7 @@ export const UserManagement = () => {
                       {
                         toggleTabType === 'Role'
                           ?
-                          < RoleDetails setModalIsOpen={setModalIsOpen} setRole={setCurrentRoleData} />
-                          :
-                          null
-                      }
-                      {
-                        toggleTabType === 'Permission'
-                          ?
-                          <PermissionDetails data={permissionData} column={PermissionColumns} />
+                          < RoleDetails setModalIsOpen={setModalIsOpen} setRole={setCurrentRoleId} />
                           :
                           null
                       }
@@ -305,27 +235,20 @@ export const UserManagement = () => {
       </div>
       <Modal show={modalIsOpen} onHide={() => setModalIsOpen(prev => !prev)} size={'xl'} scrollable={true} centered={true} >
         <Modal.Header closeButton={true}>
-          <Modal.Title>{toggleTabType ? 'Add User' : 'Add a Role'}</Modal.Title>
+          <Modal.Title>{toggleTabType === 'User' ? 'Add User' : 'Role & Permission'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {
             toggleTabType === 'User'
               ?
-              <UserForm setModalIsOpen={setModalIsOpen} userData={currentUserData} />
+              <UserForm setModalIsOpen={setModalIsOpen} userId={currentUserId} />
               :
               null
           }
           {
             toggleTabType === 'Role'
               ?
-              <RoleForm setModalIsOpen={setModalIsOpen} RoleData={currentRoleData} />
-              :
-              null
-          }
-          {
-            toggleTabType === 'Permission'
-              ?
-              <PermissionForm />
+              <RoleForm setModalIsOpen={setModalIsOpen} RoleId={currentRoleId} />
               :
               null
           }

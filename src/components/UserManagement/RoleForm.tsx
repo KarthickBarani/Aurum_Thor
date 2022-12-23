@@ -1,53 +1,67 @@
-import React, { useEffect, useState } from "react"
-import { Accordion } from "react-bootstrap"
-import { axiosGet } from "../../helpers/Axios"
+import React, { useContext, useEffect, useState } from "react"
+import { Accordion, Card, useAccordionButton } from "react-bootstrap"
+import { toast } from "react-hot-toast"
+import { axiosGet, axiosPost, axiosPut } from "../../helpers/Axios"
 import { InputTextField } from "../components/InputField"
-import { columnProps, TestGrid } from "../components/TableComponent"
-import { AddSvg } from "../Svg/Svg"
+import { PermissionContext } from "../../router/Router"
 
 
 export type RoleDataType = {
-    RoleId: Number,
-    Name: String,
-    Description: String,
-    IsActive: Boolean,
-    Operations: [
-        Operation: {
-            operationId: Number,
-            OperationName: String,
-        },
-        Permission: {
-            Read: Boolean,
-            Write: Boolean,
-            Create: Boolean,
-
-        }
-    ]
+    RoleId: number,
+    Name: string,
+    Description: string,
+    IsActive: boolean,
+    Permission: []
 }
 
 
-export const RoleForm = ({ RoleData, setModalIsOpen }) => {
 
+export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalIsOpen: Function }) => {
+
+
+    const CurrentPermission = useContext(PermissionContext)
 
     const [roleData, setRoleData] = useState<any>({})
     const [permissions, setPermissions] = useState<any[]>([])
-    const [currentFieldCollapse, setCurrentFieldCollapse] = useState<string>('')
+    const [currentFieldCollapse, setCurrentFieldCollapse] = useState<string | null>(null)
+    const [valid, setValid] = useState<boolean>(false)
+    const [formError, setFormError] = useState({
+        RoleId: null,
+        Name: null,
+        Description: null,
+        IsActive: null
+    })
 
     useEffect(() => {
-        setRoleData(RoleData)
-    }, [RoleData])
-
-
-    useEffect(() => {
-        axiosGet('/Role/Permission')
-            .then(res => {
-                setPermissions(res.data)
-            }
-            )
-            .catch(err => {
-                console.log(err)
+        if (RoleId === 0) {
+            setRoleData({
+                RoleId: 0,
+                Name: '',
+                Description: '',
+                IsActive: false,
+                Permission: null
             })
-    }, [])
+        } else {
+            axiosGet(`/Role/${RoleId}`)
+                .then(res => {
+                    setRoleData(res.data)
+                })
+                .catch(err => console.log(err))
+        }
+    }, [RoleId])
+
+    useEffect(() => {
+        if (roleData.Permission === null) {
+            axiosGet('/Role/Permission')
+                .then(res => {
+                    setRoleData({ ...roleData, Permission: res.data })
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+        }
+    }, [roleData.Permission])
+
 
 
     const formInput = 'form-control form-control-solid form-control-sm'
@@ -58,7 +72,7 @@ export const RoleForm = ({ RoleData, setModalIsOpen }) => {
         const type = e.target.type
         const checked = e.target.checked
         const value = e.target.value
-        const array = [...permissions]
+        const array = [...roleData.Permission]
         const dataSet = e.target.dataset
         if (type === 'checkbox') {
             if (dataSet.type) {
@@ -67,54 +81,121 @@ export const RoleForm = ({ RoleData, setModalIsOpen }) => {
                     console.log(array[dataSet.id][dataSet.type][dataSet.sectionid][dataSet.accessor][dataSet.subaccessor][dataSet.valueid][name], dataSet.valueid)
                 } else {
                     array[dataSet.id][dataSet.type][dataSet.sectionid][dataSet.accessor][name][id] = checked
-                    console.log(array[dataSet.id][dataSet.type][dataSet.sectionid][dataSet.accessor][name], dataSet.sectionid)
+                    array[dataSet.id][dataSet.type][dataSet.sectionid][dataSet.accessor]['Value'].forEach((value) => {
+                        value['Operation'][id] = array[dataSet.id][dataSet.type][dataSet.sectionid][dataSet.accessor][name][id]
+                    })
                 }
             } else {
-                console.log(e.target.dataset.type)
-                array[id][name] = checked
+                if (id === 'All' && name === 'Access') {
+                    array.forEach(obj => obj[name] = checked)
+                } else {
+                    array[id][name] = checked
+                }
             }
         }
         else {
             const obj = { ...roleData }
             obj[name] = value
             setRoleData(obj)
+            if (obj[name] === '')
+                setFormError({ ...formError, [name]: 'required !' })
+            else {
+                setFormError({ ...formError, [name]: null })
+            }
         }
         setPermissions(array)
+
     }
     const blurHandler = () => {
 
     }
-    // ['Dashboard', 'Approval', 'User Management', 'Workflow', 'Vendor', 'Setting']
+
+    const validation = (): boolean => {
+        for (let val of Object.values(formError)) {
+            if (val !== null) {
+                return true
+            }
+        }
+        return false
+    }
+
+    const onSumbit = () => {
+        if (roleData.RoleId === 0) {
+            axiosPost("/Role", { ...roleData, Permission: permissions })
+                .then(res => {
+                    toast.success(res.statusText)
+                    console.log({ ...roleData, Permission: permissions })
+                })
+                .catch(err => {
+                    toast.error(err.toString())
+                    console.log({ ...roleData, Permission: permissions })
+                })
+                .finally(() => {
+                    CurrentPermission?.permissionSetMethod({ ...roleData, Permission: permissions })
+                    setModalIsOpen(false)
+                })
+        } else {
+            axiosPut("/Role", { ...roleData, Permission: permissions })
+                .then(res => {
+                    toast.success(res.statusText)
+                })
+                .catch(err => toast.error(err.toString()))
+                .finally(() => {
+                    CurrentPermission?.permissionSetMethod({ ...roleData, Permission: permissions })
+                    setModalIsOpen(false)
+                })
+        }
+
+    }
+
+    useEffect(() => {
+        setValid(validation)
+    }, [formError])
 
 
-    const SectionCollapse = ({ Sections, IsCollapse, index }: { Sections: any[], IsCollapse: boolean, index: number }) => (
+    const CustomToggle = ({ eventKey }) => {
+        const decoratedOnClick = useAccordionButton(eventKey, () => {
+            setCurrentFieldCollapse(prev => prev !== '' ? '' : eventKey)
+        })
+
+        return (
+            <button
+                type="button"
+                className="accordion-button bg-transparent"
+                onClick={decoratedOnClick}
+            >
+            </button>
+        );
+    }
+
+
+    const SectionCollapse = ({ Sections, index }: { Sections: any[], IsCollapse: boolean, index: number }) => (
         <>
 
             {
                 Sections.length > 0
                     ?
                     Sections.map((Section, SectionIndex) => (
-                        <Accordion.Item eventKey={SectionIndex.toString()} bsPrefix="accordion-item">
-                            <Accordion.Header bsPrefix="accordion-header">
-                                <div className="d-flex align-items-center justify-content-between">
-                                    <span className="text-gray-800 fs-6 fw-bold" >{Section.Field.Type}</span>
-                                    <PermissionInputControl Operation={Section.Field.Operation} SectionIndex={SectionIndex} Index={index} />
-                                </div>
-                            </Accordion.Header>
-                            <Accordion.Body bsPrefix="accordion-body">
-                                <FieldCollapse Field={Section.Field} SectionIndex={SectionIndex} Index={index} />
-                            </Accordion.Body>
+                        <Accordion.Item eventKey={SectionIndex.toString()} bsPrefix="accordion-item" key={SectionIndex}>
+                            <Card>
+                                <Card.Header bsPrefix="">
+                                    <div className="d-flex align-items-center justify-content-between w-100">
+                                        <div className="d-flex align-items-center justify-content-between w-100">
+                                            <span className="text-gray-800 fs-6 fw-bold" >{Section.Field.Type}</span>
+                                            <div>
+                                                <PermissionInputControl Operation={Section.Field.Operation} SectionIndex={SectionIndex} Index={index} />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <CustomToggle eventKey={SectionIndex.toString()} />
+                                        </div>
+                                    </div>
+                                </Card.Header>
+                                <Accordion.Collapse eventKey={SectionIndex.toString()} in={currentFieldCollapse === SectionIndex.toString()} >
+                                    <FieldCollapse Field={Section.Field} SectionIndex={SectionIndex} Index={index} />
+                                </Accordion.Collapse>
+                            </Card>
                         </Accordion.Item>
-                        // <div key={Section.FieldId} className='border rounded m-1'>
-                        //     <div className="d-flex justify-content-between align-items-center p-3">
-                        //         <span className="text-gray-800 fs-6 fw-bold" >{Section.Field.Type}</span>
-                        //         <div className="d-flex align-items-center">
-                        //             <PermissionInputControl Operation={Section.Field.Operation} SectionIndex={SectionIndex} Index={index} />
-                        //             <span role={'button'} className="accordion-button bg-transparent collapsed" data-bs-toggle='collapse' data-bs-target={`#${Section.Field.Type}${SectionIndex}`} onClick={() => setCurrentFieldCollapse(`${Section.Field.Type}${SectionIndex}`)}></span>
-                        //         </div>
-                        //     </div>
-                        //     <FieldCollapse Field={Section.Field} SectionIndex={SectionIndex} Index={index} />
-                        // </div>
                     ))
                     :
                     null
@@ -123,7 +204,7 @@ export const RoleForm = ({ RoleData, setModalIsOpen }) => {
     )
 
     const FieldCollapse = ({ Field, SectionIndex, Index }) => (
-        <div className="container">
+        <div className="container-fluid">
             <div className="row p-3 bg-light border fs-6 fw-bolder">
                 <div className="col-4">Field Name</div>
                 <div className="col-2 ">Create</div>
@@ -134,7 +215,7 @@ export const RoleForm = ({ RoleData, setModalIsOpen }) => {
             {
                 Field.Value.map(
                     (value, valueIndex) => (
-                        <div className="row p-3 px-2 bg-hover-light fs-7 fw-bold">
+                        <div key={valueIndex} className="row p-3 px-2 bg-hover-light fs-7 fw-bold">
                             <div className="col-4">{value.Field}</div>
                             <div className="col-2">
                                 <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
@@ -165,7 +246,7 @@ export const RoleForm = ({ RoleData, setModalIsOpen }) => {
 
     const PermissionElement = ({ permission, index }) => (
         <>
-            <div className="d-flex justify-content-between align-items-center p-1">
+            <div className="d-flex justify-content-between align-items-center p-3">
                 <span className="text-gray-700 fs-5 fw-bold" >{permission.Name}</span>
                 <div className="d-flex">
                     <span className="d-flex gap-1">
@@ -173,22 +254,13 @@ export const RoleForm = ({ RoleData, setModalIsOpen }) => {
                             <input type="checkbox" checked={permission.Access} onChange={changeHandler} className="form-check-input" name="Access" id={index.toString()} />
                             <label className="form-check-label" >Access</label>
                         </label>
-                        <div>
+                        {/* <div>
                             <button disabled={!permission.Access} role={'button'} className="accordion-button bg-transparent collapsed" data-bs-toggle='collapse' data-bs-target={`#${permission.Name}${index}`}></button>
-                        </div>
+                        </div> */}
                     </span>
                 </div>
             </div>
-            {/* <div id={`${permission.Name}${index}`} className={`collapse show`}>
-                {
-                    permission.Access
-                        ?
-                        <SectionCollapse Sections={permission.Sections} IsCollapse={permission.Access} index={index} />
-                        :
-                        null
-                }
-            </div> */}
-            <Accordion>
+            <Accordion >
                 {
                     permission.Access
                         ?
@@ -241,7 +313,7 @@ export const RoleForm = ({ RoleData, setModalIsOpen }) => {
         <>
             <div className="container gap-2">
                 <div className="row">
-                    <div className="col-6">
+                    <div className="col-12">
                         <InputTextField
                             label={'Name of Role'}
                             id={'Name'}
@@ -252,32 +324,43 @@ export const RoleForm = ({ RoleData, setModalIsOpen }) => {
                             onChange={changeHandler}
                             onBlur={blurHandler}
                             placeHolder={'Role Name'}
+                            required={true}
+                            formError={formError}
+                        />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-12">
+                        <InputTextField
+                            label={'Description'}
+                            id={'Description'}
+                            name={'Description'}
+                            type={'text'}
+                            className={'form-control form-control-solid form-control-sm'}
+                            value={roleData.Description}
+                            onChange={changeHandler}
+                            onBlur={blurHandler}
+                            placeHolder={'Description'}
                         />
                     </div>
                 </div>
                 <div className="row mt-10">
                     <div className="col">
-                        <label className="form-label fw-bolder fs-6 gray-700">Permission Access</label>
+                        <div className="d-flex justify-content-end mb-5">
+                            <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
+                                <input type="checkbox" className="form-check-input" id={'All'} name="Access" onChange={changeHandler} />
+                                <label className="form-check-label" >Full Access</label>
+                            </label>
+                        </div>
                         <div className="border p-2 rounded">
-                            <div className="d-flex  justify-content-between p-3">
-                                <span className="text-gray-700 fs-5 fw-bold required" >
-                                    Administrator Access</span>
-                                <span className="d-flex align-items-center">
-                                    <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
-                                        <input type="checkbox" className="form-check-input" name="" id="" />
-                                        <label className="form-check-label" >Access</label>
-                                    </label>
-                                </span>
-                            </div>
-                            <div className="separator border-2 separator-dashed"></div>
                             {
-                                permissions?.map((permission, index) => (
+                                roleData.Permission?.map((permission, index) => (
                                     <PermissionElement key={permission.PermissionId} permission={permission} index={index} />
                                 ))
                             }
                         </div>
                         <div className="d-flex justify-content-end mt-10">
-                            <div className="btn btn-sm btn-primary" onClick={() => console.log(RoleData)}>Save</div>
+                            <button className="btn btn-sm btn-primary" disabled={valid} onClick={onSumbit}>Save</button>
                         </div>
                     </div>
                 </div>

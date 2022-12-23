@@ -113,18 +113,6 @@ export const InvoiceDetail = (props: {
     const [afterDragElement, setAfterDragElement] = useState<any>([])
 
 
-    const changeHandler = (e, targetArray, targetfunction) => {
-        const index = e.target.id
-        const key = e.target.name
-        const type = e.target.type
-        const array = [...targetArray]
-        if (type === 'number')
-            array[index][key] = e.target.valueAsNumber
-        else
-            array[index][key] = e.target.value
-        targetfunction(array)
-    }
-
     // const expensesOption: ActionButtonsProps[] = [
     //     {
     //         buttonText: <AddSvg clsName="svg-icon svg-icon-3 svg-icon-primary" />,

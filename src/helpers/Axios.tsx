@@ -43,4 +43,5 @@ const config = {
 export const axiosGet = (url: string) => axios.get(baseUrl + url, config)
 export const axiosPost = (url: string, data: any) => axios.post(baseUrl + url, data, config)
 export const axiosPatch = (url: string, data: any) => axios.patch(baseUrl + url, data, config)
+export const axiosPut = (url: string, data: any) => axios.put(baseUrl + url, data, config)
 export const axiosDelete = (url: string) => axios.delete(baseUrl + url, config)

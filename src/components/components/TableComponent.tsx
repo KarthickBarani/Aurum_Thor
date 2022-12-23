@@ -22,7 +22,7 @@ export type columnProps = {
     id: string | number
     header: string | HTMLElement
     accessor: string
-    cell?: (data, index) => string | number | ReactElement
+    cell?: (data: any, index: number) => string | number | ReactElement
     className?: string
     draggable?: boolean | undefined
     sortable?: boolean | undefined

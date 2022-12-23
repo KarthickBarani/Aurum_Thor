@@ -1,9 +1,10 @@
 import { deepStrictEqual } from "assert"
 import { useEffect, useState } from "react"
+import { Collapse } from "react-bootstrap"
 import { axiosGet } from "../../helpers/Axios"
 import { Modal, ModalContent, ModalHeader } from "../components/Model"
 import { TestGrid } from "../components/TableComponent"
-import { UsersSvg, UserSvg } from "../Svg/Svg"
+import { RemoveSvg, UsersSvg, UserSvg } from "../Svg/Svg"
 
 export const RoleDetails = ({ setModalIsOpen, setRole }) => {
 
@@ -85,22 +86,30 @@ export const RoleDetails = ({ setModalIsOpen, setRole }) => {
     return (
         <>
             <div className="row">
-                {RoleData?.map(datum => (
-                    <div className="col-4 mb-2">
-                        <div role={'button'} className="card card-flush shadow-sm bg-hover-light" onClick={() => {
-                            setRole(datum)
+                {RoleData?.map((datum, index) => (
+                    <div key={index} className="col-4 mb-2">
+                        <div role={'button'} className="card card-flush shadow-sm bg-hover-light hover-scale " onClick={() => {
+                            setRole(datum.RoleId)
                             setModalIsOpen(true)
                         }}>
                             <div className="card-header">
-                                <h1 className="card-title">
-                                    <div className="d-flex flex-column gap-2">
-                                        <span>{datum.Name}</span>
-                                        <small className="lead" >{datum.Description}</small>
+                                <>
+                                    <h1 className="card-title">
+                                        <div className="d-flex flex-column gap-2">
+                                            <span>{datum.Name}</span>
+                                            <small className="lead" >{datum.Description}</small>
+                                        </div>
+                                    </h1>
+                                    <div className="card-toolbar">
+                                        <span title="Number of users" role={'button'} className="badge badge-square badge-light p-2"> <UserSvg clsName="svg-icon" /> 5</span>
                                     </div>
-                                </h1>
-                                <div className="card-toolbar">
-                                    <span title="Number of users" role={'button'} className="badge badge-square badge-light p-2"> <UserSvg clsName="svg-icon" /> 5</span>
-                                </div>
+                                </>
+                                <Collapse in={false}>
+                                    <div className="w-10">
+                                        <button className="btn btn-sm btn-icon align-items-center" ><RemoveSvg clsName="svg-icon svg-icon-danger" ></RemoveSvg></button>
+                                    </div>
+                                </Collapse>
+
                             </div>
                         </div>
                     </div>
