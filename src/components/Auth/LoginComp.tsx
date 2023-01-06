@@ -31,11 +31,11 @@ export const LoginComp = (props: {
       .then(res => {
         localStorage.setItem('user', JSON.stringify(res.data))
         if (res.data.Status === true) {
-          if (res.data.User.Roles && res.data.User.Roles.length > 0) {
+          if (res.data.User.Roles && res.data.User.Roles.filter(role => role.IsActive).length > 0) {
             setStep(res.data.Status)
           } else {
             setStep(false)
-            toast.error('Permission denied !!')
+            toast.error('Permission denied !!', { position: 'bottom-center' })
           }
         } else {
           navigation('/')
@@ -129,7 +129,7 @@ export const LoginComp = (props: {
       </div>
       <div className='d-flex justify-content-around'>
         {
-          User && User.Roles.map(role => (
+          User && User.Roles.filter(role => role.IsActive).map(role => (
             <div
               key={role.RoleId}
               className="symbol symbol-150px"

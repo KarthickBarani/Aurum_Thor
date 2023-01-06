@@ -201,9 +201,13 @@ export const InvoiceDetailsForm = (props:
     }
 
     const accessMethod = (pageName: string, sectionName: string, fieldName: string): any => {
-        return currentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Value.find(value => value.Field === fieldName).Operation
+        if (currentPermission && currentPermission?.permission.Permission.length > 0)
+            return currentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Value.find(value => value.Field === fieldName).Operation
+        else
+            return true
     }
 
+    console.log(currentPermission?.permission)
     const formInput = 'form-control form-control-solid'
     const formSelect = 'form-select form-select-solid'
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2'
@@ -226,7 +230,7 @@ export const InvoiceDetailsForm = (props:
                                 option={props.vendors.map(vendor => { return { id: vendor.VendorId, value: vendor.VendorName } })}
                                 formError={props.formError}
                                 required={true}
-                                disabled={!accessMethod('Invoice', 'Header', 'VendorName').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'VendorName').Read}
 
                             />
                         </div>
@@ -241,8 +245,8 @@ export const InvoiceDetailsForm = (props:
                             value={props.invDetails?.VendorCode ? props.invDetails?.VendorCode : ''}
                             onChange={changeHandler}
                             onBlur={blurHandler}
-                            readOnly={!accessMethod('Invoice', 'Header', 'VendorName').Read}
-                            disabled={!accessMethod('Invoice', 'Header', 'VendorName').Read}
+                            readOnly={accessMethod('Invoice', 'Header', 'VendorName').Read}
+                            disabled={accessMethod('Invoice', 'Header', 'VendorName').Read}
                         />
                     </div>
                     <div className="col col-lg-6">
@@ -256,7 +260,7 @@ export const InvoiceDetailsForm = (props:
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.vendors.map(vendor => { return { id: vendor.VendorId, value: vendor.VendorName } })}
-                                disabled={!accessMethod('Invoice', 'Header', 'VendorName').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'VendorName').Read}
                             />
                         </div>
                     </div>
@@ -273,7 +277,7 @@ export const InvoiceDetailsForm = (props:
                                 value={`${props.invDetails?.VendorAddress?.split(',')[0] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={!accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
                             />
                             <InputTextField
                                 label='Vendor Address line 2'
@@ -284,7 +288,7 @@ export const InvoiceDetailsForm = (props:
                                 value={`${props.invDetails?.VendorAddress?.split(',')[1] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[1]} ${props.invDetails?.VendorAddress?.split(',')[2] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[2]} ${props.invDetails?.VendorAddress?.split(',')[3] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={!accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
                             />
                             <InputTextField
                                 label='Vendor Address line 3'
@@ -295,7 +299,7 @@ export const InvoiceDetailsForm = (props:
                                 value={`${props.invDetails?.VendorAddress?.split(',')[4] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={!accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
                             />
                         </div>
                     </div>
@@ -310,7 +314,7 @@ export const InvoiceDetailsForm = (props:
                                 value={`${props.invDetails?.RemittanceAddress?.split(',')[0] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={!accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
                             />
                             <InputTextField
                                 label='Remit Address line 2'
@@ -321,7 +325,7 @@ export const InvoiceDetailsForm = (props:
                                 value={`${props.invDetails?.RemittanceAddress?.split(',')[1] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[1]} ${props.invDetails?.RemittanceAddress?.split(',')[2] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[2]} ${props.invDetails?.RemittanceAddress?.split(',')[3] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={!accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
                             />
                             <InputTextField
                                 label='Remit Address line 3'
@@ -332,7 +336,7 @@ export const InvoiceDetailsForm = (props:
                                 value={`${props.invDetails?.RemittanceAddress?.split(',')[4] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={!accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
                             />
                         </div>
                     </div>
@@ -349,7 +353,7 @@ export const InvoiceDetailsForm = (props:
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.subsidiaries.map(sub => { return { id: sub.SubsidiaryId, value: sub.Name } })}
-                                disabled={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                             />
                         </div>
                     </div>
@@ -364,7 +368,7 @@ export const InvoiceDetailsForm = (props:
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.departments.map(dept => { return { id: dept.DepartmentId, value: dept.DepartmentName } })}
-                                disabled={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                             />
                         </div>
                     </div>
@@ -382,7 +386,7 @@ export const InvoiceDetailsForm = (props:
                                 onBlur={blurHandler}
                                 option={[]}
                                 icon={<RecallSvg role="button" clsName="svg-icon svg-icon-1 svg-icon-primary" />}
-                                disabled={!accessMethod('Invoice', 'Header', 'PurchaseNumber').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'PurchaseNumber').Read}
                             />
                         </div>
                     </div>
@@ -397,7 +401,7 @@ export const InvoiceDetailsForm = (props:
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.locations.map(location => { return { id: location.LocationId, value: location.Location } })}
-                                disabled={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                             />
                         </div>
                     </div>
@@ -416,8 +420,8 @@ export const InvoiceDetailsForm = (props:
                                 onBlur={blurHandler}
                                 required={true}
                                 formError={props.formError}
-                                readOnly={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
-                                disabled={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                             />
                             <div className="form-check d-flex gap-2">
                                 <input type="checkbox" id="creditMemo" name="creditMemo" className="form-check form-check-sm form-check-solid mt-5" />
@@ -440,8 +444,8 @@ export const InvoiceDetailsForm = (props:
                                 onBlur={blurHandler}
                                 formError={props.formError}
                                 required={true}
-                                readOnly={!accessMethod('Invoice', 'Header', 'InvoiceDate').Read}
-                                disabled={!accessMethod('Invoice', 'Header', 'InvoiceDate').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'InvoiceDate').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'InvoiceDate').Read}
                             />
                         </div>
                     </div>
@@ -456,7 +460,7 @@ export const InvoiceDetailsForm = (props:
                                 value={props.invDetails.PurchaseNumber ? props.invDetails.PurchaseNumber : ''}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                             />
                         </div>
                     </div>
@@ -471,8 +475,8 @@ export const InvoiceDetailsForm = (props:
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 formError={props.formError}
-                                readOnly={!accessMethod('Invoice', 'Header', 'DueDate').Read}
-                                disabled={!accessMethod('Invoice', 'Header', 'DueDate').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'DueDate').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'DueDate').Read}
                             />
                         </div>
                     </div>
@@ -491,8 +495,8 @@ export const InvoiceDetailsForm = (props:
                                 icon={<DollarSvg clsName="svg-icon svg-icon-1" role="none" />}
                                 formError={props.formError}
                                 required={true}
-                                readOnly={!accessMethod('Invoice', 'Header', 'TotalAmount').Read}
-                                disabled={!accessMethod('Invoice', 'Header', 'TotalAmount').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'TotalAmount').Read}
+                                disabled={accessMethod('Invoice', 'Header', 'TotalAmount').Read}
                             />
                             <div className="input-group input-group-solid">
                             </div>
@@ -510,7 +514,7 @@ export const InvoiceDetailsForm = (props:
                                     value={'USD'}
                                     onChange={changeHandler}
                                     onBlur={blurHandler}
-                                    readOnly={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                    readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                                 />
                             </div></div>
                             <div className="col-6">
@@ -526,7 +530,7 @@ export const InvoiceDetailsForm = (props:
                                         onBlur={blurHandler}
                                         icon={<DollarSvg clsName="svg-icon  svg-icon-1" role="none" />}
                                         formError={props.formError}
-                                        readOnly={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                        readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                                     />
                                 </div>
                             </div>
@@ -542,7 +546,7 @@ export const InvoiceDetailsForm = (props:
                             value={props.exSubtotal.toFixed(2)}
                             icon={<DollarSvg clsName="svg-icon  svg-icon-1" role="none" />}
                             readOnly={true}
-                        // readOnly={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                        // readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                         />
                     </div>
                     <div className="col-lg-3">
@@ -555,7 +559,7 @@ export const InvoiceDetailsForm = (props:
                             value={props.POSubtotal.toFixed(2)}
                             icon={<DollarSvg clsName="svg-icon svg-icon-1" role="none" />}
                             readOnly={true}
-                        // readOnly={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                        // readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                         />
                     </div>
                 </div>
@@ -571,7 +575,7 @@ export const InvoiceDetailsForm = (props:
                                 value={''}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                             />
                         </div>
                     </div>
@@ -587,7 +591,7 @@ export const InvoiceDetailsForm = (props:
                                     onChange={e => setComment(e.target.value)}
                                     onBlur={blurHandler}
                                     formError={commentError}
-                                    readOnly={!accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                    readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
                                 />
                             </div>
                         </div>
@@ -622,9 +626,7 @@ export const InvoiceDetailsForm = (props:
                         <div className="col-lg-6">
                             <div className="d-flex justify-content-end">
                                 {
-                                    test() ?
-                                        null
-                                        :
+                                    currentPermission?.permission?.Permission.find(permission => permission.Name === 'Approval')?.Access ?
                                         props.invDetails?.StatusId === 1 || props.invDetails?.StatusId === 5
                                             ?
                                             <button onClick={() => Submit(0, 'Submit', 'success')} type="button" className="btn btn-light-primary btn-sm m-2">Submit Approval
@@ -644,6 +646,8 @@ export const InvoiceDetailsForm = (props:
                                                 </>
                                                 :
                                                 null
+                                        :
+                                        null
                                 }
                             </div>
                         </div>

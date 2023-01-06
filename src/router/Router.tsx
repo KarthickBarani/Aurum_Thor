@@ -128,7 +128,7 @@ export const Router = () => {
               <Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} userId={authUser?.User?.Id} isError={isError} setRefetchInterval={setRefetchInterval} />
             </ProtectRoutes>
           } />
-          <Route path='InvoiceDetailTable' element={
+          <Route path='Approval' element={
             <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
               <InvoiceDetailsTable userId={authUser?.User?.Id} setInvNumber={setInvNumber} />
             </ProtectRoutes>

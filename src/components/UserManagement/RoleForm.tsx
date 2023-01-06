@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Accordion, Card, useAccordionButton } from "react-bootstrap"
 import { toast } from "react-hot-toast"
 import { axiosGet, axiosPost, axiosPut } from "../../helpers/Axios"
@@ -16,7 +16,7 @@ export type RoleDataType = {
 
 
 
-export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalIsOpen: Function }) => {
+export const RoleForm = ({ RoleId, setModalIsOpen, setRefetch }: { RoleId: number, setModalIsOpen: Function, setRefetch: Function }) => {
 
 
     const CurrentPermission = useContext(PermissionContext)
@@ -24,6 +24,7 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
     const [roleData, setRoleData] = useState<any>({})
     const [permissions, setPermissions] = useState<any[]>([])
     const [currentFieldCollapse, setCurrentFieldCollapse] = useState<string | null>(null)
+    // const [test, setTest] = useState<boolean>(false)
     const [valid, setValid] = useState<boolean>(false)
     const [formError, setFormError] = useState({
         RoleId: null,
@@ -31,6 +32,7 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
         Description: null,
         IsActive: null
     })
+
 
     useEffect(() => {
         if (RoleId === 0) {
@@ -51,9 +53,10 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
     }, [RoleId])
 
     useEffect(() => {
-        if (roleData.Permission === null) {
+        if (roleData.Permission === null || roleData.Permission?.length === 0) {
             axiosGet('/Role/Permission')
                 .then(res => {
+                    console.log('now')
                     setRoleData({ ...roleData, Permission: res.data })
                 })
                 .catch(err => {
@@ -119,7 +122,11 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
         return false
     }
 
-    const onSumbit = () => {
+    const onSubmit = (e) => {
+        e.preventDefault()
+        // // console.log(e.target)
+        // const formData = new FormData(e.target)
+        // console.log({ ...Object.fromEntries(formData) })
         if (roleData.RoleId === 0) {
             axiosPost("/Role", { ...roleData, Permission: permissions })
                 .then(res => {
@@ -133,6 +140,7 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
                 .finally(() => {
                     CurrentPermission?.permissionSetMethod({ ...roleData, Permission: permissions })
                     setModalIsOpen(false)
+                    setRefetch(prev => !prev)
                 })
         } else {
             axiosPut("/Role", { ...roleData, Permission: permissions })
@@ -143,6 +151,7 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
                 .finally(() => {
                     CurrentPermission?.permissionSetMethod({ ...roleData, Permission: permissions })
                     setModalIsOpen(false)
+                    setRefetch(prev => !prev)
                 })
         }
 
@@ -155,16 +164,25 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
 
     const CustomToggle = ({ eventKey }) => {
         const decoratedOnClick = useAccordionButton(eventKey, () => {
-            setCurrentFieldCollapse(prev => prev !== '' ? '' : eventKey)
+            // setCurrentFieldCollapse(eventKey)
+            console.log('Trigger')
         })
 
-        return (
-            <button
+        return (<>
+            {/* <button
                 type="button"
                 className="accordion-button bg-transparent"
                 onClick={decoratedOnClick}
+                >
+            </button> */}
+            <button
+                type="button"
+                className={`btn btn-icon bg-transparent me-5 rotate ${currentFieldCollapse === eventKey ? 'active' : ''}`}
+                onClick={decoratedOnClick}
             >
+                <span className="svg-icon svg-icon-2 rotate-90">{`->`}</span>
             </button>
+        </>
         );
     }
 
@@ -191,7 +209,8 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
                                         </div>
                                     </div>
                                 </Card.Header>
-                                <Accordion.Collapse eventKey={SectionIndex.toString()} in={currentFieldCollapse === SectionIndex.toString()} >
+                                {/* <Accordion.Collapse eventKey={SectionIndex.toString()} in={currentFieldCollapse === SectionIndex.toString()} > */}
+                                <Accordion.Collapse eventKey={SectionIndex.toString()} >
                                     <FieldCollapse Field={Section.Field} SectionIndex={SectionIndex} Index={index} />
                                 </Accordion.Collapse>
                             </Card>
@@ -203,46 +222,49 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
         </>
     )
 
-    const FieldCollapse = ({ Field, SectionIndex, Index }) => (
-        <div className="container-fluid">
-            <div className="row p-3 bg-light border fs-6 fw-bolder">
-                <div className="col-4">Field Name</div>
-                <div className="col-2 ">Create</div>
-                <div className="col-2 ">Read</div>
-                <div className="col-2 ">Write</div>
-                <div className="col-2 ">Delete</div>
-            </div>
-            {
-                Field.Value.map(
-                    (value, valueIndex) => (
-                        <div key={valueIndex} className="row p-3 px-2 bg-hover-light fs-7 fw-bold">
-                            <div className="col-4">{value.Field}</div>
-                            <div className="col-2">
-                                <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
-                                    <input type="checkbox" checked={value.Operation.Create} onChange={changeHandler} className="form-check-input" data-type={'Sections'} data-id={Index} data-sectionid={SectionIndex} data-accessor={'Field'} data-subaccessor={'Value'} data-valueid={valueIndex} name={'Operation'} id={"Create"} />
-                                </span>
+    const FieldCollapse = ({ Field, SectionIndex, Index }) => {
+        return (
+
+            <div className="container-fluid">
+                <div className="row p-3 bg-light border fs-6 fw-bolder">
+                    <div className="col-4">Field Name</div>
+                    <div className="col-2 ">Create</div>
+                    <div className="col-2 ">Read</div>
+                    <div className="col-2 ">Write</div>
+                    <div className="col-2 ">Delete</div>
+                </div>
+                {
+                    Field.Value.map(
+                        (value, valueIndex) => (
+                            <div key={valueIndex} className="row p-3 px-2 bg-hover-light fs-7 fw-bold">
+                                <div className="col-4">{value.Field}</div>
+                                <div className="col-2">
+                                    <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
+                                        <input type="checkbox" checked={value.Operation.Create} onChange={changeHandler} className="form-check-input" data-type={'Sections'} data-id={Index} data-sectionid={SectionIndex} data-accessor={'Field'} data-subaccessor={'Value'} data-valueid={valueIndex} name={'Operation'} id={"Create"} />
+                                    </span>
+                                </div>
+                                <div className="col-2">
+                                    <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
+                                        <input type="checkbox" checked={value.Operation.Read} onChange={changeHandler} className="form-check-input" data-type={'Sections'} data-id={Index} data-sectionid={SectionIndex} data-accessor={'Field'} data-subaccessor={'Value'} data-valueid={valueIndex} name={'Operation'} id={"Read"} />
+                                    </span>
+                                </div>
+                                <div className="col-2">
+                                    <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
+                                        <input type="checkbox" checked={value.Operation.Write} onChange={changeHandler} className="form-check-input" data-type={'Sections'} data-id={Index} data-sectionid={SectionIndex} data-accessor={'Field'} data-subaccessor={'Value'} data-valueid={valueIndex} name={'Operation'} id={"Write"} />
+                                    </span>
+                                </div>
+                                <div className="col-2">
+                                    <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
+                                        <input type="checkbox" checked={value.Operation.Delete} onChange={changeHandler} className="form-check-input" data-type={'Sections'} data-id={Index} data-sectionid={SectionIndex} data-accessor={'Field'} data-subaccessor={'Value'} data-valueid={valueIndex} name={'Operation'} id={"Delete"} />
+                                    </span>
+                                </div>
                             </div>
-                            <div className="col-2">
-                                <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
-                                    <input type="checkbox" checked={value.Operation.Read} onChange={changeHandler} className="form-check-input" data-type={'Sections'} data-id={Index} data-sectionid={SectionIndex} data-accessor={'Field'} data-subaccessor={'Value'} data-valueid={valueIndex} name={'Operation'} id={"Read"} />
-                                </span>
-                            </div>
-                            <div className="col-2">
-                                <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
-                                    <input type="checkbox" checked={value.Operation.Write} onChange={changeHandler} className="form-check-input" data-type={'Sections'} data-id={Index} data-sectionid={SectionIndex} data-accessor={'Field'} data-subaccessor={'Value'} data-valueid={valueIndex} name={'Operation'} id={"Write"} />
-                                </span>
-                            </div>
-                            <div className="col-2">
-                                <span role={'none'} className="form-check form-check-sm form-check-custom form-check-solid ">
-                                    <input type="checkbox" checked={value.Operation.Delete} onChange={changeHandler} className="form-check-input" data-type={'Sections'} data-id={Index} data-sectionid={SectionIndex} data-accessor={'Field'} data-subaccessor={'Value'} data-valueid={valueIndex} name={'Operation'} id={"Delete"} />
-                                </span>
-                            </div>
-                        </div>
+                        )
                     )
-                )
-            }
-        </div>
-    )
+                }
+            </div>
+        )
+    }
 
     const PermissionElement = ({ permission, index }) => (
         <>
@@ -254,9 +276,11 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
                             <input type="checkbox" checked={permission.Access} onChange={changeHandler} className="form-check-input" name="Access" id={index.toString()} />
                             <label className="form-check-label" >Access</label>
                         </label>
-                        {/* <div>
-                            <button disabled={!permission.Access} role={'button'} className="accordion-button bg-transparent collapsed" data-bs-toggle='collapse' data-bs-target={`#${permission.Name}${index}`}></button>
-                        </div> */}
+                        {
+                            /* <div>
+                                <button disabled={!permission.Access} role={'button'} className="accordion-button bg-transparent collapsed" data-bs-toggle='collapse' data-bs-target={`#${permission.Name}${index}`}></button>
+                            </div> */
+                        }
                     </span>
                 </div>
             </div>
@@ -312,58 +336,60 @@ export const RoleForm = ({ RoleId, setModalIsOpen }: { RoleId: number, setModalI
     return (
         <>
             <div className="container gap-2">
-                <div className="row">
-                    <div className="col-12">
-                        <InputTextField
-                            label={'Name of Role'}
-                            id={'Name'}
-                            name={'Name'}
-                            type={'text'}
-                            className={'form-control form-control-solid form-control-sm'}
-                            value={roleData.Name}
-                            onChange={changeHandler}
-                            onBlur={blurHandler}
-                            placeHolder={'Role Name'}
-                            required={true}
-                            formError={formError}
-                        />
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-12">
-                        <InputTextField
-                            label={'Description'}
-                            id={'Description'}
-                            name={'Description'}
-                            type={'text'}
-                            className={'form-control form-control-solid form-control-sm'}
-                            value={roleData.Description}
-                            onChange={changeHandler}
-                            onBlur={blurHandler}
-                            placeHolder={'Description'}
-                        />
-                    </div>
-                </div>
-                <div className="row mt-10">
-                    <div className="col">
-                        <div className="d-flex justify-content-end mb-5">
-                            <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
-                                <input type="checkbox" className="form-check-input" id={'All'} name="Access" onChange={changeHandler} />
-                                <label className="form-check-label" >Full Access</label>
-                            </label>
-                        </div>
-                        <div className="border p-2 rounded">
-                            {
-                                roleData.Permission?.map((permission, index) => (
-                                    <PermissionElement key={permission.PermissionId} permission={permission} index={index} />
-                                ))
-                            }
-                        </div>
-                        <div className="d-flex justify-content-end mt-10">
-                            <button className="btn btn-sm btn-primary" disabled={valid} onClick={onSumbit}>Save</button>
+                <form onSubmit={onSubmit}>
+                    <div className="row">
+                        <div className="col-12">
+                            <InputTextField
+                                label={'Name of Role'}
+                                id={'Name'}
+                                name={'Name'}
+                                type={'text'}
+                                className={'form-control form-control-solid form-control-sm'}
+                                value={roleData.Name}
+                                onChange={changeHandler}
+                                onBlur={blurHandler}
+                                placeHolder={'Role Name'}
+                                required={true}
+                                formError={formError}
+                            />
                         </div>
                     </div>
-                </div>
+                    <div className="row">
+                        <div className="col-12">
+                            <InputTextField
+                                label={'Description'}
+                                id={'Description'}
+                                name={'Description'}
+                                type={'text'}
+                                className={'form-control form-control-solid form-control-sm'}
+                                value={roleData.Description}
+                                onChange={changeHandler}
+                                onBlur={blurHandler}
+                                placeHolder={'Description'}
+                            />
+                        </div>
+                    </div>
+                    <div className="row mt-10">
+                        <div className="col">
+                            <div className="d-flex justify-content-end mb-5">
+                                <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
+                                    <input type="checkbox" className="form-check-input" id={'All'} name="Access" onChange={changeHandler} />
+                                    <label className="form-check-label" >Full Access</label>
+                                </label>
+                            </div>
+                            <div className="border p-2 rounded">
+                                {
+                                    roleData.Permission?.map((permission, index) => (
+                                        <PermissionElement key={permission.PermissionId} permission={permission} index={index} />
+                                    ))
+                                }
+                            </div>
+                            <div className="d-flex justify-content-end mt-10">
+                                <button type={'submit'} className="btn btn-sm btn-primary" disabled={valid} >Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </>
     )

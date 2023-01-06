@@ -35,7 +35,7 @@ export const InputTextField = (props: {
                     name={props.name}
                     type={props.type}
                     min={props.type === 'number' ? 0 : undefined}
-                    className={props.className + `${props.icon ? ' ps-10' : ''}`}
+                    className={props.className + `${props.icon ? ' ps-10' : ''} ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
                     value={props?.value}
                     onChange={props.onChange}
                     onBlur={props.onBlur}
@@ -79,9 +79,19 @@ export const InputTextAreaField = (props: {
     return (
         <>
             <label htmlFor={props.name} className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}>{props.label}</label>
-            <textarea id={props.id} name={props.name} className={props.className} value={props?.value} onChange={props.onChange} onBlur={props.onBlur} readOnly={props.readOnly} required={props.required} disabled={props.disabled} style={props.disabled ? {
-                cursor: 'not-allowed'
-            } : {}} />
+            <textarea
+                id={props.id}
+                name={props.name}
+                className={props.className + ` ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
+                value={props?.value}
+                onChange={props.onChange}
+                onBlur={props.onBlur}
+                readOnly={props.readOnly}
+                required={props.required}
+                disabled={props.disabled}
+                style={props.disabled ? {
+                    cursor: 'not-allowed'
+                } : {}} />
             <ErrorMessage>{props.formError}</ErrorMessage>
         </>
     )
@@ -105,7 +115,7 @@ export const InputTextDateField = (props: {
             <InputMask
                 id={props.id}
                 name={props.name}
-                className={props.className}
+                className={props.className + ` ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
                 mask="99-99-9999"
                 maskPlaceholder="MM-DD-YYYY"
                 value={props.value}
@@ -157,13 +167,13 @@ export const InputSelectField = (props: {
     return (<>
         <label
             htmlFor={props.name}
-            className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''}`}>
+            className={`form-label fw-bolder fs-6 gray-700 mt-2 ${props.required ? 'required' : ''} `}>
             {props.label}
         </label>
         <div className="position-relative">
             <select id={props.id}
                 name={props.name}
-                className={props.className}
+                className={props.className + ` ${props.disabled ? 'text-gray-400 bg-secondary' : ''}`}
                 value={props.value}
                 onChange={props.onChange}
                 onBlur={props.onBlur}

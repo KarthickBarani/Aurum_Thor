@@ -4,7 +4,7 @@ import { axiosGet, axiosPost, axiosPut } from "../../helpers/Axios"
 import { InputTextField } from "../components/InputField"
 import { userProfileType } from "../Interface/Interface"
 
-export const UserForm = ({ userId, setModalIsOpen }) => {
+export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
 
     const [userFormData, setUserFormData] = useState<userProfileType>({} as userProfileType)
     const [role, setRole] = useState<any[]>([])
@@ -16,11 +16,18 @@ export const UserForm = ({ userId, setModalIsOpen }) => {
             axiosPost('/UserProfile', userFormData)
                 .then(res => toast.success(res.statusText))
                 .catch(err => toast.error(err.toString()))
+                .finally(() => {
+                    setRefetch(prev => !prev)
+                    setModalIsOpen(false)
+                })
         } else {
             axiosPut('/UserProfile', userFormData)
                 .then(res => toast.success(res.statusText))
                 .catch(err => toast.error(err.toString()))
-                .finally(() => setModalIsOpen(false))
+                .finally(() => {
+                    setRefetch(prev => !prev)
+                    setModalIsOpen(false)
+                })
         }
     }
 
@@ -173,7 +180,7 @@ export const UserForm = ({ userId, setModalIsOpen }) => {
                                 Roles
                             </label>
                             {
-                                role.map((role, index) => (
+                                role.filter(role => role.IsActive).map((role, index) => (
                                     <div className="col-3 m-2" key={index}>
                                         <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
                                             <input type="checkbox" checked={userFormData.Roles?.find(el => el.RoleId === role.RoleId)} onChange={changeHandler} className="form-check-input" name='Roles' data-role={JSON.stringify(role)} />
@@ -186,7 +193,6 @@ export const UserForm = ({ userId, setModalIsOpen }) => {
                         <div className="d-flex float-end justify-content-end align-items-center gap-2 mt-10">
                             <button role={'button'} className="btn btn-sm btn-light-primary" onClick={save} >Save</button>
                         </div>
-
                     </div>
                 </div>
             </div>

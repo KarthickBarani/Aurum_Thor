@@ -1,7 +1,7 @@
 import { TestGrid } from "../components/TableComponent"
 
-export const UserDetails = () => {
+export const UserDetails = ({ data, columns }) => {
     return (
-        <TestGrid data={[]} columns={[]} setData={() => { }} />
+        <TestGrid data={data} columns={columns} setData={() => { }} />
     )
 }

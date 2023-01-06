@@ -1,11 +1,8 @@
 import axios from "axios"
 import React, { ReactElement, useEffect, useState } from "react"
-import { createNoSubstitutionTemplateLiteral } from "typescript"
-import { array } from "yup"
 import { SweetAlert } from "../../Function/alert"
 import { setIsSelectProperty } from "../../Function/setSelect"
 import { useDragAndDrop } from "../../Hook/useDragAndDrop"
-import { expensesType } from "../Interface/Interface"
 import { DownArrowSvg, RemoveSvg, UpArrowSvg } from "../Svg/Svg"
 import tableStyle from "./TableComponent.module.css"
 

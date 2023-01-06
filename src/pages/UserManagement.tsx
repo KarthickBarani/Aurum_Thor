@@ -10,8 +10,10 @@ import { RoleDataType, RoleForm } from '../components/UserManagement/RoleForm';
 // import { Modal, ModalContent, ModalHeader } from '../components/components/Model';
 import { Modal } from "react-bootstrap"
 import { axiosGet } from '../helpers/Axios';
-import { PermissionDetails } from '../components/UserManagement/PermissionDetails';
-import axios from 'axios';
+import { UserDetails } from '../components/UserManagement/UserDetails';
+import { useFetch } from '../Hook/useFetch';
+import { Loading } from '../components/components/Loading';
+import { Error } from '../components/components/Error';
 
 
 type UserProfileData = {
@@ -79,32 +81,24 @@ export const UserManagement = () => {
 
   const [currentUserId, setCurrentUserId] = useState<number>(0)
   const [currentRoleId, setCurrentRoleId] = useState<number>(0)
-  const [toggleUserType, setToggleUserType] = useState<'View' | 'Add' | 'Update'>('View')
-  const [toggleRoleType, setToggleRoleType] = useState<'View' | 'Add' | 'Update'>('View')
-  const [toggleTabType, setToggleTabType] = useState<'User' | 'Role' | 'Permission'>('User')
+  const [toggleTabType, setToggleTabType] = useState<'User' | 'Role'>('User')
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false)
+  const [refetch, setRefetch] = useState<boolean>(false)
 
 
 
   const [userData, setUserData] = useState<UserProfile[]>([])
-  const [permissionData, setPermissionData] = useState([])
-  const [RoleData, setRoleData] = useState<RoleDataType[]>([] as RoleDataType[])
-  const [operation, setOperation] = useState(['Full Access', 'Add/Edit/Remove', 'API'])
+  const [roleData, setRoleData] = useState<any[]>([])
 
 
   useEffect(() => {
     axiosGet('/UserProfile')
       .then(res => setUserData(res.data))
       .catch(err => console.log(err))
-
-    // axiosGet('/Role/Operations')
-    // .then(res=>{
-    //   setRoleData()
-    // })  
-    axios.get('https://637b6a216f4024eac20cf00e.mockapi.io/api/v1/permission/permissions')
-      .then(res => setPermissionData(res.data))
+    axiosGet('/Role')
+      .then(res => setRoleData(res.data))
       .catch(err => console.log(err))
-  }, [toggleUserType])
+  }, [refetch])
 
 
   const userColumns: columnProps = [
@@ -157,9 +151,9 @@ export const UserManagement = () => {
     },
   ]
 
+  // const { isLoading, isError, data } = useFetch(`/UserProfile`)
 
-
-
+  // console.log(isLoading, isError, data)
   return (
     <>
       <div className="container-fluid">
@@ -213,17 +207,17 @@ export const UserManagement = () => {
                     <>
                       {
                         toggleTabType === 'User'
-                          ?
-                          <TestGrid data={userData} columns={userColumns} setData={() => { }} />
-                          :
-                          null
+                          // ? isLoading
+                          //   ? <Loading />
+                          //   : isError
+                          //     ? <Error path='/home' />
+                          ? <UserDetails data={userData} columns={userColumns} />
+                          : null
                       }
                       {
                         toggleTabType === 'Role'
-                          ?
-                          < RoleDetails setModalIsOpen={setModalIsOpen} setRole={setCurrentRoleId} />
-                          :
-                          null
+                          ? < RoleDetails setModalIsOpen={setModalIsOpen} setRoleId={setCurrentRoleId} refetch={refetch} setRefetch={setRefetch} />
+                          : null
                       }
                     </>
                   </div>
@@ -241,14 +235,14 @@ export const UserManagement = () => {
           {
             toggleTabType === 'User'
               ?
-              <UserForm setModalIsOpen={setModalIsOpen} userId={currentUserId} />
+              <UserForm setModalIsOpen={setModalIsOpen} userId={currentUserId} setRefetch={setRefetch} />
               :
               null
           }
           {
             toggleTabType === 'Role'
               ?
-              <RoleForm setModalIsOpen={setModalIsOpen} RoleId={currentRoleId} />
+              <RoleForm setModalIsOpen={setModalIsOpen} RoleId={currentRoleId} setRefetch={setRefetch} />
               :
               null
           }
