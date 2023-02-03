@@ -7,8 +7,6 @@ import { SweetAlert } from "../../Function/alert"
 export const RoleDetails = ({ setModalIsOpen, setRoleId, refetch, setRefetch }) => {
 
     const [RoleData, setRoleData] = useState<any[]>([])
-    const [showDeleteButton, setShowDeleteButton] = useState<number | null>(null)
-
 
     useEffect(() => {
         axiosGet('/Role')
@@ -97,7 +95,7 @@ export const RoleDetails = ({ setModalIsOpen, setRoleId, refetch, setRefetch }) 
     return (
         <>
             <div className="row">
-                {RoleData?.map((datum, index) => (
+                {RoleData.filter(role => role.IsActive)?.map((datum, index) => (
                     <div key={index} className="col-12 col-lg-6 mb-2">
                         <RoleCard datum={datum} />
                     </div>

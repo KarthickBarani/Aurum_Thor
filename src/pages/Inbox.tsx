@@ -4,7 +4,7 @@ import { PdfViewer } from "../components/components/PdfViewer"
 import { Error } from "../components/components/Error"
 import { Loading } from "../components/components/Loading"
 import { Modal, ModalContent, ModalHeader } from "../components/components/Model"
-import { TableGridComponent } from "../components/components/TableComponent"
+import { TableGridComponent, TestGrid } from "../components/components/TableComponent"
 import { MailSvg, RecallSvg, RemoveSvg, ViewSvg } from "../components/Svg/Svg"
 import moment from "moment"
 import { Link } from "react-router-dom"
@@ -216,6 +216,7 @@ export const Inbox = () => {
                                                     : isError
                                                         ? <Error />
                                                         : <TableGridComponent data={InboxData} columns={columns} selectable={true} setData={setInboxData} filter={true} setDataFetch={setDataFetch} />
+                                                // : <TestGrid data={InboxData} columns={columns} setData={setInboxData} />
                                             }
                                         </>
                                         : <>

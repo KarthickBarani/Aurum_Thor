@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { Navbar } from '../components/components/Navbar';
@@ -18,6 +18,12 @@ import { Inbox } from '../pages/Inbox';
 import { ProtectRoutes } from '../components/Auth/ProtectRoutes';
 import { Vendor } from '../pages/Vendor';
 import { axiosGet } from '../helpers/Axios';
+import { Invoice } from '../pages/Invoice';
+import { AssignRoles } from '../components/Auth/AssignRoles'
+import { LoginForm } from '../components/Auth/LoginForm';
+
+
+
 
 type authContextProps = {
   authUser: AuthUser
@@ -49,6 +55,7 @@ export const PermissionContext = createContext<permissionContextProps | null>(nu
 
 
 export const Router = () => {
+
 
   const [invNumber, setInvNumber] = useState<number>(0)
   // const [authUser, setAuthUser] = useState<AuthUser>(JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user')))))
@@ -122,7 +129,11 @@ export const Router = () => {
             <AuthContext.Provider value={Auth}>
               <Login setPermission={setPermission} />
             </AuthContext.Provider>
-          } />
+          }
+          >
+            <Route path='' element={<LoginForm />} />
+            <Route path='Roles' element={<AssignRoles User={authUser?.User} />} />
+          </Route>
           <Route path='Home' element={
             <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
               <Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} userId={authUser?.User?.Id} isError={isError} setRefetchInterval={setRefetchInterval} />
@@ -152,6 +163,11 @@ export const Router = () => {
               <AuthContext.Provider value={Auth}>
                 <UserManagement />
               </AuthContext.Provider>
+            </ProtectRoutes>
+          } />
+          <Route path='Invoice' element={
+            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+              <Invoice />
             </ProtectRoutes>
           } />
           <Route path='Inbox' element={

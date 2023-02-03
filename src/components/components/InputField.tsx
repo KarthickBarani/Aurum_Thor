@@ -24,6 +24,7 @@ export const InputTextField = (props: {
     formError?: any
     required?: boolean
     disabled?: boolean
+    ref?: any
     temp?: any
 }) => {
     return (
@@ -35,7 +36,8 @@ export const InputTextField = (props: {
                     name={props.name}
                     type={props.type}
                     min={props.type === 'number' ? 0 : undefined}
-                    className={props.className + `${props.icon ? ' ps-10' : ''} ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
+                    // className={props.className + `${props.icon ? ' ps-10' : ''} ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
+                    className={props.className + `${props.icon ? ' ps-10' : ''}`}
                     value={props?.value}
                     onChange={props.onChange}
                     onBlur={props.onBlur}
@@ -44,8 +46,9 @@ export const InputTextField = (props: {
                     required={props.required}
                     disabled={props.disabled}
                     style={props.disabled ? {
-                        cursor: 'not-allowed'
+                        cursor: 'not-allowed',
                     } : {}}
+                    ref={props.ref}
                 />
                 <div className="position-absolute translate-middle-y top-50 start-0 ms-2">
                     {props.icon ? props.icon : null}
@@ -75,6 +78,7 @@ export const InputTextAreaField = (props: {
     formError?: any,
     required?: boolean
     disabled?: boolean
+    ref?: any
 }) => {
     return (
         <>
@@ -82,7 +86,8 @@ export const InputTextAreaField = (props: {
             <textarea
                 id={props.id}
                 name={props.name}
-                className={props.className + ` ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
+                // className={props.className + ` ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
+                className={props.className}
                 value={props?.value}
                 onChange={props.onChange}
                 onBlur={props.onBlur}
@@ -90,7 +95,7 @@ export const InputTextAreaField = (props: {
                 required={props.required}
                 disabled={props.disabled}
                 style={props.disabled ? {
-                    cursor: 'not-allowed'
+                    cursor: 'not-allowed',
                 } : {}} />
             <ErrorMessage>{props.formError}</ErrorMessage>
         </>
@@ -115,7 +120,8 @@ export const InputTextDateField = (props: {
             <InputMask
                 id={props.id}
                 name={props.name}
-                className={props.className + ` ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
+                // className={props.className + ` ${props.readOnly ? 'text-gray-400 bg-secondary' : ''}`}
+                className={props.className}
                 mask="99-99-9999"
                 maskPlaceholder="MM-DD-YYYY"
                 value={props.value}
@@ -144,6 +150,10 @@ export const InputTextDateField = (props: {
     )
 }
 
+type InputSelectOptionProps = {
+    id: number
+    value: string
+}
 
 export const InputSelectField = (props: {
     label: string,
@@ -151,12 +161,9 @@ export const InputSelectField = (props: {
     id: string,
     className: string,
     value: number | string,
-    onChange: React.ChangeEventHandler<HTMLSelectElement>,
-    onBlur: React.FocusEventHandler<HTMLSelectElement>,
-    option: {
-        id: number
-        value: string
-    }[],
+    onChange?: React.ChangeEventHandler<HTMLSelectElement>,
+    onBlur?: React.FocusEventHandler<HTMLSelectElement>,
+    option: InputSelectOptionProps[],
     placeHolder?: string,
     multiple?: boolean
     icon?: ReactElement,
@@ -173,7 +180,8 @@ export const InputSelectField = (props: {
         <div className="position-relative">
             <select id={props.id}
                 name={props.name}
-                className={props.className + ` ${props.disabled ? 'text-gray-400 bg-secondary' : ''}`}
+                // className={props.className + ` ${props.disabled ? 'text-gray-400 bg-secondary' : ''}`}
+                className={props.className}
                 value={props.value}
                 onChange={props.onChange}
                 onBlur={props.onBlur}

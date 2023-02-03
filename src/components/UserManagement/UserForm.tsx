@@ -3,6 +3,7 @@ import { toast } from "react-hot-toast"
 import { axiosGet, axiosPost, axiosPut } from "../../helpers/Axios"
 import { InputTextField } from "../components/InputField"
 import { userProfileType } from "../Interface/Interface"
+import { toastAlert } from "../../Function/toast"
 
 export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
 
@@ -14,16 +15,16 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
     const save = () => {
         if (userId === 0) {
             axiosPost('/UserProfile', userFormData)
-                .then(res => toast.success(res.statusText))
-                .catch(err => toast.error(err.toString()))
+                .then(res => toastAlert('success', res.statusText))
+                .catch(err => toastAlert('error', err.toString()))
                 .finally(() => {
                     setRefetch(prev => !prev)
                     setModalIsOpen(false)
                 })
         } else {
             axiosPut('/UserProfile', userFormData)
-                .then(res => toast.success(res.statusText))
-                .catch(err => toast.error(err.toString()))
+                .then(res => toastAlert('success', res.statusText))
+                .catch(err => toastAlert('error', err.toString()))
                 .finally(() => {
                     setRefetch(prev => !prev)
                     setModalIsOpen(false)
@@ -65,7 +66,7 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
             })
             .catch(err => {
                 if (userId !== 0) {
-                    toast.error(err.toString())
+                    toastAlert('error', err.toString())
                 }
             })
     }, [userId])

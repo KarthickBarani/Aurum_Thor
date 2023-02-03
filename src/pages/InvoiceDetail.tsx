@@ -1,6 +1,6 @@
 
 import axios from "axios"
-import React, { useMemo } from "react"
+import React, { useContext, useMemo } from "react"
 import { useEffect, useState } from "react"
 import { Error } from "../components/components/Error"
 import { PdfViewer } from "../components/components/PdfViewer"
@@ -13,6 +13,7 @@ import { LineItems } from "../components/InvoiceDetails/LineItems"
 import { InvoiceDetailsForm } from "../components/InvoiceDetails/InvoiceDetailsForm"
 import { AddSvg, ErrorSvg, SaveSvg } from "../components/Svg/Svg"
 import { ActionButtonsProps, columnProps, TableActionComponent, TableGridComponent, TestGrid } from "../components/components/TableComponent"
+import { PermissionContext } from "../router/Router"
 
 
 
@@ -32,6 +33,7 @@ export const InvoiceDetail = (props: {
 }) => {
 
 
+    const CurrentPermission = useContext(PermissionContext)
 
     const [init, set] = useState(true)
     const [process, setProcess] = useState(false)
@@ -112,245 +114,15 @@ export const InvoiceDetail = (props: {
     const [lineItemsToggle, setLineItemsToggle] = useState<'Expense' | 'LineItems'>('Expense')
     const [afterDragElement, setAfterDragElement] = useState<any>([])
 
-
-    // const expensesOption: ActionButtonsProps[] = [
-    //     {
-    //         buttonText: <AddSvg clsName="svg-icon svg-icon-3 svg-icon-primary" />,
-    //         buttonClass: 'btn btn-sm btn-icon btn-active-light-primary',
-    //         onClick: () => console.log('add button')
-    //     }
-    // ]
-
-    // const expensesHeaders = useMemo<columnProps>(() => [
-    //     {
-    //         id: 1,
-    //         header: 'Account',
-    //         accessor: 'Account',
-    //         className: 'min-w-150px dragEl',
-    //         sortable: true,
-    //         select: {
-    //             array: [...props.account],
-    //             id: 'AccountId',
-    //             Name: 'AccountName',
-    //             onChange: (e) => {
-    //                 const index = e.target.id
-    //                 const key = e.target.name
-    //                 const array = [...expenses]
-    //                 array[index][key] = e.target.value
-    //                 setExpenses(array)
-    //             }
-    //         }
-    //         // draggable: true,
-    //         // hidden: false,
-
-    //     },
-    //     {
-    //         id: 2,
-    //         header: 'Amount',
-    //         accessor: 'Amount',
-    //         cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
-    //         className: 'min-w-150px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'number',
-    //                 onChange: e => changeHandler(e, expenses, setExpenses)
-    //             }
-    //         },
-    //         // draggable: true,
-    //         // hidden: false,
-    //         // footer: (data: expensesType[]) => {
-    //         //     return `$ ${data.reduce((prev: number, current) => {
-    //         //         return prev + Number(current?.Amount)
-    //         //     }, 0).toFixed(2)}`
-    //         // }
-    //     },
-    //     {
-    //         id: 3,
-    //         header: 'Memo',
-    //         accessor: 'Memo',
-    //         className: 'min-w-400px dragEl',
-    //         input: {
-    //             type: 'text'
-    //         },
-    //         // draggable: true,
-    //         // hidden: false
-    //     },
-    //     {
-    //         id: 4,
-    //         header: 'Department',
-    //         accessor: 'Department',
-    //         className: 'min-w-150px dragEl',
-    //         select: {
-    //             array: [...props.departments],
-    //             id: 'DepartmentId',
-    //             Name: 'DepartmentName',
-    //             onChange: e => changeHandler(e, expenses, setExpenses)
-
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 5,
-    //         header: 'Location',
-    //         accessor: 'LocationId',
-    //         className: 'min-w-150px dragEl',
-    //         select: {
-    //             array: [...props.locations],
-    //             id: 'LocationId',
-    //             Name: 'Location',
-    //             onChange: e => changeHandler(e, expenses, setExpenses)
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     }
-    // ], [expenses])
-
-    // const listItemsHeaders = useMemo<columnProps>(() => [
-    //     {
-    //         id: 1,
-    //         header: 'Inv Qty',
-    //         accessor: 'Quantity',
-    //         className: 'min-w-100px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'Number',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 2,
-    //         header: 'PO Qty',
-    //         accessor: 'POQuantity',
-    //         className: 'min-w-100px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'Number',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 3,
-    //         header: 'Item',
-    //         accessor: 'POItem',
-    //         className: 'min-w-150px dragEl',
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 4,
-    //         header: 'Vendor part#',
-    //         accessor: 'PartNumber',
-    //         className: 'min-w-150px dragEl',
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 5,
-    //         header: 'Description',
-    //         accessor: 'Description',
-    //         className: 'min-w-300px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'text',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 6,
-    //         header: 'Department',
-    //         accessor: 'Department',
-    //         className: 'min-w-150px dragEl',
-    //         select: {
-    //             array: props.departments,
-    //             id: 'DepartmentId',
-    //             Name: 'DepartmentName',
-    //             onChange: (e) => changeHandler(e, listItems, setListItems)
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 7,
-    //         header: 'Location',
-    //         accessor: 'LocationId',
-    //         className: 'min-w-150px dragEl',
-    //         select: {
-    //             array: props.locations,
-    //             id: 'LocationId',
-    //             Name: 'Location',
-    //             onChange: (e) => changeHandler(e, listItems, setListItems)
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 8,
-    //         header: 'Inv Rate',
-    //         accessor: 'UnitPrice',
-    //         className: 'min-w-150px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'Number',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 9,
-    //         header: 'PO Rate',
-    //         accessor: 'POUnitPrice',
-    //         className: 'min-w-150px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'Number',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 10,
-    //         header: 'Inv Amount',
-    //         accessor: 'Amount',
-    //         cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
-    //         className: 'min-w-150px dragEl',
-    //         draggable: true,
-    //         hidden: false,
-    //         // footer: (data: any[]) => {
-    //         //     return `$ ${data.reduce((prev: number, current) => {
-    //         //         return prev + Number(current?.Amount)
-    //         //     }, 0).toFixed(2)}`
-    //         // }
-    //     },
-    //     {
-    //         id: 11,
-    //         header: 'PO Amount',
-    //         accessor: 'POAmount',
-    //         cell: (data) => '$ ' + Number(data?.POAmount).toFixed(2),
-    //         className: 'min-w-150px dragEl',
-    //         draggable: true,
-    //         hidden: false,
-    //         // footer: (data: any[]) => {
-    //         //     return `$ ${data.reduce((prev: number, current) => {
-    //         //         return prev + Number(current?.POAmount)
-    //         //     }, 0).toFixed(2)}`
-    //         // }
-    //     }
-    // ], [listItems])
-
+    const accessMethod = (operation: 'Read' | 'Create' | 'Update' | 'Delete', pageName: 'Approval' | 'UserManagement' | 'Invoice' | 'Workflow' | 'Settings', sectionName: string, fieldName?: string): boolean => {
+        if (CurrentPermission && CurrentPermission?.permission.Permission.length > 0) {
+            if (fieldName) {
+                return CurrentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Value.find(value => value.Field === fieldName).Operation[operation]
+            }
+            return CurrentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Operation[operation]
+        }
+        return false
+    }
 
     const [expensesHeaders, setExpensesHeaders] = useState([
         {
@@ -440,6 +212,7 @@ export const InvoiceDetail = (props: {
             headerName: 'PO Qty',
             accessor: 'POQuantity',
             className: 'min-w-100px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -448,6 +221,7 @@ export const InvoiceDetail = (props: {
             headerName: 'Avail Qty To Bill',
             accessor: 'POQuantityAvailable',
             className: 'min-w-200px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -456,6 +230,7 @@ export const InvoiceDetail = (props: {
             headerName: 'Item',
             accessor: 'POItem',
             className: 'min-w-150px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -464,6 +239,7 @@ export const InvoiceDetail = (props: {
             headerName: 'Vendor part#',
             accessor: 'PartNumber',
             className: 'min-w-150px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -487,6 +263,7 @@ export const InvoiceDetail = (props: {
                 srcId: 'DepartmentId',
                 srcName: 'DepartmentName'
             },
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -500,6 +277,7 @@ export const InvoiceDetail = (props: {
                 srcId: 'LocationId',
                 srcName: 'Location'
             },
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -518,6 +296,7 @@ export const InvoiceDetail = (props: {
             headerName: 'PO Rate',
             accessor: 'POUnitPrice',
             className: 'min-w-150px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -527,6 +306,7 @@ export const InvoiceDetail = (props: {
             accessor: 'Amount',
             cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
             className: 'min-w-150px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false,
             footer: (data: any[]) => {
@@ -542,6 +322,7 @@ export const InvoiceDetail = (props: {
             cell: (data) => '$ ' + Number(data?.POAmount).toFixed(2),
             className: 'min-w-150px dragEl',
             draggable: true,
+            isEdit: true,
             hidden: false,
             footer: (data: any[]) => {
                 return `$ ${data.reduce((prev: number, current) => {
@@ -551,43 +332,43 @@ export const InvoiceDetail = (props: {
         }
     ])
 
-    const [approverHistoryColumn, setApprovalHistoryColumn] = useState<columnProps>([
-        {
-            id: 1,
-            header: 'Approver',
-            accessor: 'ApproverName',
-            className: 'min-w-100px dragEl',
-            draggable: true,
-            hidden: false
+    // const [approverHistoryColumn, setApprovalHistoryColumn] = useState<columnProps>([
+    //     {
+    //         id: 1,
+    //         header: 'Approver',
+    //         accessor: 'ApproverName',
+    //         className: 'min-w-100px dragEl',
+    //         draggable: true,
+    //         hidden: false
 
-        },
-        {
-            id: 2,
-            header: 'Action',
-            accessor: 'ActionOn',
-            className: 'min-w-100px dragEl',
-            draggable: true,
-            hidden: false,
-        },
-        {
-            id: 3,
-            header: 'Comments',
-            accessor: 'Comments',
-            className: 'min-w-100px dragEl',
-            draggable: true,
-            hidden: false,
-            sortable: true,
+    //     },
+    //     {
+    //         id: 2,
+    //         header: 'Action',
+    //         accessor: 'ActionOn',
+    //         className: 'min-w-100px dragEl',
+    //         draggable: true,
+    //         hidden: false,
+    //     },
+    //     {
+    //         id: 3,
+    //         header: 'Comments',
+    //         accessor: 'Comments',
+    //         className: 'min-w-100px dragEl',
+    //         draggable: true,
+    //         hidden: false,
+    //         sortable: true,
 
-        },
-        {
-            id: 4,
-            header: 'Status',
-            accessor: 'StatusText',
-            className: 'min-w-100px dragEl',
-            draggable: true,
-            hidden: false
-        }
-    ])
+    //     },
+    //     {
+    //         id: 4,
+    //         header: 'Status',
+    //         accessor: 'StatusText',
+    //         className: 'min-w-100px dragEl',
+    //         draggable: true,
+    //         hidden: false
+    //     }
+    // ])
 
     useEffect(() => {
         setValid(validation)
@@ -647,6 +428,8 @@ export const InvoiceDetail = (props: {
                 })
             })
     }
+
+
 
     const pdfToggle = init ? 'Hide Invoice' : 'Show Invoice'
     const collapseClass = init ? 'col-6' : 'col-12'

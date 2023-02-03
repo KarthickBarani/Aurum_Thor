@@ -35,7 +35,7 @@ export const InvoiceDetailsForm = (props:
     }
 ) => {
 
-    const currentPermission = useContext(PermissionContext)
+    const CurrentPermission = useContext(PermissionContext)
 
     const [comment, setComment] = useState<string>('')
     const [commentError, setCommentError] = useState<string | null>(null)
@@ -201,15 +201,15 @@ export const InvoiceDetailsForm = (props:
     }
 
     const accessMethod = (pageName: string, sectionName: string, fieldName: string): any => {
-        if (currentPermission && currentPermission?.permission.Permission.length > 0)
-            return currentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Value.find(value => value.Field === fieldName).Operation
+        if (CurrentPermission && CurrentPermission?.permission.Permission.length > 0)
+            return CurrentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Value.find(value => value.Field === fieldName).Operation
         else
             return true
     }
 
-    console.log(currentPermission?.permission)
-    const formInput = 'form-control form-control-solid'
-    const formSelect = 'form-select form-select-solid'
+    console.log(CurrentPermission?.permission)
+    const formInput = 'form-control form-control-sm form-control-solid '
+    const formSelect = 'form-select form-select-sm form-select-solid '
     const formLabel = 'form-label fw-bolder fs-6 gray-700 mt-2'
 
 
@@ -223,14 +223,14 @@ export const InvoiceDetailsForm = (props:
                                 label="Vendor Name"
                                 id='VendorId'
                                 name='VendorId'
-                                className={formSelect}
+                                className={formSelect + ` ${accessMethod('Invoice', 'Header', 'VendorName').Update ? '' : 'form-select-transparent'}`}
                                 value={props.invDetails?.VendorId}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.vendors.map(vendor => { return { id: vendor.VendorId, value: vendor.VendorName } })}
                                 formError={props.formError}
                                 required={true}
-                                disabled={accessMethod('Invoice', 'Header', 'VendorName').Read}
+                                disabled={!(accessMethod('Invoice', 'Header', 'VendorName').Update)}
 
                             />
                         </div>
@@ -239,14 +239,14 @@ export const InvoiceDetailsForm = (props:
                         <InputTextField
                             label='Vendor Code'
                             type="text"
-                            id="VenderCode"
-                            name="VenderCode"
-                            className={formInput}
+                            id="VendorCode"
+                            name="VendorCode"
+                            className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                             value={props.invDetails?.VendorCode ? props.invDetails?.VendorCode : ''}
                             onChange={changeHandler}
                             onBlur={blurHandler}
-                            readOnly={accessMethod('Invoice', 'Header', 'VendorName').Read}
-                            disabled={accessMethod('Invoice', 'Header', 'VendorName').Read}
+                            readOnly={true}
+                            disabled={true}
                         />
                     </div>
                     <div className="col col-lg-6">
@@ -255,12 +255,12 @@ export const InvoiceDetailsForm = (props:
                                 label="Remit To"
                                 id='VendorId'
                                 name='VendorId'
-                                className={formSelect}
+                                className={formSelect + ` ${false ? '' : 'form-select-transparent'}`}
                                 value={props.invDetails?.VendorId}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.vendors.map(vendor => { return { id: vendor.VendorId, value: vendor.VendorName } })}
-                                disabled={accessMethod('Invoice', 'Header', 'VendorName').Read}
+                                disabled={true}
                             />
                         </div>
                     </div>
@@ -271,35 +271,38 @@ export const InvoiceDetailsForm = (props:
                             <InputTextField
                                 label='Vendor Address line 1'
                                 type="text"
-                                id="VenderAddress"
-                                name="VenderAddress"
-                                className={formInput}
+                                id="VendorAddress"
+                                name="VendorAddress"
+                                className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                 value={`${props.invDetails?.VendorAddress?.split(',')[0] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={true}
+                                disabled={true}
                             />
                             <InputTextField
                                 label='Vendor Address line 2'
                                 type="text"
-                                id="VenderAddress"
-                                name="VenderAddress"
-                                className={formInput}
+                                id="VendorAddress"
+                                name="VendorAddress"
+                                className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                 value={`${props.invDetails?.VendorAddress?.split(',')[1] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[1]} ${props.invDetails?.VendorAddress?.split(',')[2] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[2]} ${props.invDetails?.VendorAddress?.split(',')[3] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={true}
+                                disabled={true}
                             />
                             <InputTextField
                                 label='Vendor Address line 3'
                                 type="text"
-                                id="VenderAddress"
-                                name="VenderAddress"
-                                className={formInput}
+                                id="VendorAddress"
+                                name="VendorAddress"
+                                className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                 value={`${props.invDetails?.VendorAddress?.split(',')[4] === 'undefined' ? '' : props.invDetails?.VendorAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={true}
+                                disabled={true}
                             />
                         </div>
                     </div>
@@ -310,33 +313,36 @@ export const InvoiceDetailsForm = (props:
                                 type="text"
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
-                                className={formInput}
+                                className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                 value={`${props.invDetails?.RemittanceAddress?.split(',')[0] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[0]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={true}
+                                disabled={true}
                             />
                             <InputTextField
                                 label='Remit Address line 2'
                                 type="text"
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
-                                className={formInput}
+                                className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                 value={`${props.invDetails?.RemittanceAddress?.split(',')[1] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[1]} ${props.invDetails?.RemittanceAddress?.split(',')[2] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[2]} ${props.invDetails?.RemittanceAddress?.split(',')[3] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[3]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={true}
+                                disabled={true}
                             />
                             <InputTextField
                                 label='Remit Address line 3'
                                 type="text"
                                 id="RemittanceAddress"
                                 name="RemittanceAddress"
-                                className={formInput}
+                                className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                 value={`${props.invDetails?.RemittanceAddress?.split(',')[4] === 'undefined' ? '' : props.invDetails?.RemittanceAddress?.split(',')[4]}`}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={accessMethod('Invoice', 'Header', 'VendorAddress').Read}
+                                readOnly={true}
+                                disabled={true}
                             />
                         </div>
                     </div>
@@ -348,12 +354,12 @@ export const InvoiceDetailsForm = (props:
                                 label="Subsidiary"
                                 id='Subsidiary'
                                 name='Subsidiary'
-                                className={formSelect}
+                                className={formSelect + ` ${false ? '' : 'form-select-transparent'} `}
                                 value={subsidiary}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.subsidiaries.map(sub => { return { id: sub.SubsidiaryId, value: sub.Name } })}
-                                disabled={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                disabled={true}
                             />
                         </div>
                     </div>
@@ -363,12 +369,12 @@ export const InvoiceDetailsForm = (props:
                                 label="Department"
                                 id='DepartmentId'
                                 name='DepartmentId'
-                                className={formSelect}
+                                className={formSelect + ` ${false ? '' : 'form-select-transparent'}`}
                                 value={props.invDetails.DepartmentId}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.departments.map(dept => { return { id: dept.DepartmentId, value: dept.DepartmentName } })}
-                                disabled={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                disabled={true}
                             />
                         </div>
                     </div>
@@ -380,13 +386,13 @@ export const InvoiceDetailsForm = (props:
                                 label="PO Number"
                                 id='PurchaseNumber'
                                 name='PurchaseNumber'
-                                className={formSelect}
+                                className={formSelect + ` ${false ? '' : 'form-select-transparent'} `}
                                 value={0}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={[]}
                                 icon={<RecallSvg role="button" clsName="svg-icon svg-icon-1 svg-icon-primary" />}
-                                disabled={accessMethod('Invoice', 'Header', 'PurchaseNumber').Read}
+                                disabled={true}
                             />
                         </div>
                     </div>
@@ -396,12 +402,12 @@ export const InvoiceDetailsForm = (props:
                                 label="Location"
                                 id='LocationId'
                                 name='LocationId'
-                                className={formSelect}
+                                className={formSelect + ` ${false ? '' : 'form-select-transparent'} `}
                                 value={props.invDetails.LocationId}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 option={props.locations.map(location => { return { id: location.LocationId, value: location.Location } })}
-                                disabled={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                disabled={true}
                             />
                         </div>
                     </div>
@@ -414,14 +420,14 @@ export const InvoiceDetailsForm = (props:
                                 type="text"
                                 id="InvoiceNumber"
                                 name="InvoiceNumber"
-                                className={formInput}
+                                className={formInput + ` ${accessMethod('Invoice', 'Header', 'InvoiceNumber').Update ? '' : 'form-control-transparent'}`}
                                 value={props.invDetails.InvoiceNumber}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 required={true}
                                 formError={props.formError}
-                                readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
-                                disabled={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                readOnly={!(accessMethod('Invoice', 'Header', 'InvoiceNumber').Update)}
+                                disabled={!(accessMethod('Invoice', 'Header', 'InvoiceNumber').Update)}
                             />
                             <div className="form-check d-flex gap-2">
                                 <input type="checkbox" id="creditMemo" name="creditMemo" className="form-check form-check-sm form-check-solid mt-5" />
@@ -438,14 +444,14 @@ export const InvoiceDetailsForm = (props:
                                 label='Invoice Date'
                                 id={'InvoiceDate'}
                                 name={'InvoiceDate'}
-                                className="form-control form-control-solid"
+                                className={formInput + ` ${accessMethod('Invoice', 'Header', 'InvoiceNumber').Update ? '' : 'form-control-transparent'}`}
                                 value={invoiceDate}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 formError={props.formError}
                                 required={true}
-                                readOnly={accessMethod('Invoice', 'Header', 'InvoiceDate').Read}
-                                disabled={accessMethod('Invoice', 'Header', 'InvoiceDate').Read}
+                                readOnly={!(accessMethod('Invoice', 'Header', 'InvoiceDate').Update)}
+                                disabled={!(accessMethod('Invoice', 'Header', 'InvoiceDate').Update)}
                             />
                         </div>
                     </div>
@@ -456,27 +462,28 @@ export const InvoiceDetailsForm = (props:
                                 type="text"
                                 id="PurchaseNumber"
                                 name="PurchaseNumber"
-                                className={formInput}
+                                className={formInput + ` ${false ? '' : 'form-control-transparent'} `}
                                 value={props.invDetails.PurchaseNumber ? props.invDetails.PurchaseNumber : ''}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                readOnly={true}
+                                disabled={true}
                             />
                         </div>
                     </div>
                     <div className="col-sm-6 col-lg-3">
                         <div className="form-group">
                             <InputTextDateField
-                                label='Due Date'
+                                label={'Due Date'}
                                 id={'DueDate'}
                                 name={'DueDate'}
-                                className="form-control form-control-solid"
+                                className={formInput + ` ${accessMethod('Invoice', 'Header', 'DueDate').Update ? '' : 'form-control-transparent'}`}
                                 value={dueDate}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
                                 formError={props.formError}
-                                readOnly={accessMethod('Invoice', 'Header', 'DueDate').Read}
-                                disabled={accessMethod('Invoice', 'Header', 'DueDate').Read}
+                                readOnly={!(accessMethod('Invoice', 'Header', 'DueDate').Update)}
+                                disabled={!(accessMethod('Invoice', 'Header', 'DueDate').Update)}
                             />
                         </div>
                     </div>
@@ -489,14 +496,14 @@ export const InvoiceDetailsForm = (props:
                                 type="number"
                                 id="TotalAmount"
                                 name="TotalAmount"
-                                className={formInput}
+                                className={formInput + ` ${accessMethod('Invoice', 'Header', 'TotalAmount').Update ? '' : 'form-control-transparent'}`}
                                 value={props.invDetails.TotalAmount}
                                 onChange={changeHandler} onBlur={blurHandler}
                                 icon={<DollarSvg clsName="svg-icon svg-icon-1" role="none" />}
                                 formError={props.formError}
                                 required={true}
-                                readOnly={accessMethod('Invoice', 'Header', 'TotalAmount').Read}
-                                disabled={accessMethod('Invoice', 'Header', 'TotalAmount').Read}
+                                readOnly={!(accessMethod('Invoice', 'Header', 'TotalAmount').Update)}
+                                disabled={!(accessMethod('Invoice', 'Header', 'TotalAmount').Update)}
                             />
                             <div className="input-group input-group-solid">
                             </div>
@@ -510,11 +517,12 @@ export const InvoiceDetailsForm = (props:
                                     type="text"
                                     id="Currency"
                                     name="Currency"
-                                    className={formInput}
+                                    className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                     value={'USD'}
                                     onChange={changeHandler}
                                     onBlur={blurHandler}
-                                    readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
                             </div></div>
                             <div className="col-6">
@@ -524,13 +532,14 @@ export const InvoiceDetailsForm = (props:
                                         type="number"
                                         id="TaxTotal"
                                         name="TaxTotal"
-                                        className={formInput}
+                                        className={formInput + ` ${accessMethod('Invoice', 'Header', 'TaxAmount').Update ? '' : 'form-control-transparent'}`}
                                         value={props.invDetails.TaxTotal}
                                         onChange={changeHandler}
                                         onBlur={blurHandler}
                                         icon={<DollarSvg clsName="svg-icon  svg-icon-1" role="none" />}
                                         formError={props.formError}
-                                        readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                        readOnly={!(accessMethod('Invoice', 'Header', 'TaxAmount').Update)}
+                                        disabled={!(accessMethod('Invoice', 'Header', 'TaxAmount').Update)}
                                     />
                                 </div>
                             </div>
@@ -542,7 +551,7 @@ export const InvoiceDetailsForm = (props:
                             type="number"
                             id="exSubtotal"
                             name="exSubtotal"
-                            className={formInput}
+                            className={formInput + ` ${true ? 'form-control-transparent' : ''}`}
                             value={props.exSubtotal.toFixed(2)}
                             icon={<DollarSvg clsName="svg-icon  svg-icon-1" role="none" />}
                             readOnly={true}
@@ -555,7 +564,7 @@ export const InvoiceDetailsForm = (props:
                             type="number"
                             id="POSubtotal"
                             name="POSubtotal"
-                            className={formInput}
+                            className={formInput + ` ${true ? 'form-control-transparent' : ''}`}
                             value={props.POSubtotal.toFixed(2)}
                             icon={<DollarSvg clsName="svg-icon svg-icon-1" role="none" />}
                             readOnly={true}
@@ -571,11 +580,12 @@ export const InvoiceDetailsForm = (props:
                                 type="text"
                                 id="Memo"
                                 name="Memo"
-                                className={formInput}
+                                className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                 value={''}
                                 onChange={changeHandler}
                                 onBlur={blurHandler}
-                                readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                readOnly={true}
+                                disabled={true}
                             />
                         </div>
                     </div>
@@ -586,12 +596,13 @@ export const InvoiceDetailsForm = (props:
                                     label='Comments'
                                     id="Comments"
                                     name="Comments"
-                                    className={formInput}
+                                    className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
                                     value={comment}
                                     onChange={e => setComment(e.target.value)}
                                     onBlur={blurHandler}
                                     formError={commentError}
-                                    readOnly={accessMethod('Invoice', 'Header', 'InvoiceNumber').Read}
+                                    readOnly={true}
+                                    disabled={true}
                                 />
                             </div>
                         </div>
@@ -626,7 +637,7 @@ export const InvoiceDetailsForm = (props:
                         <div className="col-lg-6">
                             <div className="d-flex justify-content-end">
                                 {
-                                    currentPermission?.permission?.Permission.find(permission => permission.Name === 'Approval')?.Access ?
+                                    CurrentPermission?.permission?.Permission.find(permission => permission.Name === 'Approval')?.Access ?
                                         props.invDetails?.StatusId === 1 || props.invDetails?.StatusId === 5
                                             ?
                                             <button onClick={() => Submit(0, 'Submit', 'success')} type="button" className="btn btn-light-primary btn-sm m-2">Submit Approval
