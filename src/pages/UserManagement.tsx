@@ -90,6 +90,8 @@ export const UserManagement = () => {
   const [userData, setUserData] = useState<UserProfile[]>([])
   const [roleData, setRoleData] = useState<any[]>([])
 
+  const { data, isLoading, isError } = useFetch('/UserProfile')
+
 
   useEffect(() => {
     axiosGet('/UserProfile')

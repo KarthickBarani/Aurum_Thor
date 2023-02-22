@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AddField } from '../components/Settings/AddField';
 import { SettingsGrid } from '../components/Settings/SettingsGrid';
 import axios from 'axios';
@@ -13,17 +13,18 @@ import { Modal } from 'react-bootstrap';
 import { InputSelectField, InputTextField } from '../components/components/InputField';
 import { Layout } from '../components/Layout/Layout';
 import { toastAlert } from '../Function/toast';
+import { Loading } from '../components/components/Loading';
 
 
 type SettingProps = {
-  Id: number,
+  Id: number | null,
   Type: string,
   Value: SettingValueProps[]
   Operation: OperationProps
 }
 
 type SettingValueProps = {
-  Id: number,
+  Id: number | null,
   Field: string,
   Type: string,
   Label: string[],
@@ -38,24 +39,41 @@ type OperationProps = {
 }
 
 export const Settings = () => {
+
   const [settings, setSettings] = useState<SettingProps[]>([]);
 
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false)
-  const [currentvalue, setCurrentValue] = useState<SettingValueProps>({} as SettingValueProps)
+  const settingValueDefaultValue: SettingValueProps = {
+    Id: null,
+    Field: '',
+    Type: '',
+    Label: [],
+    Operation: {
+      Create: true,
+      Read: true,
+      Update: true,
+      Delete: true
+    }
+  }
+  const [currentvalue, setCurrentValue] = useState<SettingValueProps>(settingValueDefaultValue)
+  const [currentType, setCurrentType] = useState<string>('')
 
   useEffect(() => {
     axiosGet('/Settings')
-      .then(res => setSettings(res.data))
+      .then(res => {
+        setSettings(res.data)
+        setCurrentType(res.data[0].Type)
+      })
       .catch(err => console.log(err))
-  }, []);
+  }, [modalIsOpen]);
 
 
-  let currentTabIndex: number = 0
+
   let label: string[] = []
 
-  const formInput = 'form-control form-control-sm form-control-solid'
-  const formSelect = 'form-select form-select-sm form-select-solid'
-  const fieldType = ['Text', 'Number', 'Date', 'Currency']
+  const formInput: string = 'form-control form-control-sm form-control-solid'
+  const formSelect: string = 'form-select form-select-sm form-select-solid'
+  const fieldType: string[] = ['Text', 'Number', 'Date', 'Currency']
 
 
 
@@ -97,25 +115,19 @@ export const Settings = () => {
       id: 1,
       header: 'Header',
       tabContent: () => (settings.length > 0 && <TestGrid data={settings[0].Value} columns={columns} setData={() => { }} />),
-      clickEvent: (key) => {
-        currentTabIndex = key
-      }
+      clickEvent: (name) => { setCurrentType(name) }
     },
     {
       id: 2,
       header: 'Lineitem',
       tabContent: () => (settings.length > 0 && <TestGrid data={settings[1].Value} columns={columns} setData={() => { }} />),
-      clickEvent: (key) => {
-        currentTabIndex = key
-      }
+      clickEvent: (name) => { setCurrentType(name) }
     },
     {
       id: 3,
       header: 'Expense',
       tabContent: () => (settings.length > 0 && <TestGrid data={settings[2].Value} columns={columns} setData={() => { }} />),
-      clickEvent: (key) => {
-        currentTabIndex = key
-      }
+      clickEvent: (name) => { setCurrentType(name) }
     }
   ], [settings])
 
@@ -124,17 +136,31 @@ export const Settings = () => {
   const Lists = ({ lists }: { lists: string[] }) => {
 
     const inputRef = useRef<HTMLInputElement>(null)
+    const [message, setMessage] = useState<string>('')
     const [list, setList] = useState<string[]>(lists)
 
     const addHandler = () => {
       const array: string[] = [...list]
       if (inputRef.current) {
-        array.push(inputRef.current?.value)
-        inputRef.current.value = ''
-        label = array
+        if (inputRef.current?.value === '') {
+          setMessage('Field Emtpy')
+        } else {
+          array.push(inputRef.current?.value)
+          inputRef.current.value = ''
+          label = array
+          setMessage('')
+          setList(array)
+        }
       }
+    }
+
+    const removeHandler = (index) => {
+      const array: string[] = [...list]
+      array.splice(index)
+      label = array
       setList(array)
     }
+
 
     return (
       <div className='m-2'>
@@ -150,23 +176,30 @@ export const Settings = () => {
               type='text'
               ref={inputRef}
             />
+            <small className='text-danger'>{message}</small>
           </div>
-          <div>
-            <button
-              type='button'
-              className='btn btn-light-primary font-weight-bold my-10 btn-sm'
-              onClick={addHandler}
-            >
-              Add
-            </button>
+          <div className={'d-flex'}>
+            <div className="align-items-end">
+              <button
+                type='button'
+                className='btn btn-light-primary font-weight-bold my-10 btn-sm'
+                onClick={addHandler}
+              >
+                Add
+              </button>
+            </div>
           </div>
         </div>
         <ul className="list-group h-150px scroll p-2">
           {
             list.length > 0 ?
-              list.map(li => (<li className="list-group-item d-flex justify-content-between align-items-center">
+              list.map((li, index) => (<li key={index + li} className="list-group-item d-flex justify-content-between align-items-center">
                 {li}
-                <RemoveSvg clsName='svg-icon svg-icon-danger svg-icon-2' />
+                <button
+                  className='btn btn-sm btn-icon'
+                >
+                  <RemoveSvg clsName='svg-icon svg-icon-danger svg-icon-2' function={() => removeHandler(index)} />
+                </button>
               </li>))
               :
               <li className="list-group-item d-flex justify-content-between align-items-center">
@@ -182,22 +215,34 @@ export const Settings = () => {
 
     const fieldRef = useRef<HTMLInputElement>(null)
     const typeRef = useRef<HTMLSelectElement>(null)
+    const buttonRef = useRef<HTMLButtonElement>(null)
+    const fieldErrRef = useRef<HTMLElement>(null)
     label = currentValue.Label
 
     const onSubmit = () => {
-      console.log({ ...currentValue, Label: label, Field: fieldRef.current?.value, Type: typeRef.current?.value })
-      axiosPost(`/Settings/${currentValue.Type}`, { ...currentValue, Label: label, Field: fieldRef.current?.value, Type: typeRef.current?.value })
-        .then(res => toastAlert('success', res.statusText))
-        .catch(err => toastAlert('error', err.toString()))
-        .finally(() => setModalIsOpen(prev => !prev))
+      if (buttonRef.current && fieldRef.current && fieldErrRef.current) {
+        if (fieldRef.current.value === '') {
+          fieldErrRef.current.innerText = 'required !!!'
+          return fieldRef.current.focus()
+        } else {
+          fieldErrRef.current.innerText = ''
+          console.log(currentType, { ...currentValue, Label: label, Field: fieldRef.current?.value, Type: typeRef.current?.value })
+          axiosPost(`/Settings/${currentType}`, { ...currentValue, Label: label, Field: fieldRef.current?.value, Type: typeRef.current?.value })
+            .then(res => toastAlert('success', res.statusText))
+            .catch(err => toastAlert('error', err.toString()))
+            .finally(() => setModalIsOpen(prev => !prev))
+        }
+      }
     }
+
+    console.count('render !!')
 
     return (
       <div className='container-fluid'>
         <div className='row'>
-          <div className='col-12'>
+          <div className='col-6'>
             <div className='form-group'>
-              <label className='form-label fw-bolder fs-6 gray-700' >
+              <label className='form-label fw-bolder fs-6 gray-700 required' >
                 Field Name
               </label>
               <input
@@ -209,15 +254,12 @@ export const Settings = () => {
                 ref={fieldRef}
               />
             </div>
+            <small ref={fieldErrRef} className='text-danger' ></small>
           </div>
-        </div>
-        <div className='row'>
-          <div className='col-12'>
-            <Lists lists={currentValue.Label} />
-          </div>
-        </div>
-        <div className='row'>
-          <div className='col-12'>
+          <div className='col-6'>
+            <label className='form-label fw-bolder fs-6 gray-700' >
+              Field Type
+            </label>
             <select defaultValue={''} className="form-select form-select-solid form-select-sm" ref={typeRef}>
               <option key={0} value={''} ></option>
               {fieldType.map((type, index) => {
@@ -230,9 +272,18 @@ export const Settings = () => {
         </div>
         <div className='row'>
           <div className='col-12'>
+            <Lists lists={currentValue.Label} />
+          </div>
+        </div>
+        <div className='row'>
+
+        </div>
+        <div className='row mt-5'>
+          <div className='col-12'>
             <div className='form-group d-flex flex-wrap justify-content-end align-items-center'>
               <button
-                className='btn btn-light-primary font-weight-bold px-9 py-3 mx-6 my-6 btn-sm'
+                ref={buttonRef}
+                className='btn btn-light-primary font-weight-bold btn-sm mx-2'
                 onClick={onSubmit}
               >
                 Save
@@ -240,7 +291,7 @@ export const Settings = () => {
 
               <button
                 type='button'
-                className='btn btn-light font-weight-bold px-9 py-3 my-6 btn-sm'
+                className='btn btn-light font-weight-bold btn-sm mx-2'
                 onClick={() => setModalIsOpen(prev => !prev)}
               >
                 Close
@@ -259,14 +310,15 @@ export const Settings = () => {
         <button
           className="btn btn-sm btn-light-primary"
           onClick={() => {
+            setCurrentValue(settingValueDefaultValue)
             setModalIsOpen(prev => !prev)
           }}
         >
           <AddSvg clsName='svg-icon svg-icon-primary svg-icon-3' /> Add Field
         </button></>}>
-        {settings.length > 0 && <Tab lists={lists} />}
+        {settings.length > 0 ? <Tab lists={lists} /> : <Loading />}
       </Layout>
-      <Modal show={modalIsOpen} onHide={() => setModalIsOpen(prev => !prev)} size={'lg'} scrollable={true} centered={true} >
+      <Modal show={modalIsOpen} onHide={() => setModalIsOpen(prev => !prev)} size={'xl'} scrollable={true} centered={true} >
         <Modal.Header closeButton={true}>
           <Modal.Title>Edit Field</Modal.Title>
         </Modal.Header>

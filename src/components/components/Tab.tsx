@@ -14,7 +14,7 @@ export const Tab = ({ lists }: { lists: ListProps[] }) => {
 
     const TabLists = ({ children }) => {
         return (
-            <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
+            <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-2 fs-6">
                 {children}
             </ul>
         )
@@ -27,10 +27,10 @@ export const Tab = ({ lists }: { lists: ListProps[] }) => {
                     className={`nav-link ${active === activeKey ? 'active' : ''}`}
                     onClick={() => {
                         setActive(activeKey)
-                        clickEvent(activeKey)
+                        clickEvent(tabName)
                     }}
                 >
-                    {tabName}
+                    <h4>{tabName}</h4>
                 </span>
             </li>
         )

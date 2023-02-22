@@ -5,6 +5,7 @@ import { useContext, useEffect } from "react"
 import { toastAlert } from "../../Function/toast"
 import { UserSvg } from "../Svg/Svg"
 import { Loading } from "../components/Loading"
+import { Error } from "../components/Error"
 
 
 
@@ -14,11 +15,8 @@ export const AssignRoles = ({ User }) => {
     const navigation = useNavigate()
     const CurrentPermission = useContext(PermissionContext)
 
-    useEffect(() => {
-        console.log(User)
-    }, [User])
 
-    if (!User) return <Loading />
+    if (!User) return <Error />
 
     return (
         <>
@@ -37,9 +35,9 @@ export const AssignRoles = ({ User }) => {
                                 className="symbol symbol-150px"
                                 role={'button'}
                                 onClick={() => {
-                                    navigation('/Home')
                                     axiosGet(`/Role/${role.RoleId}`)
                                         .then(res => {
+                                            navigation('/Home')
                                             CurrentPermission?.permissionSetMethod(res.data)
                                         })
                                         .catch(() => {

@@ -3,6 +3,7 @@ import { Collapse } from "react-bootstrap"
 import { axiosGet, axiosPut } from "../../helpers/Axios"
 import { RemoveSvg, UserSvg } from "../Svg/Svg"
 import { SweetAlert } from "../../Function/alert"
+import { Loading } from "../components/Loading"
 
 export const RoleDetails = ({ setModalIsOpen, setRoleId, refetch, setRefetch }) => {
 
@@ -94,13 +95,18 @@ export const RoleDetails = ({ setModalIsOpen, setRoleId, refetch, setRefetch }) 
     }
     return (
         <>
-            <div className="row">
-                {RoleData.filter(role => role.IsActive)?.map((datum, index) => (
-                    <div key={index} className="col-12 col-lg-6 mb-2">
-                        <RoleCard datum={datum} />
+            {
+                RoleData.length > 0
+                    ?
+                    <div className="row">
+                        {RoleData.filter(role => role.IsActive)?.map((datum, index) => (
+                            <div key={index} className="col-12 col-lg-6 mb-2">
+                                <RoleCard datum={datum} />
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                    : <Loading />
+            }
         </>
     )
 }

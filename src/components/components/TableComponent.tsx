@@ -65,7 +65,6 @@ export const TestGrid = (props: {
         return currentData.every(data => data.isSelect === true)
     }
 
-
     const editHandler = (e, index: number) => {
         setCurrentEditElement(index + e.target.id)
         setIsEdit(prev => !prev)
@@ -135,6 +134,7 @@ export const TestGrid = (props: {
         })
         return sortArray
     }
+
     return (
         <div className="table-responsive hover-scroll-overlay-y">
             <table className="table table-hover gy-3 gs-7 table-rounded hover-scroll-overlay-y">

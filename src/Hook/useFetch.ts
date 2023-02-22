@@ -3,8 +3,11 @@ import { axiosGet } from "../helpers/Axios";
 
 export const useFetch = (url: string) => {
     const [isLoading, setLoading] = useState<boolean>(true)
+    const [isFetched, setIsFetched] = useState<boolean>(false)
+    const [fetch, setFetch] = useState<boolean>(false)
     const [isError, setError] = useState<boolean>(false)
-    const [data, setData] = useState<any>(undefined)
+    const [data, setData] = useState<any>(null)
+
 
     useEffect(() => {
         axiosGet(url)
@@ -15,8 +18,15 @@ export const useFetch = (url: string) => {
             .catch(err => {
                 setError(true)
             })
-            .finally(() => setLoading(false))
-    }, [])
+            .finally(() => {
+                setLoading(false)
+                setIsFetched(true)
+            })
+    }, [fetch])
 
-    return { isLoading, isError, data }
+    const refetch = () => {
+        setFetch(prev => !prev)
+    }
+
+    return { isLoading, isError, data, isFetched, refetch }
 }

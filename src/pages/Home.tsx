@@ -1,9 +1,14 @@
 
+import axios from "axios"
 import { Charts } from "../components/Home/Charts"
 import { Table } from "../components/Home/Table"
 import { Error } from '../components/components/Error'
 import { Loading } from "../components/components/Loading"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { axiosGet } from "../helpers/Axios"
+import { invDetailsType } from "../components/Interface/Interface"
+import { useFetch } from "../Hook/useFetch"
+import { Button } from "react-bootstrap"
 
 
 
@@ -11,19 +16,30 @@ import { useEffect } from "react"
 
 export const Home = (props: {
     setInvNumber: Function
-    isLoading: boolean
-    data: any
-    isError: boolean
     userId: number
-    setRefetchInterval: Function
 }) => {
 
-    useEffect(() => {
-        props.setRefetchInterval(5000)
-        return () => {
-            props.setRefetchInterval(0)
-        }
-    })
+    const { isLoading, isError, data, isFetched, refetch } = useFetch('/Invoice')
+
+    const [invoicesData, setInvoicesData] = useState<invDetailsType[]>([] as invDetailsType[])
+
+    // const [isLoading, setIsLoading] = useState<boolean>(false)
+    // const [isError, setIsError] = useState<boolean>(false)
+
+    // useEffect(() => {
+    //     setIsLoading(true)
+    //     axiosGet('/Invoice')
+    //         .then(res => {
+    //             setInvoicesData(res.data)
+    //         })
+    //         .catch(err => {
+    //             console.log(err)
+    //             setIsError(true)
+    //         })
+    //         .finally(() => {
+    //             setIsLoading(false)
+    //         })
+    // }, [])
 
     return (
         <div className="container-fluid">
@@ -68,11 +84,13 @@ export const Home = (props: {
             <div className="row justify-content-between g-5 my-1">
                 <div className="col">
                     {
-                        props.isLoading
-                            ? <Loading />
-                            : props.isError
-                                ? <Error />
-                                : <Table setInvNumber={props.setInvNumber} data={props.data} isTemp={false} userId={props.userId} >Invoice Details</Table>
+                        isFetched
+                            ? <Table setInvNumber={props.setInvNumber} data={data} isTemp={false} userId={props.userId} >Invoice Details</Table>
+                            : isLoading
+                                ? <Loading />
+                                : isError
+                                    ? <Error path={'/Home'} />
+                                    : <Table setInvNumber={props.setInvNumber} data={data} isTemp={false} userId={props.userId} >Invoice Details</Table>
                     }
                 </div>
             </div>

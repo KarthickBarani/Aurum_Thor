@@ -4,27 +4,62 @@ import { axiosGet, axiosPost, axiosPut } from "../../helpers/Axios"
 import { InputTextField } from "../components/InputField"
 import { userProfileType } from "../Interface/Interface"
 import { toastAlert } from "../../Function/toast"
+import { SweetAlert } from "../../Function/alert"
 
 export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
 
     const [userFormData, setUserFormData] = useState<userProfileType>({} as userProfileType)
     const [role, setRole] = useState<any[]>([])
+    const [formError, setFormError] = useState({
+        UserName: null,
+        FirstName: null,
+        MiddleName: null,
+        LastName: null,
+        DisplayName: null,
+        EmailAddress: null,
+        Password: null
+    })
 
     const formInput = 'form-control form-control-solid form-control-sm'
+
 
     const save = () => {
         if (userId === 0) {
             axiosPost('/UserProfile', userFormData)
-                .then(res => toastAlert('success', res.statusText))
-                .catch(err => toastAlert('error', err.toString()))
+                .then(res => {
+                    SweetAlert({
+                        icon: 'success',
+                        titleText: res.data.Message
+                    })
+                    // toastAlert('success', res.statusText)
+                })
+                .catch(err => {
+                    SweetAlert({
+                        icon: 'error',
+                        titleText: err.toString()
+                    })
+                    // toastAlert('error', err.toString())
+                })
                 .finally(() => {
                     setRefetch(prev => !prev)
                     setModalIsOpen(false)
                 })
         } else {
             axiosPut('/UserProfile', userFormData)
-                .then(res => toastAlert('success', res.statusText))
-                .catch(err => toastAlert('error', err.toString()))
+                .then(res => {
+                    SweetAlert({
+                        icon: 'success',
+                        titleText: res.statusText
+                    })
+                    // toastAlert('success', res.statusText)
+                })
+                .catch(err => {
+                    SweetAlert({
+                        icon: 'error',
+                        titleText: err.toString()
+                    })
+                    // toastAlert('error', err.toString())
+                })
                 .finally(() => {
                     setRefetch(prev => !prev)
                     setModalIsOpen(false)
@@ -51,12 +86,22 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
                 obj[name] = e.target.checked
             }
         } else {
+            if (value === '') {
+                setFormError({ ...formError, [name]: 'Required' })
+            } else {
+                setFormError({ ...formError, [name]: null })
+            }
             obj[name] = value
+
         }
-        // console.log(obj)
         setUserFormData(obj)
     }
     const blurHandler = () => {
+    }
+
+    const isValid = (): boolean => {
+        const values = Object.values(formError)
+        return !!!values.find(value => value !== null)
     }
 
     useEffect(() => {
@@ -81,6 +126,19 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
             })
     }, [])
 
+    const RolesSelection = ({ role }) => {
+        return (
+            role.map((role, index) => (
+                <div className="col-3 m-2" key={index}>
+                    <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
+                        <input type="checkbox" checked={userFormData.Roles?.find(el => el.RoleId === role.RoleId)} onChange={changeHandler} className="form-check-input" name='Roles' data-role={JSON.stringify(role)} />
+                        <label className="form-check-label" >{role.Name}</label>
+                    </label>
+                </div>
+            ))
+        )
+    }
+
     return (
         <>
             <div className="container">
@@ -95,7 +153,8 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
                             value={userFormData?.FirstName}
                             onChange={changeHandler}
                             onBlur={blurHandler}
-
+                            required={true}
+                            formError={formError}
                         />
                     </div>
                     <div className="col">
@@ -121,6 +180,8 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
                             value={userFormData?.LastName}
                             onChange={changeHandler}
                             onBlur={blurHandler}
+                            required={true}
+                            formError={formError}
                         />
                     </div>
                 </div>
@@ -135,6 +196,9 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
                             value={userFormData?.EmailAddress}
                             onChange={changeHandler}
                             onBlur={blurHandler}
+                            required={true}
+                            formError={formError}
+
                         />
                     </div>
                     <div className="col">
@@ -147,6 +211,8 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
                             value={userFormData?.DisplayName}
                             onChange={changeHandler}
                             onBlur={blurHandler}
+                            required={true}
+                            formError={formError}
                         />
                     </div>
                 </div>
@@ -161,6 +227,8 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
                             value={userFormData?.UserName}
                             onChange={changeHandler}
                             onBlur={blurHandler}
+                            required={true}
+                            formError={formError}
 
                         />
                     </div>
@@ -181,23 +249,15 @@ export const UserForm = ({ userId, setModalIsOpen, setRefetch }) => {
                                 Roles
                             </label>
                             {
-                                role.filter(role => role.IsActive).map((role, index) => (
-                                    <div className="col-3 m-2" key={index}>
-                                        <label className="form-check form-check-sm form-check-custom form-check-solid me-5">
-                                            <input type="checkbox" checked={userFormData.Roles?.find(el => el.RoleId === role.RoleId)} onChange={changeHandler} className="form-check-input" name='Roles' data-role={JSON.stringify(role)} />
-                                            <label className="form-check-label" >{role.Name}</label>
-                                        </label>
-                                    </div>
-                                ))
+                                <RolesSelection role={role.filter(role => role.IsActive)} />
                             }
                         </div>
                         <div className="d-flex float-end justify-content-end align-items-center gap-2 mt-10">
-                            <button role={'button'} className="btn btn-sm btn-light-primary" onClick={save} >Save</button>
+                            <button disabled={!isValid()} role={'button'} className="btn btn-sm btn-light-primary" onClick={save} >Save</button>
                         </div>
                     </div>
                 </div>
             </div>
-
         </>
     )
 }

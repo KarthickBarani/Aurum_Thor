@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { Error } from "../components/components/Error"
 import { PdfViewer } from "../components/components/PdfViewer"
 import { Loading } from "../components/components/Loading"
-import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, NextApprovers, WorkFlowTableType } from '../components/Interface/Interface'
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, userProfileType, NextApprovers, WorkFlowTableType, ApprovalHistoryProps } from '../components/Interface/Interface'
 import { SweetAlert } from "../Function/alert"
 import { axiosGet, AxiosGet, AxiosInsert, axiosPost } from "../helpers/Axios"
 import { LevelElement } from "../components/WorkFlow/LevelElement"
@@ -14,6 +14,7 @@ import { InvoiceDetailsForm } from "../components/InvoiceDetails/InvoiceDetailsF
 import { AddSvg, ErrorSvg, SaveSvg } from "../components/Svg/Svg"
 import { ActionButtonsProps, columnProps, TableActionComponent, TableGridComponent, TestGrid } from "../components/components/TableComponent"
 import { PermissionContext } from "../router/Router"
+import { ApprovalHistory } from "../components/InvoiceDetails/ApprovalHistory"
 
 
 
@@ -29,7 +30,6 @@ export const InvoiceDetail = (props: {
     subsidiary: subsidiary
     userid: number
     account: account
-    refetch: Function
 }) => {
 
 
@@ -45,7 +45,7 @@ export const InvoiceDetail = (props: {
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [listItems, setListItems] = useState<lineItemsType[]>([] as lineItemsType[])
     const [expenses, setExpenses] = useState<expensesType[]>([] as expensesType[])
-    const [approvalHistory, setApprovalHistory] = useState<ApprovalHistory[]>([])
+    const [approvalHistory, setApprovalHistory] = useState<ApprovalHistoryProps[]>([])
     const [workFlow, setWorkFlow] = useState<WorkFlowTableType>({} as WorkFlowTableType)
     // const [exSubtotal, setExSubtotal] = useState<number>(0)
     // const [POSubtotal, setPOSubtotal] = useState<number>(0)
@@ -112,17 +112,6 @@ export const InvoiceDetail = (props: {
     }
 
     const [lineItemsToggle, setLineItemsToggle] = useState<'Expense' | 'LineItems'>('Expense')
-    const [afterDragElement, setAfterDragElement] = useState<any>([])
-
-    const accessMethod = (operation: 'Read' | 'Create' | 'Update' | 'Delete', pageName: 'Approval' | 'UserManagement' | 'Invoice' | 'Workflow' | 'Settings', sectionName: string, fieldName?: string): boolean => {
-        if (CurrentPermission && CurrentPermission?.permission.Permission.length > 0) {
-            if (fieldName) {
-                return CurrentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Value.find(value => value.Field === fieldName).Operation[operation]
-            }
-            return CurrentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Operation[operation]
-        }
-        return false
-    }
 
     const [expensesHeaders, setExpensesHeaders] = useState([
         {
@@ -332,43 +321,43 @@ export const InvoiceDetail = (props: {
         }
     ])
 
-    // const [approverHistoryColumn, setApprovalHistoryColumn] = useState<columnProps>([
-    //     {
-    //         id: 1,
-    //         header: 'Approver',
-    //         accessor: 'ApproverName',
-    //         className: 'min-w-100px dragEl',
-    //         draggable: true,
-    //         hidden: false
+    const approverHistoryColumn = useMemo<columnProps>(() => [
+        {
+            id: 1,
+            header: 'Approver',
+            accessor: 'ApproverName',
+            className: 'min-w-100px dragEl',
+            draggable: true,
+            hidden: false
 
-    //     },
-    //     {
-    //         id: 2,
-    //         header: 'Action',
-    //         accessor: 'ActionOn',
-    //         className: 'min-w-100px dragEl',
-    //         draggable: true,
-    //         hidden: false,
-    //     },
-    //     {
-    //         id: 3,
-    //         header: 'Comments',
-    //         accessor: 'Comments',
-    //         className: 'min-w-100px dragEl',
-    //         draggable: true,
-    //         hidden: false,
-    //         sortable: true,
+        },
+        {
+            id: 2,
+            header: 'Action',
+            accessor: 'ActionOn',
+            className: 'min-w-100px dragEl',
+            draggable: true,
+            hidden: false,
+        },
+        {
+            id: 3,
+            header: 'Comments',
+            accessor: 'Comments',
+            className: 'min-w-100px dragEl',
+            draggable: true,
+            hidden: false,
+            sortable: true,
 
-    //     },
-    //     {
-    //         id: 4,
-    //         header: 'Status',
-    //         accessor: 'StatusText',
-    //         className: 'min-w-100px dragEl',
-    //         draggable: true,
-    //         hidden: false
-    //     }
-    // ])
+        },
+        {
+            id: 4,
+            header: 'Status',
+            accessor: 'StatusText',
+            className: 'min-w-100px dragEl',
+            draggable: true,
+            hidden: false
+        }
+    ], [])
 
     useEffect(() => {
         setValid(validation)
@@ -399,34 +388,34 @@ export const InvoiceDetail = (props: {
 
     const save = () => {
         console.log(invDetails)
-        if (invDetails.TotalAmount !== (invDetails.TaxTotal + expensesSubtotal + poSubtotal)) {
-            return SweetAlert({
-                title: 'Invoice Error',
-                icon: 'info',
-                text: 'Invoice Amount must be equal to the sum of Expenses Amount, PO Amount, Tax Amount'
-            })
-        }
-        setProcess(true)
-        axiosPost(`/Invoice`, invDetails)
-            .then(res => {
-                console.log(invDetails)
-                console.log('Response:', res.data)
-                setProcess(false)
-                SweetAlert({
-                    title: 'Saved',
-                    text: 'Your changes has been saved.',
-                    icon: 'success'
-                })
-            })
-            .catch(err => {
-                console.log('Error:', err)
-                setProcess(false)
-                SweetAlert({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong!',
-                })
-            })
+        // if (invDetails.TotalAmount !== (invDetails.TaxTotal + expensesSubtotal + poSubtotal)) {
+        //     return SweetAlert({
+        //         title: 'Invoice Error',
+        //         icon: 'info',
+        //         text: 'Invoice Amount must be equal to the sum of Expenses Amount, PO Amount, Tax Amount'
+        //     })
+        // }
+        // setProcess(true)
+        // axiosPost(`/Invoice`, invDetails)
+        //     .then(res => {
+        //         console.log(invDetails)
+        //         console.log('Response:', res.data)
+        //         setProcess(false)
+        //         SweetAlert({
+        //             title: 'Saved',
+        //             text: 'Your changes has been saved.',
+        //             icon: 'success'
+        //         })
+        //     })
+        //     .catch(err => {
+        //         console.log('Error:', err)
+        //         setProcess(false)
+        //         SweetAlert({
+        //             icon: 'error',
+        //             title: 'Oops...',
+        //             text: 'Something went wrong!',
+        //         })
+        //     })
     }
 
 
@@ -455,7 +444,7 @@ export const InvoiceDetail = (props: {
                             </div>
                             <div className="card-body">
                                 {isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <InvoiceDetailsForm users={props.users} nextApprovers={nextApprovers} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={poSubtotal} exSubtotal={expensesSubtotal} vendors={props.vendors}
-                                    departments={props.departments} locations={props.locations} subsidiaries={props.subsidiary} formError={formError} setFormError={setFormError} setValid={setValid} refetch={props.refetch} approvalHistory={approvalHistory} />}
+                                    departments={props.departments} locations={props.locations} subsidiaries={props.subsidiary} formError={formError} setFormError={setFormError} setValid={setValid} approvalHistory={approvalHistory} />}
                             </div>
                         </div>
                     </div >
@@ -481,7 +470,7 @@ export const InvoiceDetail = (props: {
                                         </div>
                                     </div>
                                     <div className={`col-12 col-xl-6 ${!init ? 'w-xl-100' : ''}`}>
-                                        <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6 ">
+                                        <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-3 fs-6 ">
                                             <li className="nav-item">
                                                 <a className={`nav-link ${lineItemsToggle === 'Expense' ? 'active' : ''}`} role="button" onClick={() => setLineItemsToggle('Expense')} data-bs-toggle="tab"
                                                     href="#expensesTab">
@@ -523,30 +512,8 @@ export const InvoiceDetail = (props: {
                                                 <p className="fw-bolder fs-4">Approval History</p>
                                             </div>
                                         </div>
-                                        <div className="table-responsive">
-                                            <table className="table table-striped gy-3 gs-5 table-hover">
-                                                <thead >
-                                                    <tr className="fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200">
-                                                        <th>Approver</th>
-                                                        <th>Date Time</th>
-                                                        <th>Comments</th>
-                                                        <th>Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {
-                                                        approvalHistory?.map((History, index) => (
-                                                            <tr key={index} >
-                                                                <td>{History.ApproverName}</td>
-                                                                <td>{History.ActionOn}</td>
-                                                                <td>{History.Comments}</td>
-                                                                <td>{History.StatusText}</td>
-                                                            </tr>
-                                                        ))
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </div>
+
+                                        <ApprovalHistory data={approvalHistory} columns={approverHistoryColumn} />
                                         {/* {isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <TestGrid columns={listItemsHeaders} data={listItems} setData={setListItems} />} */}
                                     </div>
                                 </div>

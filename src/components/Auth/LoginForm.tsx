@@ -1,39 +1,80 @@
-import { useContext, useRef, useState } from "react"
-import { axiosPost, useAxiosGet } from "../../helpers/Axios"
+import { useContext, useEffect, useRef, useState } from "react"
+import { axiosPost } from "../../helpers/Axios"
 import { toastAlert } from "../../Function/toast"
 import { AuthContext } from "../../router/Router"
 import { useNavigate } from "react-router-dom"
 import { useMsal } from "@azure/msal-react"
 import { loginRequest } from "../../authConfig"
+import { SweetAlert } from "../../Function/alert"
+import { error } from "console"
 
 export const LoginForm = () => {
 
 
-    const { instance, accounts } = useMsal()
+    const { instance } = useMsal()
     const CurrentRole = useContext(AuthContext)
     const navigation = useNavigate()
-    const axiosGetWithToken = useAxiosGet()
 
+
+    useEffect(() => {
+        instance.loginPopup(loginRequest)
+            .then((value) => {
+                signinWithSSO(value.account?.username)
+            })
+            .catch(e => {
+                console.log(e);
+            });
+
+        return () => { }
+    }, [])
 
     const handleLogin = (e) => {
         e.preventDefault()
-        instance.loginPopup(loginRequest).catch(e => {
-            console.log(e);
-        });
-        axiosGetWithToken('/Invoice').then(res => {
-            console.log('with Token', res.data)
-        })
+        instance.loginPopup(loginRequest)
+            .then((value) => {
+                signinWithSSO(value.account?.username)
+            })
+            .catch(e => {
+                console.log(e);
+            });
     }
+
 
 
     const userNameRef = useRef<HTMLInputElement>(null)
     const passwordRef = useRef<HTMLInputElement>(null)
     const [isLoading, setLoading] = useState<boolean>(false)
 
+    const signinWithSSO = (userName) => {
+        setLoading(true)
+        axiosPost('/Auth', {
+            UserName: userName,
+            Password: '',
+            IsSSO: true
+        })
+            .then(res => {
+                if (res.data.Status) {
+                    localStorage.setItem('user', JSON.stringify(res.data))
+                    CurrentRole?.authSetMethod(res.data)
+                    console.log(res.data)
+                    navigation('/Roles')
+                } else {
+                    // toastAlert('error', res.data.Message)
+                    SweetAlert({
+                        icon: 'error',
+                        title: res.data.Message,
+                        titleText: res.data.Message
+                    })
+                }
+            })
+            .catch(err => toastAlert('error', err.toString()))
+            .finally(() => setLoading(false))
+    }
+
     const submitHandler = (e) => {
         e.preventDefault()
         setLoading(true)
-        axiosPost('/Auth', { userName: userNameRef.current?.value, password: passwordRef.current?.value, domain: '' })
+        axiosPost('/Auth', { userName: userNameRef.current?.value, password: passwordRef.current?.value, IsSSO: false })
             .then(res => {
                 CurrentRole?.authSetMethod(res.data)
                 localStorage.setItem('user', JSON.stringify(res.data))
@@ -41,10 +82,19 @@ export const LoginForm = () => {
                     if (res.data.User.Roles && res.data.User.Roles.filter(role => role.IsActive).length > 0) {
                         navigation('/Roles')
                     } else {
-                        toastAlert('error', 'Permission denied !!')
+                        SweetAlert({
+                            icon: 'error',
+                            title: 'Permission denied !!',
+                            titleText: res.data.Message
+                        })
+                        // toastAlert('error', 'Permission denied !!')
                     }
                 } else {
-                    toastAlert('error', res.data.Message)
+                    SweetAlert({
+                        icon: 'error',
+                        titleText: res.data.Message
+                    })
+                    // toastAlert('error', res.data.Message)
                 }
                 setLoading(false)
             })
@@ -125,7 +175,10 @@ export const LoginForm = () => {
                         </div>
                     </div>
                     <div className='d-flex justify-content-around'>
-                        <button className="btn btn-light-primary btn-sm w-100">SIgn In</button>
+                        <button
+                            className="btn btn-light-primary btn-sm w-100"
+                            onClick={signinWithSSO}
+                        >{isLoading ? <>Please wait... <span className='spinner-border spinner-border-sm align-middle ms-2'></span></> : 'Sign In'}</button>
                     </div>
                 </div>
             </>
@@ -134,7 +187,7 @@ export const LoginForm = () => {
 
     return (
         <div>
-            {accounts && accounts.length > 0 ? <AuthUserTemplate account={accounts[0]} /> : <LoginTemplate />}
+            <LoginTemplate />
         </div>
     )
 }

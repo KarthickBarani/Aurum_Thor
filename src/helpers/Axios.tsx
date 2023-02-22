@@ -1,8 +1,11 @@
 import axios from 'axios';
 import { axiosInstance } from './AxiosInstance';
 import { useMsal } from '@azure/msal-react';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { loginRequest } from '../authConfig';
+import { AuthContext } from '../router/Router';
+
+
 export const AxiosInsert = async (url: string, body: any): Promise<any> => {
   let response: any;
   response = await axiosInstance.post(url, body, {
@@ -50,13 +53,13 @@ export const useAxiosGet = () => {
     };
 
     // Silently acquires an access token which is then attached to a request for Microsoft Graph data
-    instance.acquireTokenSilent(request).then((response) => {
-      setAccessToken(response.accessToken);
-    }).catch((e) => {
-      instance.acquireTokenPopup(request).then((response) => {
-        setAccessToken(response.accessToken);
-      });
-    });
+    // instance.acquireTokenSilent(request).then((response) => {
+    //   setAccessToken(response.accessToken);
+    // }).catch((e) => {
+    //   instance.acquireTokenPopup(request).then((response) => {
+    //     setAccessToken(response.accessToken);
+    //   });
+    // });
   }, [accounts])
 
   const config = {
@@ -73,13 +76,69 @@ export const useAxiosGet = () => {
 
 
 }
-const config = {
-  headers: {
-    ContentType: 'application/json',
-  },
+
+
+
+export const axiosGet = (url: string) => {
+
+  const accessToken = JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.AccessToken
+
+  const config = {
+    headers: {
+      ContentType: 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    },
+  }
+  console.log('check', config)
+  return axios.get(baseUrl + url, config)
 }
-export const axiosGet = (url: string) => axios.get(baseUrl + url, config)
-export const axiosPost = (url: string, data: any) => axios.post(baseUrl + url, data, config)
-export const axiosPatch = (url: string, data: any) => axios.patch(baseUrl + url, data, config)
-export const axiosPut = (url: string, data: any) => axios.put(baseUrl + url, data, config)
-export const axiosDelete = (url: string) => axios.delete(baseUrl + url, config)
+
+export const axiosPost = (url: string, data: any) => {
+  const accessToken = JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.AccessToken
+
+  const config = {
+    headers: {
+      ContentType: 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    },
+  }
+  return axios.post(baseUrl + url, data, config)
+}
+export const axiosPatch = (url: string, data: any) => {
+  const accessToken = JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.AccessToken
+
+  const config = {
+    headers: {
+      ContentType: 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    },
+  }
+  return axios.patch(baseUrl + url, data, config)
+}
+
+export const axiosPut = (url: string, data: any) => {
+  const accessToken = JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.AccessToken
+
+  const config = {
+    headers: {
+      ContentType: 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    },
+  }
+  return axios.put(baseUrl + url, data, config)
+}
+
+export const axiosDelete = (url: string) => {
+  const accessToken = JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.AccessToken
+
+  const config = {
+    headers: {
+      ContentType: 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    },
+  }
+  return axios.delete(baseUrl + url, config)
+}
+
+
+

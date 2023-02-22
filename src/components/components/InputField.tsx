@@ -1,4 +1,4 @@
-import { ReactElement } from "react"
+import { ReactElement, RefObject } from "react"
 import InputMask from 'react-input-mask'
 
 
@@ -15,7 +15,7 @@ export const InputTextField = (props: {
     id: string
     type: string
     className: string
-    value: number | string | undefined
+    value?: number | string | undefined
     onChange?: React.ChangeEventHandler<HTMLInputElement>
     onBlur?: React.FocusEventHandler<HTMLInputElement>
     readOnly?: boolean
@@ -24,7 +24,7 @@ export const InputTextField = (props: {
     formError?: any
     required?: boolean
     disabled?: boolean
-    ref?: any
+    ref?: RefObject<HTMLInputElement>
     temp?: any
 }) => {
     return (

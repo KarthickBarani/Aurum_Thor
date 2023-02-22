@@ -6,6 +6,7 @@ import { InputTextField } from "../components/InputField"
 import { PermissionContext } from "../../router/Router"
 import { UpArrowSvg } from "../Svg/Svg"
 import { toastAlert } from "../../Function/toast"
+import { SweetAlert } from "../../Function/alert"
 
 
 export type RoleDataType = {
@@ -139,11 +140,19 @@ export const RoleForm = ({ RoleId, setModalIsOpen, setRefetch }: { RoleId: numbe
         if (roleData.RoleId === 0) {
             axiosPost("/Role", { ...roleData, Name: value, Description: value2, Permission: FinalPermission })
                 .then(res => {
-                    toastAlert('success', res.statusText)
+                    SweetAlert({
+                        icon: 'success',
+                        titleText: res.statusText
+                    })
+                    // toastAlert('success', res.statusText)
                     console.log({ ...roleData, Name: value, Description: value2, Permission: FinalPermission })
                 })
                 .catch(err => {
-                    toastAlert('error', err.toString())
+                    SweetAlert({
+                        icon: 'error',
+                        titleText: err.toString()
+                    })
+                    // toastAlert('error', err.toString())
                     console.log({ ...roleData, Name: value, Description: value2, Permission: FinalPermission })
                 })
                 .finally(() => {
@@ -154,9 +163,19 @@ export const RoleForm = ({ RoleId, setModalIsOpen, setRefetch }: { RoleId: numbe
         } else {
             axiosPut("/Role", { ...roleData, Name: value, Description: value2, Permission: FinalPermission })
                 .then(res => {
-                    toastAlert('success', res.statusText)
+                    SweetAlert({
+                        icon: 'success',
+                        titleText: res.statusText
+                    })
+                    // toastAlert('success', res.statusText)
                 })
-                .catch(err => toastAlert('error', err.toString()))
+                .catch(err => {
+                    SweetAlert({
+                        icon: 'error',
+                        titleText: err.toString()
+                    })
+                    // toastAlert('error', err.toString())
+                })
                 .finally(() => {
                     CurrentPermission?.permissionSetMethod({ ...roleData, Name: value, Description: value2, Permission: FinalPermission })
                     setModalIsOpen(false)

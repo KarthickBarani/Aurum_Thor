@@ -5,9 +5,11 @@ import axios from "axios"
 import { axiosGet } from "../helpers/Axios"
 import { invDetailsType } from "../components/Interface/Interface"
 import { ViewSvg } from "../components/Svg/Svg"
+import { useNavigate } from "react-router-dom"
 
 export const Invoice = () => {
 
+    const navigation = useNavigate()
     const [invoices, setInvoices] = useState<invDetailsType[]>([])
 
     const columns = [
@@ -42,15 +44,15 @@ export const Invoice = () => {
                 return (
                     <>
                         <div className="d-flex gap-2">
-                            {/* <ViewSvg
+                            <ViewSvg
                                 role='button'
                                 title={'Detail View'}
                                 clsName='svg-icon svg-icon-primary svg-icon-1'
-                                // function={() => {
-                                //     props.setInvNumber(row.values.InvoiceId)
-                                //     return navigation('/InvoiceDetail')
-                                // }} />
-                            {
+                                function={() => {
+                                    // props.setInvNumber(row.values.InvoiceId)
+                                    return navigation('/InvoiceDetail')
+                                }} />
+                            {/* {
                                 row.original.ErrorList.length > 0
                                     ?
                                     <ErrorSvg role={'button'} title={row.original.ErrorList.length > 0 ? row.original.ErrorList[0] : 'Error code not found'} clsName='svg-icon svg-icon-danger svg-icon-1' />

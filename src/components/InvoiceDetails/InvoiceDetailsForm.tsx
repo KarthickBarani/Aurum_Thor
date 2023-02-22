@@ -1,6 +1,6 @@
 
 import { useContext, useEffect, useState } from "react"
-import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, expensesType, ApprovalHistory } from '../Interface/Interface'
+import { invDetailsType, vendors, departments, locations, subsidiary, userProfileType, NextApprovers, expensesType, ApprovalHistoryProps } from '../Interface/Interface'
 import moment from "moment"
 import axios from "axios"
 import { SweetAlertIcon } from "sweetalert2"
@@ -30,8 +30,7 @@ export const InvoiceDetailsForm = (props:
         formError: any
         setFormError: Function
         setValid: Function
-        refetch: Function
-        approvalHistory: ApprovalHistory[]
+        approvalHistory: ApprovalHistoryProps[]
     }
 ) => {
 
@@ -76,7 +75,6 @@ export const InvoiceDetailsForm = (props:
                         title: Action,
                     })
                     navigation('/Home')
-                    props.refetch()
                 } else {
                     SweetAlert({
                         title: `<h1>${res.data.Message}</h1>`,
@@ -596,13 +594,13 @@ export const InvoiceDetailsForm = (props:
                                     label='Comments'
                                     id="Comments"
                                     name="Comments"
-                                    className={formInput + ` ${false ? '' : 'form-control-transparent'}`}
+                                    className={formInput + ` ${true ? '' : 'form-control-transparent'}`}
                                     value={comment}
                                     onChange={e => setComment(e.target.value)}
                                     onBlur={blurHandler}
                                     formError={commentError}
-                                    readOnly={true}
-                                    disabled={true}
+                                    readOnly={false}
+                                    disabled={false}
                                 />
                             </div>
                         </div>

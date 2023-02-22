@@ -1,18 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-
 import { Navbar } from '../components/components/Navbar';
 import { Home } from '../pages/Home';
 import { InvoiceDetail } from '../pages/InvoiceDetail';
 import { Login } from '../pages/Login';
-import { RegisterComp } from '../components/Auth/RegisterComp';
 import { UserManagement } from '../pages/UserManagement';
-
 import { Settings } from '../pages/Settings';
 import { WorkFlow } from '../pages/WorkFlow';
-import axios from 'axios';
 import { InvoiceDetailsTable } from '../pages/InvoiceDetailsTable';
-import { useQuery, useQueryClient } from 'react-query';
 import { vendors, departments, locations, subsidiary, account, AuthUser, userProfileType } from '../components/Interface/Interface'
 import { Inbox } from '../pages/Inbox';
 import { ProtectRoutes } from '../components/Auth/ProtectRoutes';
@@ -58,7 +53,6 @@ export const Router = () => {
 
 
   const [invNumber, setInvNumber] = useState<number>(0)
-  // const [authUser, setAuthUser] = useState<AuthUser>(JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user')))))
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser)
   const [users, setUsers] = useState<userProfileType[]>([] as userProfileType[])
   const [vendors, setVendor] = useState<vendors[]>([] as vendors[])
@@ -66,7 +60,6 @@ export const Router = () => {
   const [locations, setLocation] = useState<locations>([] as locations)
   const [subsidiaries, setSubsidiaries] = useState<subsidiary>([] as subsidiary)
   const [account, setAccount] = useState<account>([] as account)
-  const [refetchInterval, setRefetchInterval] = useState<number>(0)
   const [permission, setPermission] = useState<any>(null)
 
   const authSetMethod = useCallback(data => {
@@ -87,9 +80,7 @@ export const Router = () => {
     permissionSetMethod
   }), [permission, permissionSetMethod])
 
-  const fetchTableData = () => {
-    return axiosGet('/Invoice')
-  }
+
 
   useEffect(() => {
     axiosGet('/vendor')
@@ -115,8 +106,6 @@ export const Router = () => {
 
 
 
-  const { isLoading, data, isError, refetch } = useQuery('tableData', fetchTableData, { refetchOnWindowFocus: true, refetchInterval })
-
 
   return (<>
     <PermissionContext.Provider value={Permision}>
@@ -135,59 +124,53 @@ export const Router = () => {
             <Route path='Roles' element={<AssignRoles User={authUser?.User} />} />
           </Route>
           <Route path='Home' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
-              <Home setInvNumber={setInvNumber} isLoading={isLoading} data={data?.data} userId={authUser?.User?.Id} isError={isError} setRefetchInterval={setRefetchInterval} />
+            <ProtectRoutes>
+              <Home setInvNumber={setInvNumber} userId={authUser?.User?.Id} />
             </ProtectRoutes>
           } />
           <Route path='Approval' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <ProtectRoutes>
               <InvoiceDetailsTable userId={authUser?.User?.Id} setInvNumber={setInvNumber} />
             </ProtectRoutes>
           }
           />
           <Route path='InvoiceDetail' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status} >
-              <InvoiceDetail refetch={refetch} users={users} userid={authUser?.User?.Id} invNumber={invNumber} vendors={vendors}
+            <ProtectRoutes >
+              <InvoiceDetail users={users} userid={authUser?.User?.Id} invNumber={invNumber} vendors={vendors}
                 departments={departments} locations={locations} subsidiary={subsidiaries} account={account} />
             </ProtectRoutes>
           }
           />
-          <Route path='Register' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
-              <RegisterComp />
-            </ProtectRoutes>
-          }
-          />
           <Route path='UserManagement' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <ProtectRoutes>
               <AuthContext.Provider value={Auth}>
                 <UserManagement />
               </AuthContext.Provider>
             </ProtectRoutes>
           } />
           <Route path='Invoice' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <ProtectRoutes>
               <Invoice />
             </ProtectRoutes>
           } />
           <Route path='Inbox' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <ProtectRoutes>
               <Inbox />
             </ProtectRoutes>
           } />
           <Route path='Vendor' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <ProtectRoutes>
               <Vendor />
             </ProtectRoutes>
           } />
           <Route path='Settings' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <ProtectRoutes>
               <Settings />
             </ProtectRoutes>
           }
           />
           <Route path='WorkFlow' element={
-            <ProtectRoutes user={JSON.parse(JSON.parse(JSON.stringify(localStorage.getItem('user'))))?.Status}>
+            <ProtectRoutes>
               <WorkFlow vendors={vendors} departments={departments} locations={locations} account={account} />
             </ProtectRoutes>
           } />
