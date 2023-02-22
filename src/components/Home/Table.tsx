@@ -3,10 +3,11 @@ import { invDetailsType } from '../Interface/Interface'
 import { TableGrid } from '../Home/TableGrid'
 import { TableFilter } from '../Home/TableFilter'
 import { useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { ErrorSvg, ViewSvg } from '../Svg/Svg'
-import axios from 'axios'
 import { axiosPost } from '../../helpers/Axios'
+import { PermissionContext } from '../../router/Router'
+
 
 
 
@@ -23,6 +24,8 @@ export const Table = (props:
         index: number
         header: string
     }
+
+    const CurrentPermission = useContext(PermissionContext)
 
     const [afterDragElement, setAfterDragElement] = useState<afterDragElementProps[]>([] as afterDragElementProps[])
     const defaultColumns = [
@@ -63,7 +66,7 @@ export const Table = (props:
                                 clsName='svg-icon svg-icon-primary svg-icon-1'
                                 function={() => {
                                     props.setInvNumber(row.values.InvoiceId)
-                                    setTimeout(() => navigation('/InvoiceDetail'))
+                                    return navigation('/InvoiceDetail')
                                 }} />
                             {
                                 row.original.ErrorList.length > 0

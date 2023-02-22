@@ -32,6 +32,7 @@ export const AddField = (props: {
 
   const addField = (e) => {
     e.preventDefault();
+    console.log([...labels, label])
     setLabels([...labels, label]);
   };
 
@@ -48,7 +49,7 @@ export const AddField = (props: {
       Settings: '',
     },
 
-    onSubmit: (values) => {},
+    onSubmit: (values) => { },
   });
   return (
     <>

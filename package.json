@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@azure/msal-browser": "^2.32.2",
+    "@azure/msal-common": "^9.1.1",
+    "@azure/msal-react": "^1.5.2",
     "@react-pdf-viewer/core": "^3.0.0",
     "@react-pdf-viewer/default-layout": "^3.0.0",
     "@shopify/draggable": "^1.0.0-beta.8",

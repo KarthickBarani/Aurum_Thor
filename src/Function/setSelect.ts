@@ -1,7 +1,6 @@
-export const setIsSelectProperty = (array) => {
-    const finalArray: any[] = []
-    for (let i = 0; i < array.length; i++) {
-        finalArray.push({ ...array[i], isSelect: false })
+export const setIsSelectProperty = (array: any[]) => {
+    if (array && array.length > 0) {
+        return array.map(el => ({ ...el, isSelect: false }))
     }
-    return finalArray
+    return []
 }

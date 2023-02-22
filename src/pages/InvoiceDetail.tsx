@@ -1,11 +1,11 @@
 
 import axios from "axios"
-import React, { useMemo } from "react"
+import React, { useContext, useMemo } from "react"
 import { useEffect, useState } from "react"
 import { Error } from "../components/components/Error"
 import { PdfViewer } from "../components/components/PdfViewer"
 import { Loading } from "../components/components/Loading"
-import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, ApprovalHistory, userProfileType, NextApprovers, WorkFlowTableType } from '../components/Interface/Interface'
+import { lineItemsType, expensesType, invDetailsType, vendors, departments, locations, subsidiary, account, userProfileType, NextApprovers, WorkFlowTableType, ApprovalHistoryProps } from '../components/Interface/Interface'
 import { SweetAlert } from "../Function/alert"
 import { axiosGet, AxiosGet, AxiosInsert, axiosPost } from "../helpers/Axios"
 import { LevelElement } from "../components/WorkFlow/LevelElement"
@@ -13,6 +13,8 @@ import { LineItems } from "../components/InvoiceDetails/LineItems"
 import { InvoiceDetailsForm } from "../components/InvoiceDetails/InvoiceDetailsForm"
 import { AddSvg, ErrorSvg, SaveSvg } from "../components/Svg/Svg"
 import { ActionButtonsProps, columnProps, TableActionComponent, TableGridComponent, TestGrid } from "../components/components/TableComponent"
+import { PermissionContext } from "../router/Router"
+import { ApprovalHistory } from "../components/InvoiceDetails/ApprovalHistory"
 
 
 
@@ -28,10 +30,10 @@ export const InvoiceDetail = (props: {
     subsidiary: subsidiary
     userid: number
     account: account
-    refetch: Function
 }) => {
 
 
+    const CurrentPermission = useContext(PermissionContext)
 
     const [init, set] = useState(true)
     const [process, setProcess] = useState(false)
@@ -43,7 +45,7 @@ export const InvoiceDetail = (props: {
     const [invDetails, setInvDetails] = useState<invDetailsType>({} as invDetailsType)
     const [listItems, setListItems] = useState<lineItemsType[]>([] as lineItemsType[])
     const [expenses, setExpenses] = useState<expensesType[]>([] as expensesType[])
-    const [approvalHistory, setApprovalHistory] = useState<ApprovalHistory[]>([])
+    const [approvalHistory, setApprovalHistory] = useState<ApprovalHistoryProps[]>([])
     const [workFlow, setWorkFlow] = useState<WorkFlowTableType>({} as WorkFlowTableType)
     // const [exSubtotal, setExSubtotal] = useState<number>(0)
     // const [POSubtotal, setPOSubtotal] = useState<number>(0)
@@ -110,259 +112,6 @@ export const InvoiceDetail = (props: {
     }
 
     const [lineItemsToggle, setLineItemsToggle] = useState<'Expense' | 'LineItems'>('Expense')
-    const [afterDragElement, setAfterDragElement] = useState<any>([])
-
-
-    const changeHandler = (e, targetArray, targetfunction) => {
-        const index = e.target.id
-        const key = e.target.name
-        const type = e.target.type
-        const array = [...targetArray]
-        if (type === 'number')
-            array[index][key] = e.target.valueAsNumber
-        else
-            array[index][key] = e.target.value
-        targetfunction(array)
-    }
-
-    // const expensesOption: ActionButtonsProps[] = [
-    //     {
-    //         buttonText: <AddSvg clsName="svg-icon svg-icon-3 svg-icon-primary" />,
-    //         buttonClass: 'btn btn-sm btn-icon btn-active-light-primary',
-    //         onClick: () => console.log('add button')
-    //     }
-    // ]
-
-    // const expensesHeaders = useMemo<columnProps>(() => [
-    //     {
-    //         id: 1,
-    //         header: 'Account',
-    //         accessor: 'Account',
-    //         className: 'min-w-150px dragEl',
-    //         sortable: true,
-    //         select: {
-    //             array: [...props.account],
-    //             id: 'AccountId',
-    //             Name: 'AccountName',
-    //             onChange: (e) => {
-    //                 const index = e.target.id
-    //                 const key = e.target.name
-    //                 const array = [...expenses]
-    //                 array[index][key] = e.target.value
-    //                 setExpenses(array)
-    //             }
-    //         }
-    //         // draggable: true,
-    //         // hidden: false,
-
-    //     },
-    //     {
-    //         id: 2,
-    //         header: 'Amount',
-    //         accessor: 'Amount',
-    //         cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
-    //         className: 'min-w-150px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'number',
-    //                 onChange: e => changeHandler(e, expenses, setExpenses)
-    //             }
-    //         },
-    //         // draggable: true,
-    //         // hidden: false,
-    //         // footer: (data: expensesType[]) => {
-    //         //     return `$ ${data.reduce((prev: number, current) => {
-    //         //         return prev + Number(current?.Amount)
-    //         //     }, 0).toFixed(2)}`
-    //         // }
-    //     },
-    //     {
-    //         id: 3,
-    //         header: 'Memo',
-    //         accessor: 'Memo',
-    //         className: 'min-w-400px dragEl',
-    //         input: {
-    //             type: 'text'
-    //         },
-    //         // draggable: true,
-    //         // hidden: false
-    //     },
-    //     {
-    //         id: 4,
-    //         header: 'Department',
-    //         accessor: 'Department',
-    //         className: 'min-w-150px dragEl',
-    //         select: {
-    //             array: [...props.departments],
-    //             id: 'DepartmentId',
-    //             Name: 'DepartmentName',
-    //             onChange: e => changeHandler(e, expenses, setExpenses)
-
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 5,
-    //         header: 'Location',
-    //         accessor: 'LocationId',
-    //         className: 'min-w-150px dragEl',
-    //         select: {
-    //             array: [...props.locations],
-    //             id: 'LocationId',
-    //             Name: 'Location',
-    //             onChange: e => changeHandler(e, expenses, setExpenses)
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     }
-    // ], [expenses])
-
-    // const listItemsHeaders = useMemo<columnProps>(() => [
-    //     {
-    //         id: 1,
-    //         header: 'Inv Qty',
-    //         accessor: 'Quantity',
-    //         className: 'min-w-100px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'Number',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 2,
-    //         header: 'PO Qty',
-    //         accessor: 'POQuantity',
-    //         className: 'min-w-100px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'Number',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 3,
-    //         header: 'Item',
-    //         accessor: 'POItem',
-    //         className: 'min-w-150px dragEl',
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 4,
-    //         header: 'Vendor part#',
-    //         accessor: 'PartNumber',
-    //         className: 'min-w-150px dragEl',
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 5,
-    //         header: 'Description',
-    //         accessor: 'Description',
-    //         className: 'min-w-300px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'text',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 6,
-    //         header: 'Department',
-    //         accessor: 'Department',
-    //         className: 'min-w-150px dragEl',
-    //         select: {
-    //             array: props.departments,
-    //             id: 'DepartmentId',
-    //             Name: 'DepartmentName',
-    //             onChange: (e) => changeHandler(e, listItems, setListItems)
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 7,
-    //         header: 'Location',
-    //         accessor: 'LocationId',
-    //         className: 'min-w-150px dragEl',
-    //         select: {
-    //             array: props.locations,
-    //             id: 'LocationId',
-    //             Name: 'Location',
-    //             onChange: (e) => changeHandler(e, listItems, setListItems)
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 8,
-    //         header: 'Inv Rate',
-    //         accessor: 'UnitPrice',
-    //         className: 'min-w-150px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'Number',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 9,
-    //         header: 'PO Rate',
-    //         accessor: 'POUnitPrice',
-    //         className: 'min-w-150px dragEl',
-    //         isEdit: {
-    //             input: {
-    //                 type: 'Number',
-    //                 onChange: e => changeHandler(e, listItems, setListItems)
-    //             }
-    //         },
-    //         draggable: true,
-    //         hidden: false
-    //     },
-    //     {
-    //         id: 10,
-    //         header: 'Inv Amount',
-    //         accessor: 'Amount',
-    //         cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
-    //         className: 'min-w-150px dragEl',
-    //         draggable: true,
-    //         hidden: false,
-    //         // footer: (data: any[]) => {
-    //         //     return `$ ${data.reduce((prev: number, current) => {
-    //         //         return prev + Number(current?.Amount)
-    //         //     }, 0).toFixed(2)}`
-    //         // }
-    //     },
-    //     {
-    //         id: 11,
-    //         header: 'PO Amount',
-    //         accessor: 'POAmount',
-    //         cell: (data) => '$ ' + Number(data?.POAmount).toFixed(2),
-    //         className: 'min-w-150px dragEl',
-    //         draggable: true,
-    //         hidden: false,
-    //         // footer: (data: any[]) => {
-    //         //     return `$ ${data.reduce((prev: number, current) => {
-    //         //         return prev + Number(current?.POAmount)
-    //         //     }, 0).toFixed(2)}`
-    //         // }
-    //     }
-    // ], [listItems])
-
 
     const [expensesHeaders, setExpensesHeaders] = useState([
         {
@@ -452,6 +201,7 @@ export const InvoiceDetail = (props: {
             headerName: 'PO Qty',
             accessor: 'POQuantity',
             className: 'min-w-100px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -460,6 +210,7 @@ export const InvoiceDetail = (props: {
             headerName: 'Avail Qty To Bill',
             accessor: 'POQuantityAvailable',
             className: 'min-w-200px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -468,6 +219,7 @@ export const InvoiceDetail = (props: {
             headerName: 'Item',
             accessor: 'POItem',
             className: 'min-w-150px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -476,6 +228,7 @@ export const InvoiceDetail = (props: {
             headerName: 'Vendor part#',
             accessor: 'PartNumber',
             className: 'min-w-150px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -499,6 +252,7 @@ export const InvoiceDetail = (props: {
                 srcId: 'DepartmentId',
                 srcName: 'DepartmentName'
             },
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -512,6 +266,7 @@ export const InvoiceDetail = (props: {
                 srcId: 'LocationId',
                 srcName: 'Location'
             },
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -530,6 +285,7 @@ export const InvoiceDetail = (props: {
             headerName: 'PO Rate',
             accessor: 'POUnitPrice',
             className: 'min-w-150px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false
         },
@@ -539,6 +295,7 @@ export const InvoiceDetail = (props: {
             accessor: 'Amount',
             cell: (data) => '$ ' + Number(data?.Amount).toFixed(2),
             className: 'min-w-150px dragEl',
+            isEdit: true,
             draggable: true,
             hidden: false,
             footer: (data: any[]) => {
@@ -554,6 +311,7 @@ export const InvoiceDetail = (props: {
             cell: (data) => '$ ' + Number(data?.POAmount).toFixed(2),
             className: 'min-w-150px dragEl',
             draggable: true,
+            isEdit: true,
             hidden: false,
             footer: (data: any[]) => {
                 return `$ ${data.reduce((prev: number, current) => {
@@ -563,7 +321,7 @@ export const InvoiceDetail = (props: {
         }
     ])
 
-    const [approverHistoryColumn, setApprovalHistoryColumn] = useState<columnProps>([
+    const approverHistoryColumn = useMemo<columnProps>(() => [
         {
             id: 1,
             header: 'Approver',
@@ -599,7 +357,7 @@ export const InvoiceDetail = (props: {
             draggable: true,
             hidden: false
         }
-    ])
+    ], [])
 
     useEffect(() => {
         setValid(validation)
@@ -630,35 +388,37 @@ export const InvoiceDetail = (props: {
 
     const save = () => {
         console.log(invDetails)
-        if (invDetails.TotalAmount !== (invDetails.TaxTotal + expensesSubtotal + poSubtotal)) {
-            return SweetAlert({
-                title: 'Invoice Error',
-                icon: 'info',
-                text: 'Invoice Amount must be equal to the sum of Expenses Amount, PO Amount, Tax Amount'
-            })
-        }
-        setProcess(true)
-        axiosPost(`/Invoice`, invDetails)
-            .then(res => {
-                console.log(invDetails)
-                console.log('Response:', res.data)
-                setProcess(false)
-                SweetAlert({
-                    title: 'Saved',
-                    text: 'Your changes has been saved.',
-                    icon: 'success'
-                })
-            })
-            .catch(err => {
-                console.log('Error:', err)
-                setProcess(false)
-                SweetAlert({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong!',
-                })
-            })
+        // if (invDetails.TotalAmount !== (invDetails.TaxTotal + expensesSubtotal + poSubtotal)) {
+        //     return SweetAlert({
+        //         title: 'Invoice Error',
+        //         icon: 'info',
+        //         text: 'Invoice Amount must be equal to the sum of Expenses Amount, PO Amount, Tax Amount'
+        //     })
+        // }
+        // setProcess(true)
+        // axiosPost(`/Invoice`, invDetails)
+        //     .then(res => {
+        //         console.log(invDetails)
+        //         console.log('Response:', res.data)
+        //         setProcess(false)
+        //         SweetAlert({
+        //             title: 'Saved',
+        //             text: 'Your changes has been saved.',
+        //             icon: 'success'
+        //         })
+        //     })
+        //     .catch(err => {
+        //         console.log('Error:', err)
+        //         setProcess(false)
+        //         SweetAlert({
+        //             icon: 'error',
+        //             title: 'Oops...',
+        //             text: 'Something went wrong!',
+        //         })
+        //     })
     }
+
+
 
     const pdfToggle = init ? 'Hide Invoice' : 'Show Invoice'
     const collapseClass = init ? 'col-6' : 'col-12'
@@ -684,7 +444,7 @@ export const InvoiceDetail = (props: {
                             </div>
                             <div className="card-body">
                                 {isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <InvoiceDetailsForm users={props.users} nextApprovers={nextApprovers} invNumber={props.invNumber} userid={props.userid} invDetails={invDetails} setInvDetails={setInvDetails} POSubtotal={poSubtotal} exSubtotal={expensesSubtotal} vendors={props.vendors}
-                                    departments={props.departments} locations={props.locations} subsidiaries={props.subsidiary} formError={formError} setFormError={setFormError} setValid={setValid} refetch={props.refetch} approvalHistory={approvalHistory} />}
+                                    departments={props.departments} locations={props.locations} subsidiaries={props.subsidiary} formError={formError} setFormError={setFormError} setValid={setValid} approvalHistory={approvalHistory} />}
                             </div>
                         </div>
                     </div >
@@ -710,7 +470,7 @@ export const InvoiceDetail = (props: {
                                         </div>
                                     </div>
                                     <div className={`col-12 col-xl-6 ${!init ? 'w-xl-100' : ''}`}>
-                                        <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6 ">
+                                        <ul className="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-3 fs-6 ">
                                             <li className="nav-item">
                                                 <a className={`nav-link ${lineItemsToggle === 'Expense' ? 'active' : ''}`} role="button" onClick={() => setLineItemsToggle('Expense')} data-bs-toggle="tab"
                                                     href="#expensesTab">
@@ -752,30 +512,8 @@ export const InvoiceDetail = (props: {
                                                 <p className="fw-bolder fs-4">Approval History</p>
                                             </div>
                                         </div>
-                                        <div className="table-responsive">
-                                            <table className="table table-striped gy-3 gs-5 table-hover">
-                                                <thead >
-                                                    <tr className="fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200">
-                                                        <th>Approver</th>
-                                                        <th>Date Time</th>
-                                                        <th>Comments</th>
-                                                        <th>Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {
-                                                        approvalHistory?.map((History, index) => (
-                                                            <tr key={index} >
-                                                                <td>{History.ApproverName}</td>
-                                                                <td>{History.ActionOn}</td>
-                                                                <td>{History.Comments}</td>
-                                                                <td>{History.StatusText}</td>
-                                                            </tr>
-                                                        ))
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </div>
+
+                                        <ApprovalHistory data={approvalHistory} columns={approverHistoryColumn} />
                                         {/* {isLoading ? <Loading /> : isError ? <Error path={'/Home'} /> : <TestGrid columns={listItemsHeaders} data={listItems} setData={setListItems} />} */}
                                     </div>
                                 </div>

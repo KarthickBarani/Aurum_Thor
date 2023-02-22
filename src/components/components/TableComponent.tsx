@@ -1,11 +1,8 @@
 import axios from "axios"
 import React, { ReactElement, useEffect, useState } from "react"
-import { createNoSubstitutionTemplateLiteral } from "typescript"
-import { array } from "yup"
 import { SweetAlert } from "../../Function/alert"
 import { setIsSelectProperty } from "../../Function/setSelect"
 import { useDragAndDrop } from "../../Hook/useDragAndDrop"
-import { expensesType } from "../Interface/Interface"
 import { DownArrowSvg, RemoveSvg, UpArrowSvg } from "../Svg/Svg"
 import tableStyle from "./TableComponent.module.css"
 
@@ -22,7 +19,7 @@ export type columnProps = {
     id: string | number
     header: string | HTMLElement
     accessor: string
-    cell?: (data, index) => string | number | ReactElement
+    cell?: (data: any, index: number) => string | number | ReactElement
     className?: string
     draggable?: boolean | undefined
     sortable?: boolean | undefined
@@ -67,7 +64,6 @@ export const TestGrid = (props: {
     const isMasterCheck = (): boolean => {
         return currentData.every(data => data.isSelect === true)
     }
-
 
     const editHandler = (e, index: number) => {
         setCurrentEditElement(index + e.target.id)
@@ -138,6 +134,7 @@ export const TestGrid = (props: {
         })
         return sortArray
     }
+
     return (
         <div className="table-responsive hover-scroll-overlay-y">
             <table className="table table-hover gy-3 gs-7 table-rounded hover-scroll-overlay-y">

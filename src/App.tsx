@@ -4,11 +4,14 @@ import { Toaster } from 'react-hot-toast';
 import { Root } from './router/Root';
 
 
+
+
+
 function App() {
 
   useEffect(() => {
-    return () => localStorage.clear()
-  })
+  }, [])
+
 
   return (
     <>
@@ -19,3 +22,4 @@ function App() {
 }
 
 export default App;
+

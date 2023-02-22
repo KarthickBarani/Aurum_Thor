@@ -10,10 +10,11 @@ import { RoleDataType, RoleForm } from '../components/UserManagement/RoleForm';
 // import { Modal, ModalContent, ModalHeader } from '../components/components/Model';
 import { Modal } from "react-bootstrap"
 import { axiosGet } from '../helpers/Axios';
-import { boolean } from 'yup';
-import { PermissionDetails } from '../components/UserManagement/PermissionDetails';
-import axios from 'axios';
-import { PermissionForm } from '../components/UserManagement/PermissionForm';
+import { UserDetails } from '../components/UserManagement/UserDetails';
+import { useFetch } from '../Hook/useFetch';
+import { Loading } from '../components/components/Loading';
+import { Error } from '../components/components/Error';
+
 
 type UserProfileData = {
   Id: String;
@@ -78,41 +79,28 @@ export const UserManagement = () => {
     Operations: []
   }
 
-  const [currentUserData, setCurrentUserData] = useState<UserProfile>(defalutUserData)
-  const [currentRoleData, setCurrentRoleData] = useState<RoleDataType>({} as RoleDataType)
-  const [toggleUserType, setToggleUserType] = useState<'View' | 'Add' | 'Update'>('View')
-  const [toggleRoleType, setToggleRoleType] = useState<'View' | 'Add' | 'Update'>('View')
-  const [toggleTabType, setToggleTabType] = useState<'User' | 'Role' | 'Permission'>('User')
+  const [currentUserId, setCurrentUserId] = useState<number>(0)
+  const [currentRoleId, setCurrentRoleId] = useState<number>(0)
+  const [toggleTabType, setToggleTabType] = useState<'User' | 'Role'>('User')
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false)
+  const [refetch, setRefetch] = useState<boolean>(false)
 
 
-  let today: string = `${new Date().getFullYear()}-${new Date().getMonth() + 1 < 10
-    ? `0${new Date().getMonth() + 1}`
-    : new Date().getMonth() + 1
-    }-${new Date().getDate() < 10
-      ? `0${new Date().getDate()}`
-      : new Date().getDate()
-    }`;
 
   const [userData, setUserData] = useState<UserProfile[]>([])
-  const [permissionData, setPermissionData] = useState([])
-  const [RoleData, setRoleData] = useState<RoleDataType[]>([] as RoleDataType[])
-  const [operation, setOperation] = useState(['Full Access', 'Add/Edit/Remove', 'API'])
+  const [roleData, setRoleData] = useState<any[]>([])
+
+  const { data, isLoading, isError } = useFetch('/UserProfile')
 
 
   useEffect(() => {
     axiosGet('/UserProfile')
       .then(res => setUserData(res.data))
       .catch(err => console.log(err))
-
-    // axiosGet('/Role/Operations')
-    // .then(res=>{
-    //   setRoleData()
-    // })  
-    axios.get('https://637b6a216f4024eac20cf00e.mockapi.io/api/v1/permission/permissions')
-      .then(res => setPermissionData(res.data))
+    axiosGet('/Role')
+      .then(res => setRoleData(res.data))
       .catch(err => console.log(err))
-  }, [toggleUserType])
+  }, [refetch])
 
 
   const userColumns: columnProps = [
@@ -125,7 +113,7 @@ export const UserManagement = () => {
         <div className="d-flex justify-content-center gap-2 ">
           <span role={'button'} >
             <ViewSvg role={'button'} clsName='svg-icon svg-icon-primary svg-icon-2' function={() => {
-              setCurrentUserData(data)
+              setCurrentUserId(data.Id)
               setModalIsOpen(true)
             }} />
           </span>
@@ -165,64 +153,9 @@ export const UserManagement = () => {
     },
   ]
 
-  // const RoleColumns: columnProps = [
-  //   {
-  //     id: 1,
-  //     header: 'Action',
-  //     accessor: 'Action',
-  //     cell: (data) => <ViewSvg clsName='svg-icon svg-icon-1 svg-icon-primary' function={() => {
-  //       setRoleId(data.RoleId)
-  //       setToggleRoleType('Update')
-  //     }} />
-  //   },
-  //   {
-  //     id: 2,
-  //     header: 'Role Name',
-  //     accessor: 'Name',
-  //   },
-  //   {
-  //     id: 3,
-  //     header: 'Description',
-  //     accessor: 'Description',
-  //   },
-  //   {
-  //     id: 4,
-  //     header: 'Status',
-  //     accessor: 'Status',
-  //     cell: (data: UserProfile) => (<span className={`badge badge-light-${data.Active ? 'success' : 'danger'}`}>{data.Active ? 'Active' : 'Inactive'}</span>),
-  //   }
-  // ]
+  // const { isLoading, isError, data } = useFetch(`/UserProfile`)
 
-  const PermissionColumns: columnProps = [
-    {
-      id: 1,
-      header: 'Action',
-      accessor: 'Action',
-      className: 'min-w-25px',
-      cell: (data) => (
-        <div className="d-flex justify-content-center gap-2 ">
-          <span role={'button'} >
-            <ViewSvg role={'button'} clsName='svg-icon svg-icon-primary svg-icon-2' function={() => {
-              setCurrentUserData(data)
-              setModalIsOpen(true)
-            }} />
-          </span>
-        </div>
-      ),
-    },
-    {
-      id: 3,
-      header: 'Role Name',
-      accessor: 'roleName'
-    },
-    {
-      id: 4,
-      header: 'Number of permission',
-      accessor: 'Number of permission',
-      cell: (data) => 5
-    }
-  ]
-
+  // console.log(isLoading, isError, data)
   return (
     <>
       <div className="container-fluid">
@@ -238,8 +171,8 @@ export const UserManagement = () => {
                 <h4 className="card-title">User Management</h4>
                 <div className="toolbar">
                   <button className="btn btn-sm btn-light-primary" onClick={() => {
-                    setCurrentUserData({} as UserProfile)
-                    setCurrentRoleData({} as RoleDataType)
+                    setCurrentUserId(0)
+                    setCurrentRoleId(0)
                     setModalIsOpen(true)
                   }}><AddSvg clsName='svg-icon svg-icon-3 svg-icon-primary ' />Add New</button>
                 </div>
@@ -276,24 +209,17 @@ export const UserManagement = () => {
                     <>
                       {
                         toggleTabType === 'User'
-                          ?
-                          <TestGrid data={userData} columns={userColumns} setData={() => { }} />
-                          :
-                          null
+                          // ? isLoading
+                          //   ? <Loading />
+                          //   : isError
+                          //     ? <Error path='/home' />
+                          ? <UserDetails data={userData} columns={userColumns} />
+                          : null
                       }
                       {
                         toggleTabType === 'Role'
-                          ?
-                          < RoleDetails setModalIsOpen={setModalIsOpen} setRole={setCurrentRoleData} />
-                          :
-                          null
-                      }
-                      {
-                        toggleTabType === 'Permission'
-                          ?
-                          <PermissionDetails data={permissionData} column={PermissionColumns} />
-                          :
-                          null
+                          ? < RoleDetails setModalIsOpen={setModalIsOpen} setRoleId={setCurrentRoleId} refetch={refetch} setRefetch={setRefetch} />
+                          : null
                       }
                     </>
                   </div>
@@ -305,27 +231,20 @@ export const UserManagement = () => {
       </div>
       <Modal show={modalIsOpen} onHide={() => setModalIsOpen(prev => !prev)} size={'xl'} scrollable={true} centered={true} >
         <Modal.Header closeButton={true}>
-          <Modal.Title>{toggleTabType ? 'Add User' : 'Add a Role'}</Modal.Title>
+          <Modal.Title>{toggleTabType === 'User' ? 'Add User' : 'Role & Permission'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {
             toggleTabType === 'User'
               ?
-              <UserForm setModalIsOpen={setModalIsOpen} userData={currentUserData} />
+              <UserForm setModalIsOpen={setModalIsOpen} userId={currentUserId} setRefetch={setRefetch} />
               :
               null
           }
           {
             toggleTabType === 'Role'
               ?
-              <RoleForm setModalIsOpen={setModalIsOpen} RoleData={currentRoleData} />
-              :
-              null
-          }
-          {
-            toggleTabType === 'Permission'
-              ?
-              <PermissionForm />
+              <RoleForm setModalIsOpen={setModalIsOpen} RoleId={currentRoleId} setRefetch={setRefetch} />
               :
               null
           }

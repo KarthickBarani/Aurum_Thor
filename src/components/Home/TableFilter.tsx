@@ -21,7 +21,7 @@ export const TableFilter = (props: {
                 <div className="card-toolbar">
                     <span className='sm-ms-auto'><input value={props.globalFilter || ''} onChange={e => { props.setGlobalFilter(e.target.value) }} className='form-control form-control-sm form-control-solid' placeholder='Search Here' /></span>
                     <div className='dropdown'>
-                        <button type="button" className="btn btn-sm btn-light m-2 dropdown-toggle" data-bs-toggle="dropdown" >
+                        <button type="button" className="btn btn-sm btn-light m-2 dropdown-toggle" data-bs-toggle="dropdown" disabled={true} >
                             Columns
                         </button>
                         <div className="dropdown-menu dropdown-menu-end mt-3 me-3" >

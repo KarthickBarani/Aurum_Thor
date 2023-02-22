@@ -1,7 +1,4 @@
-import { Field } from "formik"
-import { string } from "yup"
-import { number } from "yup/lib/locale"
-import { WorkFlow } from "../../pages/WorkFlow"
+
 
 export type expensesType = {
     ExpenseId: number,
@@ -177,6 +174,7 @@ export type userProfileType = {
     Active: boolean
     ResetRequired: boolean
     RoleId: number
+    Roles: any[]
 }
 
 export type WorkFlowFields = {
@@ -241,9 +239,10 @@ export type AuthUser = {
     Message: string
     Status: boolean
     User: userProfileType
+    AccessToken: string
 }
 
-export type ApprovalHistory = {
+export type ApprovalHistoryProps = {
     ApproverName: string
     Status: number
     Level: number

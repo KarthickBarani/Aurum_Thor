@@ -1,11 +1,11 @@
 import moment from "moment"
 
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { axiosGet, axiosPost } from '../../helpers/Axios'
 import { AddSvg, CopySvg, RecallSvg, RemoveSvg } from '../Svg/Svg'
 import { TableFilterComponent } from '../components/TableComponent'
 import { SweetAlert } from "../../Function/alert"
-import { Header } from "../Settings/Header"
+import { PermissionContext } from "../../router/Router"
 
 
 export const LineItems = (props:
@@ -21,6 +21,7 @@ export const LineItems = (props:
         invoiceNumber: string
     }) => {
 
+    const CurrentPermission = useContext(PermissionContext)
 
     const [checkAll, setCheckAll] = useState<boolean>(false)
     const [checkAnyOne, setCheckAnyOne] = useState<boolean>(false)
@@ -288,6 +289,22 @@ export const LineItems = (props:
         setIsEdit(true)
     }
 
+
+    const accessMethod = (operation: 'Read' | 'Create' | 'Update' | 'Delete', pageName: 'Approval' | 'UserManagement' | 'Invoice' | 'Workflow' | 'Settings', sectionName: string, fieldName?: string): boolean => {
+        if (CurrentPermission && CurrentPermission?.permission.Permission.length > 0) {
+            if (fieldName) {
+                try {
+                    return CurrentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Value.find(value => value.Field === fieldName).Operation[operation]
+
+                } catch {
+                    return false
+                }
+            }
+            return CurrentPermission?.permission.Permission.find(permission => permission.Name === pageName)?.Sections.find(section => section.Field.Type === sectionName).Field.Operation[operation]
+        }
+        return false
+    }
+
     const saveColumnOrder = (array) => {
         axiosPost('/UserPreference', {
             UserId: props.userId,
@@ -307,26 +324,6 @@ export const LineItems = (props:
 
 
 
-
-    // useEffect(() => {
-    //     if (afterDragElement.length > 0) {
-    //         const array: any[] = []
-    //         const reminingColumns: any[] = []
-    //         afterDragElement.forEach((el) => {
-    //             array.push(customColumns.find(arr => arr.headerName === el.header))
-    //         })
-    //         array.shift()
-    //         customColumns.forEach(Column => {
-    //             if (!array.includes(Column)) return reminingColumns.push(Column)
-    //         })
-    //         const Finalarray = array.concat(reminingColumns)
-    //         if (Finalarray.length > 0) {
-    //             setCustomColumns(Finalarray)
-    //             saveColumnOrder(Finalarray)
-    //         }
-    //     }
-    // }, [afterDragElement])
-
     return (
         <>
             <div className="d-flex justify-content-between">
@@ -335,38 +332,58 @@ export const LineItems = (props:
                         <TableFilterComponent columns={customColumns} setColumns={setCustomColumns} datum={props.datum} setDatum={setFilterDatum} columnFilter={true} />
                     </>
                 </div>
-                <div>
-                    {checkAnyOne
+                {
+                    accessMethod('Read', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`)
                         ?
-                        <>
-                            {props.isExpense
-                                ?
-                                <button title="Copy" onClick={copyHandler} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
-                                    <CopySvg clsName='svg-icon svg-icon-3 svg-icon-primary' />
-                                </button>
-                                :
-                                null
-                            }
-                            <button onClick={removeHandler} title="Delete" className="btn btn-active-light-danger btn-icon btn-sm m-1 btn-hover-rise">
-                                <RemoveSvg clsName='svg-icon svg-icon-3 svg-icon-danger' />
-                            </button>
-                        </>
+                        null
                         :
-                        <>
-                            {props.isExpense
-                                ?
-                                <button title="Recall" onClick={recallHandler} className="btn btn-active-light-success btn-icon btn-sm m-1 btn-hover-rise">
-                                    {isLoading ? <span className="spinner-border spinner-border-sm text-primary"></span> : <RecallSvg clsName='svg-icon svg-icon-success svg-icon-3' />}
-                                </button>
-                                :
-                                null
+                        <div>
+                            {
+                                checkAnyOne
+                                    ?
+                                    <>
+                                        {props.isExpense
+                                            ?
+                                            <button title="Copy" onClick={copyHandler} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
+                                                <CopySvg clsName='svg-icon svg-icon-3 svg-icon-primary' />
+                                            </button>
+                                            :
+                                            null
+                                        }
+                                        {
+                                            accessMethod('Delete', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`)
+                                                ?
+                                                <button onClick={removeHandler} title="Delete" className="btn btn-active-light-danger btn-icon btn-sm m-1 btn-hover-rise">
+                                                    <RemoveSvg clsName='svg-icon svg-icon-3 svg-icon-danger' />
+                                                </button>
+                                                :
+                                                null
+
+                                        }
+                                    </>
+                                    :
+                                    <>
+                                        {props.isExpense
+                                            ?
+                                            <button title="Recall" onClick={recallHandler} className="btn btn-active-light-success btn-icon btn-sm m-1 btn-hover-rise">
+                                                {isLoading ? <span className="spinner-border spinner-border-sm text-primary"></span> : <RecallSvg clsName='svg-icon svg-icon-success svg-icon-3' />}
+                                            </button>
+                                            :
+                                            null
+                                        }
+                                        {
+                                            accessMethod('Create', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`)
+                                                ?
+                                                <button title="Add" onClick={addHandler} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
+                                                    <AddSvg clsName='svg-icon svg-icon-3 svg-icon-primary mx-1' />
+                                                </button>
+                                                :
+                                                null
+                                        }
+                                    </>
                             }
-                            <button title="Add" onClick={addHandler} className="btn btn-active-light-primary btn-icon btn-sm m-1 btn-hover-rise">
-                                <AddSvg clsName='svg-icon svg-icon-3 svg-icon-primary mx-1' />
-                            </button>
-                        </>
-                    }
-                </div>
+                        </div>
+                }
 
             </div>
             <div className="table-responsive">
@@ -375,11 +392,17 @@ export const LineItems = (props:
                         <>
                             <thead>
                                 <tr className='fw-bolder fs-6 text-gray-800 border-bottom-2 border-gray-200 draggableContainer'>
-                                    <th key={'masterCheck'}>
-                                        <div className="form-check form-check-custom form-check-solid form-check-sm">
-                                            <input name='masterCheck' className="form-check-input" type="checkbox" checked={checkAll} onChange={masterCheckHandler} />
-                                        </div>
-                                    </th>
+                                    {
+                                        accessMethod('Read', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`)
+                                            ?
+                                            null
+                                            :
+                                            <th key={'masterCheck'}>
+                                                <div className="form-check form-check-custom form-check-solid form-check-sm">
+                                                    <input name='masterCheck' className="form-check-input" type="checkbox" checked={checkAll} onChange={masterCheckHandler} />
+                                                </div>
+                                            </th>
+                                    }
                                     {customColumns.map(header => {
                                         return header?.hidden ? null : <th key={header?.headerName} draggable={header?.draggable} className={header?.className}>{header?.headerName}</th>
                                     })}
@@ -390,17 +413,23 @@ export const LineItems = (props:
                                     filterDatum.length > 0 ?
                                         filterDatum?.map((data, index) => (
                                             <tr key={props.isExpense ? data?.ExpenseId : data?.LineItemId} >
-                                                <td key={0}>
-                                                    <div className="form-check form-check-custom form-check-solid form-check-sm">
-                                                        <input name="isCheck" className="form-check-input" type="checkbox" checked={data?.isCheck} onChange={e => changeHandler(e, index)} />
-                                                    </div>
-                                                </td>
+                                                {
+                                                    accessMethod('Read', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`)
+                                                        ?
+                                                        null
+                                                        :
+                                                        <td key={0}>
+                                                            <div className="form-check form-check-custom form-check-solid form-check-sm">
+                                                                <input name="isCheck" className="form-check-input" type="checkbox" checked={data?.isCheck} onChange={e => changeHandler(e, index)} />
+                                                            </div>
+                                                        </td>
+                                                }
                                                 {customColumns.map(header => {
                                                     return header.hidden ?
                                                         null
                                                         :
                                                         (
-                                                            <td key={header.accessor} id={header.accessor} onDoubleClick={e => editHandler(e, index)} onBlur={() => setIsEdit(false)}>
+                                                            <td key={header.accessor} id={header.accessor} onDoubleClick={e => editHandler(e, index)} onBlur={() => setIsEdit(false)} style={(accessMethod('Update', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`) && accessMethod('Update', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`, header.accessor)) ? { cursor: 'alias' } : {}}>
                                                                 {
                                                                     header.input
                                                                         ?
@@ -411,7 +440,7 @@ export const LineItems = (props:
                                                                             )}
                                                                         </select>
                                                                         :
-                                                                        header.isEdit && isEdit && (currentInput === header.accessor + index) ? <input type={header.type} className='form-control form-control-transparent form-control-sm' autoFocus name={header.accessor} value={data[header.accessor]} onChange={e => changeHandler(e, index)} />
+                                                                        header.isEdit && isEdit && (currentInput === header.accessor + index) && (accessMethod('Update', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`) && accessMethod('Update', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`, header.accessor)) ? <input type={header.type} className='form-control form-control-transparent form-control-sm' autoFocus name={header.accessor} value={data[header.accessor]} onChange={e => changeHandler(e, index)} />
                                                                             :
                                                                             header?.cell ? header?.cell(data, index) : data[header.accessor]
                                                                 }
@@ -428,7 +457,13 @@ export const LineItems = (props:
                                 <tr className="fw-bold fs-6 text-gray-800 border-top border-gray-200">
                                     {
                                         <>
-                                            <td key={0}></td>
+                                            {
+                                                accessMethod('Read', 'Invoice', `${props.isExpense ? 'Expense' : 'LineItem'}`)
+                                                    ?
+                                                    null
+                                                    :
+                                                    <td key={0}></td>
+                                            }
                                             {customColumns?.map(
                                                 col => col.hidden ? null : <td className="fw-bolder fs-6 text-gray-800" key={col.id}>{col?.footer ? col?.footer(props.datum) : null}</td>
                                             )}
